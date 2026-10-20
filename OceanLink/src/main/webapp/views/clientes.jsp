@@ -99,7 +99,7 @@
                     <% if ("Activo".equals(c.getEstado())) { %>
                         <span class="pill pill-ok"><span class="dot"></span>Activo</span>
                     <% } else { %>
-                        <span class="pill pill-warn"><span class="dot"></span>Inactivo</span>
+                        <span class="pill" style="background:#f3c3c8;color:#9e1b2b"><span class="dot" style="background:#d62839"></span>Inactivo</span>
                     <% } %>
                   </td>
                   <td>

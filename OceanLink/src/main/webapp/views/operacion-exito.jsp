@@ -18,6 +18,16 @@
         nombreModulo = "clientes";
         if ("crear".equals(operacion)) { titulo = "Cliente registrado"; mensaje = "El cliente corporativo quedó registrado con éxito."; }
         else if ("editar".equals(operacion)) { titulo = "Cliente actualizado"; mensaje = "Los datos del cliente corporativo fueron actualizados con éxito."; }
+    } else if ("landing".equals(modulo)) {
+        link = request.getContextPath() + "/LandingStationServlet?action=lista";
+        nombreModulo = "landing stations";
+        if ("crear".equals(operacion)) { titulo = "Estación registrada"; mensaje = "La landing station quedó registrada con éxito."; }
+        else if ("editar".equals(operacion)) { titulo = "Estación actualizada"; mensaje = "Los datos de la landing station fueron actualizados con éxito."; }
+    } else if ("redes".equals(modulo)) {
+        link = request.getContextPath() + "/RedesSubmarinasServlet?action=lista";
+        nombreModulo = "redes submarinas";
+        if ("crear".equals(operacion)) { titulo = "Segmento registrado"; mensaje = "El segmento submarino quedó registrado con éxito."; }
+        else if ("editar".equals(operacion)) { titulo = "Segmento actualizado"; mensaje = "Los datos del segmento submarino fueron actualizados con éxito."; }
     }
 %>
 <!DOCTYPE html>
@@ -42,8 +52,8 @@
       <a class="nav-item" href="<%= request.getContextPath() %>/PanelServlet"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Panel</span></a>
       <a class="nav-item <%= "usuario".equals(modulo) ? "active" : "" %>" href="<%= request.getContextPath() %>/UsuarioServlet?action=lista"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.2a3 3 0 0 1 0 5.6M17.5 19a5 5 0 0 0-2.5-4.3"/></svg><span>Usuarios</span></a>
       <a class="nav-item <%= "cliente".equals(modulo) ? "active" : "" %>" href="<%= request.getContextPath() %>/ClienteServlet?action=lista"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg><span>Clientes</span></a>
-      <a class="nav-item" href="<%= request.getContextPath() %>/LandingStationServlet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 11 16m6.3-8.7L13 16"/></svg><span>Landing Stations</span></a>
-      <a class="nav-item" href="<%= request.getContextPath() %>/RedesSubmarinasServlet"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Redes submarinas</span></a>
+      <a class="nav-item <%= "landing".equals(modulo) ? "active" : "" %>" href="<%= request.getContextPath() %>/LandingStationServlet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 11 16m6.3-8.7L13 16"/></svg><span>Landing Stations</span></a>
+      <a class="nav-item <%= "redes".equals(modulo) ? "active" : "" %>" href="<%= request.getContextPath() %>/RedesSubmarinasServlet"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Redes submarinas</span></a>
     </nav>
     <div class="side-foot">
       <div class="role-badge">
