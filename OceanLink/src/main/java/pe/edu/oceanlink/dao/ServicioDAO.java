@@ -22,7 +22,7 @@ public class ServicioDAO {
         s.setOrigen(rs.getString("origen"));
         s.setDestino(rs.getString("destino"));
         s.setCapacidadContratada(rs.getBigDecimal("capacidadContratada"));
-        Date fecha = rs.getDate("fechaActivacion");
+        java.sql.Date fecha = rs.getDate("fechaActivacion");
         s.setFechaActivacion(fecha == null ? null : fecha.toLocalDate());
         s.setEstado(rs.getString("estado"));
         s.setClienteNombre(rs.getString("clienteNombre"));
@@ -98,7 +98,7 @@ public class ServicioDAO {
         try(Connection c=conectar();PreparedStatement ps=c.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)){
             ps.setString(1,s.getCodigo());ps.setInt(2,s.getIdCliente());ps.setInt(3,s.getIdRuta());
             ps.setString(4,s.getOrigen());ps.setString(5,s.getDestino());
-            ps.setBigDecimal(6,s.getCapacidadContratada());ps.setDate(7,Date.valueOf(s.getFechaActivacion()));
+            ps.setBigDecimal(6,s.getCapacidadContratada());ps.setDate(7,java.sql.Date.valueOf(s.getFechaActivacion()));
             ps.setString(8,s.getEstado());
             if(ps.executeUpdate()!=1)throw new SQLException("No se insertó el servicio");
             try(ResultSet keys=ps.getGeneratedKeys()){if(keys.next())return keys.getInt(1);}
