@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 @WebServlet(name="ServicioServlet", urlPatterns="/ServicioServlet")
 public class ServicioServlet extends HttpServlet {
@@ -79,7 +78,7 @@ public class ServicioServlet extends HttpServlet {
                 if(!dao.cambiarEstado(id,estado)) throw new SQLException("No se actualizó el estado");
                 resp.sendRedirect(req.getContextPath()+"/ServicioServlet?action=detalle&cliente="+idCliente+"&actualizado=1");
             } else resp.sendError(400,"Acción desconocida");
-        } catch(IllegalArgumentException | DateTimeParseException e) {
+        } catch(IllegalArgumentException e) {
             resp.sendError(400,"Datos inválidos: "+e.getMessage());
         } catch(SQLException e) { throw new ServletException("Error al guardar el servicio",e); }
     }
