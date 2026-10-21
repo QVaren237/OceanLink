@@ -107,16 +107,16 @@
               <input class="input" type="number" step="0.01" min="0" name="capacidadTotal" id="fCapTotal" value="<%= s != null ? s.getCapacidadTotal() : "" %>"><div class="err" id="eCapTotal" style="display:none;">Ingrese un número válido.</div>
             </div>
             <div class="field">
-              <label>Longitud (Km)</label>
-              <input class="input" type="number" step="0.01" min="0" name="longitudKm" id="fLongitud" value="<%= s != null ? s.getLongitudKm() : "" %>">
+              <label>Longitud (Km) (*)</label>
+              <input class="input" type="number" step="0.01" min="0" name="longitudKm" id="fLongitud" value="<%= s != null ? s.getLongitudKm() : "" %>"><div class="err" id="eLongitud" style="display:none;">Ingrese un número válido.</div>
             </div>
             <div class="field">
-              <label>Capacidad utilizada (Gbps)</label>
-              <input class="input" type="number" step="0.01" min="0" name="capacidadUtilizada" id="fCapUtil" value="<%= s != null ? s.getCapacidadUtilizada() : "" %>">
+              <label>Capacidad utilizada (Gbps) (*)</label>
+              <input class="input" type="number" step="0.01" min="0" name="capacidadUtilizada" id="fCapUtil" value="<%= s != null ? s.getCapacidadUtilizada() : "" %>"><div class="err" id="eCapUtil" style="display:none;">Ingrese un número válido.</div>
             </div>
             <div class="field">
-              <label>Capacidad reservada (Gbps)</label>
-              <input class="input" type="number" step="0.01" min="0" name="capacidadReservada" id="fCapRes" value="<%= s != null ? s.getCapacidadReservada() : "" %>">
+              <label>Capacidad reservada (Gbps) (*)</label>
+              <input class="input" type="number" step="0.01" min="0" name="capacidadReservada" id="fCapRes" value="<%= s != null ? s.getCapacidadReservada() : "" %>"><div class="err" id="eCapRes" style="display:none;">Ingrese un número válido.</div>
             </div>
             <div class="field">
               <label>Estado (*)</label>
@@ -195,6 +195,15 @@ function showConfirm() {
 
     var capTotal = document.getElementById("fCapTotal").value.trim();
     checkField("fCapTotal", "eCapTotal", capTotal === "" || isNaN(capTotal) || Number(capTotal) < 0);
+
+    var longitud = document.getElementById("fLongitud").value.trim();
+    checkField("fLongitud", "eLongitud", longitud === "" || isNaN(longitud) || Number(longitud) < 0);
+
+    var capUtil = document.getElementById("fCapUtil").value.trim();
+    checkField("fCapUtil", "eCapUtil", capUtil === "" || isNaN(capUtil) || Number(capUtil) < 0);
+
+    var capRes = document.getElementById("fCapRes").value.trim();
+    checkField("fCapRes", "eCapRes", capRes === "" || isNaN(capRes) || Number(capRes) < 0);
 
     // El destino no puede ser igual al origen
     var origen = document.getElementById("fOrigen").value;
