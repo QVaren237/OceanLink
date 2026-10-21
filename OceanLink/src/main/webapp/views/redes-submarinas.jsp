@@ -99,6 +99,10 @@
                   <td data-sort="<%= s.getEstado() %>">
                     <% if (operativo) { %>
                         <span class="pill pill-ok"><span class="dot"></span><%= s.getEstado() %></span>
+                    <% } else if ("Fuera de servicio".equals(s.getEstado())) { %>
+                        <span class="pill" style="background:#f3c3c8;color:#9e1b2b"><span class="dot" style="background:#d62839"></span><%= s.getEstado() %></span>
+                    <% } else if ("Degradado".equals(s.getEstado())) { %>
+                        <span class="pill" style="background:#e7e0f6;color:#5b4b8a"><span class="dot" style="background:#8f7fc0"></span><%= s.getEstado() %></span>
                     <% } else { %>
                         <span class="pill pill-warn"><span class="dot"></span><%= s.getEstado() %></span>
                     <% } %>
