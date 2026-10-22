@@ -15,7 +15,7 @@ public class LandingStationDAO {
     public void crearLandingStation(LandingStation ls) {
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -38,7 +38,7 @@ public class LandingStationDAO {
         ArrayList<LandingStation> lista = new ArrayList<>();
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(url, user, pass);
@@ -64,7 +64,7 @@ public class LandingStationDAO {
         LandingStation ls = null;
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -92,7 +92,7 @@ public class LandingStationDAO {
     public void actualizarLandingStation(LandingStation ls) {
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -115,7 +115,7 @@ public class LandingStationDAO {
     public void cambiarEstado(String id, String nuevoEstado) {
         String url = "jdbc:mysql://localhost:3306/oceanlink";
         String user = "root";
-        String pass = "root";
+        String pass = "070501";
         String sql = "UPDATE landing_station SET estado = ? WHERE idLandingStation = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
