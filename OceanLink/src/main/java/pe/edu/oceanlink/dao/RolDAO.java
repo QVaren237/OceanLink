@@ -16,7 +16,7 @@ public class RolDAO {
         ArrayList<Rol> listaRoles = new ArrayList<>();
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass);
@@ -40,7 +40,7 @@ public class RolDAO {
         int total = 0;
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass);
