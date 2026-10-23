@@ -1,0 +1,17 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.Incidencia" %>
+<%! private String e(Object v){return v==null?"":String.valueOf(v).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
+<%
+List<Incidencia> lista=(List<Incidencia>)request.getAttribute("lista");
+String buscar=request.getParameter("buscar")==null?"":request.getParameter("buscar");
+String estado=request.getParameter("estado")==null?"":request.getParameter("estado");
+%>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Incidencias · OceanLink</title><link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css"></head>
+<body><main class="page" style="max-width:1200px;margin:35px auto;padding:24px">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>NETWORK OPERATOR</p><h1>Gestión de incidencias</h1><p>Incidencias registradas en la base de datos.</p></div><a class="btn btn-primary" href="<%=request.getContextPath()%>/IncidenciaServlet?action=nuevo">+ Registrar incidencia</a></header>
+<form method="get" action="<%=request.getContextPath()%>/IncidenciaServlet" style="display:flex;gap:10px;flex-wrap:wrap;margin:22px 0"><input type="hidden" name="action" value="lista"><input class="input" name="buscar" placeholder="Buscar código o título" value="<%=e(buscar)%>"><select class="input" name="estado"><option value="">Todos los estados</option><% for(String x:new String[]{"Abierta","En atención","Resuelta","Cerrada"}){ %><option <%=x.equals(estado)?"selected":""%>><%=x%></option><% } %></select><button class="btn btn-primary" type="submit">Buscar</button><a class="btn" href="<%=request.getContextPath()%>/IncidenciaServlet">Limpiar</a></form>
+<div style="overflow-x:auto"><table class="table" style="width:100%;border-collapse:collapse"><thead><tr><th>Código</th><th>Título</th><th>Severidad</th><th>Estado</th><th>Fecha</th><th>Segmentos</th><th>Acciones</th></tr></thead><tbody>
+<% if(lista==null||lista.isEmpty()){ %><tr><td colspan="7">No hay incidencias para mostrar.</td></tr><% }else for(Incidencia i:lista){ %>
+<tr><td><%=e(i.getCodigo())%></td><td><%=e(i.getTitulo())%></td><td><%=e(i.getSeveridad())%></td><td><%=e(i.getEstado())%></td><td><%=e(i.getFechaDeteccion())%></td><td><%=e(i.getSegmentos())%></td><td style="white-space:nowrap"><a href="<%=request.getContextPath()%>/IncidenciaServlet?action=editar&id=<%=i.getIdIncidencia()%>">Editar</a> · <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=observaciones&id=<%=i.getIdIncidencia()%>">Observaciones</a>
+<form method="post" action="<%=request.getContextPath()%>/IncidenciaServlet" style="display:inline" onsubmit="return confirm('¿Eliminar esta incidencia?')"><input type="hidden" name="action" value="eliminar"><input type="hidden" name="id" value="<%=i.getIdIncidencia()%>"><button type="submit">Eliminar</button></form></td></tr>
+<% } %></tbody></table></div><p><a href="<%=request.getContextPath()%>/PanelServlet">Volver al panel</a></p></main></body></html>
