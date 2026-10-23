@@ -1,0 +1,12 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.Incidencia" %>
+<%! private String e(Object v){return v==null?"":String.valueOf(v).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
+<% Incidencia i=(Incidencia)request.getAttribute("incidencia"); List<Map<String,Object>> segmentos=(List<Map<String,Object>>)request.getAttribute("segmentos"); boolean editar=i!=null; %>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%=editar?"Editar":"Registrar"%> incidencia · OceanLink</title><link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css"></head><body><main style="max-width:800px;margin:35px auto;padding:24px"><h1><%=editar?"Editar incidencia":"Registrar incidencia"%></h1><form method="post" action="<%=request.getContextPath()%>/IncidenciaServlet">
+<input type="hidden" name="action" value="<%=editar?"actualizar":"crear"%>"><%if(editar){%><input type="hidden" name="id" value="<%=i.getIdIncidencia()%>"><p>Código: <strong><%=e(i.getCodigo())%></strong></p><%}%>
+<label>Título</label><input class="input" name="titulo" maxlength="150" required value="<%=editar?e(i.getTitulo()):""%>">
+<label>Descripción</label><textarea class="input" name="descripcion" rows="4"><%=editar?e(i.getDescripcion()):""%></textarea>
+<label>Severidad</label><select class="input" name="severidad" required><%for(String x:new String[]{"Baja","Media","Alta","Crítica"}){%><option <%=editar&&x.equals(i.getSeveridad())?"selected":""%>><%=x%></option><%}%></select>
+<label>Estado</label><select class="input" name="estado" required><%for(String x:new String[]{"Abierta","En atención","Resuelta","Cerrada"}){%><option <%=editar&&x.equals(i.getEstado())?"selected":""%>><%=x%></option><%}%></select>
+<label>Segmentos de red afectados</label><div style="display:grid;gap:8px;margin:10px 0"><%if(segmentos!=null)for(Map<String,Object> s:segmentos){%><label><input type="checkbox" name="segmentos" value="<%=s.get("id")%>"> <%=e(s.get("codigo"))%></label><%}%></div>
+<button class="btn btn-primary" type="submit">Guardar</button> <a class="btn" href="<%=request.getContextPath()%>/IncidenciaServlet">Cancelar</a></form></main></body></html>
