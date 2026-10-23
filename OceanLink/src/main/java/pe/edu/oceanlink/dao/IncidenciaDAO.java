@@ -137,6 +137,28 @@ public class IncidenciaDAO {
         }
     }
 
+    public List<Map<String,Object>> listarEstadoRed(String buscar,String estado) throws SQLException {
+        List<Map<String,Object>> lista=new ArrayList<>();
+        String texto=buscar==null?"":buscar.trim(), filtro="%"+texto+"%";
+        String sql="SELECT s.idSegmento,s.codigo,s.capacidadTotal,s.capacidadUtilizada,s.capacidadReservada,s.estado,"+
+            "eo.nombre AS origen,ed.nombre AS destino,"+
+            "CASE WHEN s.capacidadTotal>0 THEN ROUND((s.capacidadUtilizada+s.capacidadReservada)*100/s.capacidadTotal,2) ELSE 0 END AS utilizacion "+
+            "FROM segmento s JOIN landing_station eo ON eo.idLandingStation=s.idEstacionOrigen "+
+            "JOIN landing_station ed ON ed.idLandingStation=s.idEstacionDestino "+
+            "WHERE (?='' OR s.codigo LIKE ? OR eo.nombre LIKE ? OR ed.nombre LIKE ?) "+
+            "AND (?='' OR s.estado=?) ORDER BY s.codigo";
+        try(Connection c=conectar();PreparedStatement ps=c.prepareStatement(sql)){
+            ps.setString(1,texto);ps.setString(2,filtro);ps.setString(3,filtro);ps.setString(4,filtro);
+            ps.setString(5,estado==null?"":estado);ps.setString(6,estado==null?"":estado);
+            try(ResultSet rs=ps.executeQuery()){while(rs.next()){
+                Map<String,Object> m=new HashMap<>();m.put("id",rs.getInt("idSegmento"));m.put("codigo",rs.getString("codigo"));
+                m.put("origen",rs.getString("origen"));m.put("destino",rs.getString("destino"));m.put("estado",rs.getString("estado"));
+                m.put("total",rs.getBigDecimal("capacidadTotal"));m.put("utilizada",rs.getBigDecimal("capacidadUtilizada"));
+                m.put("reservada",rs.getBigDecimal("capacidadReservada"));m.put("utilizacion",rs.getBigDecimal("utilizacion"));lista.add(m);
+            }}
+        }return lista;
+    }
+
     public void agregarObservacion(int idIncidencia,int idUsuario,String tipo,String observacion) throws SQLException {
         String sql="INSERT INTO incidencia_observacion(idIncidencia,idUsuario,tipo,observacion) VALUES(?,?,?,?)";
         try(Connection c=conectar();PreparedStatement ps=c.prepareStatement(sql)){
