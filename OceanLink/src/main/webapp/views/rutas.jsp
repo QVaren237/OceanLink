@@ -5,7 +5,6 @@
 <%@ page import="pe.edu.oceanlink.bean.RutaSegmento" %>
 <%@ page import="pe.edu.oceanlink.bean.LandingStation" %>
 <%!
-    // Escape para texto y atributos HTML; nunca insertar datos en JavaScript inline.
     private String h(Object valor) {
         return valor == null ? "" : valor.toString().replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
