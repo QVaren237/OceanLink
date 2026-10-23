@@ -21,7 +21,7 @@ public class IncidenciaServlet extends HttpServlet {
         if(id instanceof Number) return ((Number)id).intValue();
         Object usuario=sesion.getAttribute("usuario");
         if(usuario instanceof Usuario) {
-            try { return Integer.parseInt(((Usuario)usuario).getIdUsuario()); }
+            try { return ((Usuario)usuario).getIdUsuario(); }
             catch(Exception ignored) { }
         }
         return 0;
