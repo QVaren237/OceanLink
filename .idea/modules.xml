@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/OceanLink.iml" filepath="$PROJECT_DIR$/.idea/OceanLink.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/OceanLink-Crud-CapacityPlanner.iml" filepath="$PROJECT_DIR$/.idea/OceanLink-Crud-CapacityPlanner.iml" />
     </modules>
   </component>
 </project>

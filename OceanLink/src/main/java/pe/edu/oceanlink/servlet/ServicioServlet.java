@@ -1,114 +1,171 @@
 package pe.edu.oceanlink.servlet;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import pe.edu.oceanlink.bean.Cliente;
+import pe.edu.oceanlink.bean.Ruta;
 import pe.edu.oceanlink.bean.Servicio;
+import pe.edu.oceanlink.dao.ClienteDAO;
+import pe.edu.oceanlink.dao.RutaDAO;
 import pe.edu.oceanlink.dao.ServicioDAO;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.UUID;
 
-@WebServlet(name="ServicioServlet", urlPatterns="/ServicioServlet")
+/** Controlador MVC de servicios contratados del Capacity Planner. */
+@WebServlet(name = "ServicioServlet", value = "/capacity-planner/servicios")
 public class ServicioServlet extends HttpServlet {
-    private final ServicioDAO dao = new ServicioDAO();
 
-    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        String action = req.getParameter("action") == null ? "lista" : req.getParameter("action");
+        request.setCharacterEncoding("UTF-8");
+        String action = request.getParameter("action");
+        if (action == null || action.isBlank()) action = "lista";
+
+        ServicioDAO servicioDAO = new ServicioDAO();
+        ClienteDAO clienteDAO = new ClienteDAO();
+        RutaDAO rutaDAO = new RutaDAO();
+        RequestDispatcher view;
         try {
-            switch(action) {
+            switch (action) {
                 case "lista":
-                    req.setAttribute("clientes", dao.listarClientes());
-                    req.getRequestDispatcher("/views/servicios.jsp").forward(req,resp);
+                    request.setAttribute("clientes", clienteDAO.obtenerListaTrabajos());
+                    view = request.getRequestDispatcher("/views/servicios.jsp");
+                    view.forward(request, response);
                     break;
-                case "detalle":
-                    int cliente = entero(req.getParameter("cliente"));
-                    String nombre = dao.nombreCliente(cliente);
-                    if(nombre == null) { resp.sendError(404,"Cliente no encontrado"); return; }
-                    req.setAttribute("clienteId",cliente);
-                    req.setAttribute("clienteNombre",nombre);
-                    req.setAttribute("lista",dao.listar(cliente));
-                    req.getRequestDispatcher("/views/servicios.jsp").forward(req,resp);
+                case "detalle": {
+                    int idCliente = idPositivo(request.getParameter("cliente"));
+                    Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
+                    if (cliente == null) {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Cliente inexistente");
+                        return;
+                    }
+                    request.setAttribute("cliente", cliente);
+                    request.setAttribute("lista", servicioDAO.obtenerServiciosPorCliente(idCliente));
+                    view = request.getRequestDispatcher("/views/servicio-detalle.jsp");
+                    view.forward(request, response);
                     break;
-                case "formCrear":
-                    int id = entero(req.getParameter("cliente"));
-                    if(!dao.clienteActivo(id)) { resp.sendError(400,"Selecciona un cliente activo"); return; }
-                    req.setAttribute("clienteId",id);
-                    req.setAttribute("clienteNombre",dao.nombreCliente(id));
-                    req.setAttribute("rutas",dao.listarRutas());
-                    req.getRequestDispatcher("/views/servicio-form.jsp").forward(req,resp);
-                    break;
-                default: resp.sendError(400,"Acción desconocida");
-            }
-        } catch(IllegalArgumentException e) { resp.sendError(400,e.getMessage()); }
-          catch(SQLException e) { throw new ServletException("Error consultando servicios",e); }
-    }
-
-    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        String action = req.getParameter("action");
-        try {
-            if("confirmar".equals(action)) {
-                Servicio s = validar(req);
-                req.setAttribute("servicio",s);
-                req.setAttribute("clienteNombre",dao.nombreCliente(s.getIdCliente()));
-                req.setAttribute("rutaNombre",dao.nombreRuta(s.getIdRuta()));
-                req.getRequestDispatcher("/views/servicio-confirm.jsp").forward(req,resp);
-            } else if("guardar".equals(action)) {
-                Servicio s = validar(req); // Revalidar todos los campos, sin confiar en los ocultos.
-                s.setCodigo(dao.proximoCodigo());
-                s.setEstado("Activo");
-                int nuevoId = dao.crear(s);
-                resp.sendRedirect(req.getContextPath()+"/ServicioServlet?action=detalle&cliente="+s.getIdCliente()+"&creado="+nuevoId);
-            } else if("estado".equals(action)) {
-                int id = entero(req.getParameter("idServicio"));
-                int idCliente = entero(req.getParameter("cliente"));
-                String estado = req.getParameter("estado");
-                if(!("Activo".equals(estado)||"Suspendido".equals(estado)||"Cancelado".equals(estado)))
-                    throw new IllegalArgumentException("Estado inválido");
-                Servicio anterior = dao.obtener(id);
-                if(anterior == null || anterior.getIdCliente()!=idCliente) {
-                    resp.sendError(404,"Servicio no encontrado para ese cliente"); return;
                 }
-                if(!dao.cambiarEstado(id,estado)) throw new SQLException("No se actualizó el estado");
-                resp.sendRedirect(req.getContextPath()+"/ServicioServlet?action=detalle&cliente="+idCliente+"&actualizado=1");
-            } else resp.sendError(400,"Acción desconocida");
-        } catch(IllegalArgumentException e) {
-            resp.sendError(400,"Datos inválidos: "+e.getMessage());
-        } catch(SQLException e) { throw new ServletException("Error al guardar el servicio",e); }
+                case "formCrear": {
+                    int idCliente = idPositivo(request.getParameter("cliente"));
+                    Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
+                    if (cliente == null || !"Activo".equals(cliente.getEstado())) {
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El cliente debe estar activo");
+                        return;
+                    }
+                    request.setAttribute("cliente", cliente);
+                    request.setAttribute("rutas", rutaDAO.obtenerListaRutas());
+                    view = request.getRequestDispatcher("/views/servicio-form.jsp");
+                    view.forward(request, response);
+                    break;
+                }
+                default:
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            }
+        } catch (NumberFormatException ex) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Identificador inválido");
+        } catch (SQLException | ClassNotFoundException ex) {
+            throw new ServletException("Error al consultar servicios", ex);
+        }
     }
 
-    private int entero(String v) {
-        if(v == null || !v.matches("[0-9]{1,9}")) throw new IllegalArgumentException("Identificador inválido");
-        int n = Integer.parseInt(v);
-        if(n<=0) throw new IllegalArgumentException("Identificador inválido");
-        return n;
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        String action = request.getParameter("action");
+        ServicioDAO servicioDAO = new ServicioDAO();
+        ClienteDAO clienteDAO = new ClienteDAO();
+        RutaDAO rutaDAO = new RutaDAO();
+        try {
+            if ("confirmar".equals(action)) {
+                Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
+                request.setAttribute("servicio", servicio);
+                request.setAttribute("cliente", clienteDAO.obtenerTrabajo(String.valueOf(servicio.getIdCliente())));
+                request.setAttribute("ruta", rutaDAO.obtenerRuta(servicio.getIdRuta()));
+                request.getRequestDispatcher("/views/servicio-confirm.jsp").forward(request, response);
+            } else if ("guardar".equals(action)) {
+                // Revalidar: nunca confiar en los campos hidden de la pantalla de confirmación.
+                Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
+                servicio.setCodigo("SRV-" + LocalDate.now().getYear() + "-" +
+                        UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+                servicio.setEstado("Activo");
+                int nuevoId = servicioDAO.crearServicio(servicio);
+                response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=detalle&cliente=" +
+                        servicio.getIdCliente() + "&creado=" + nuevoId);
+            } else if ("estado".equals(action)) {
+                int idServicio = idPositivo(request.getParameter("idServicio"));
+                int idCliente = idPositivo(request.getParameter("cliente"));
+                String estado = request.getParameter("estado");
+                if (!("Activo".equals(estado) || "Suspendido".equals(estado) || "Cancelado".equals(estado))) {
+                    throw new IllegalArgumentException("Estado de servicio no válido");
+                }
+                Servicio existente = servicioDAO.obtenerServicio(idServicio);
+                if (existente == null || existente.getIdCliente() != idCliente) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Servicio no encontrado para este cliente");
+                    return;
+                }
+                servicioDAO.cambiarEstado(idServicio, estado);
+                response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=detalle&cliente=" +
+                        idCliente + "&actualizado=1");
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            }
+        } catch (IllegalArgumentException ex) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+        } catch (SQLException | ClassNotFoundException ex) {
+            throw new ServletException("Error al guardar o actualizar el servicio", ex);
+        }
     }
-    private Servicio validar(HttpServletRequest req) throws SQLException {
-        int cliente = entero(req.getParameter("cliente"));
-        int ruta = entero(req.getParameter("ruta"));
-        if(!dao.clienteActivo(cliente)) throw new IllegalArgumentException("El cliente no está activo");
-        String[] extremos = dao.extremosRuta(ruta);
-        if(extremos == null) throw new IllegalArgumentException("La ruta no existe o no está operativa");
-        String cap = req.getParameter("capacidad");
+
+    private int idPositivo(String valor) {
+        int id = Integer.parseInt(valor);
+        if (id <= 0) throw new IllegalArgumentException("El identificador debe ser positivo");
+        return id;
+    }
+
+    private Servicio construirServicio(HttpServletRequest request, ClienteDAO clienteDAO, RutaDAO rutaDAO)
+            throws SQLException, ClassNotFoundException {
+        int idCliente = idPositivo(request.getParameter("cliente"));
+        int idRuta = idPositivo(request.getParameter("ruta"));
+        Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
+        if (cliente == null || !"Activo".equals(cliente.getEstado()))
+            throw new IllegalArgumentException("El cliente no existe o está inactivo");
+        Ruta ruta = rutaDAO.obtenerRuta(idRuta);
+        if (ruta == null || !"Operativa".equals(ruta.getEstado()))
+            throw new IllegalArgumentException("Selecciona una ruta operativa");
+
         BigDecimal capacidad;
-        try { capacidad = new BigDecimal(cap); }
-        catch(RuntimeException e) { throw new IllegalArgumentException("Capacidad inválida"); }
-        if(capacidad.compareTo(BigDecimal.ZERO)<=0 || capacidad.scale()>2 ||
-                capacidad.compareTo(new BigDecimal("9999999999.99"))>0)
-            throw new IllegalArgumentException("La capacidad debe ser positiva y tener máximo dos decimales");
         LocalDate fecha;
-        try { fecha=LocalDate.parse(req.getParameter("fechaActivacion")); }
-        catch(RuntimeException e) { throw new IllegalArgumentException("Fecha inválida"); }
-        Servicio s = new Servicio();
-        s.setIdCliente(cliente); s.setIdRuta(ruta); s.setOrigen(extremos[0]);
-        s.setDestino(extremos[1]); s.setCapacidadContratada(capacidad);
-        s.setFechaActivacion(fecha);
-        return s;
+        try {
+            capacidad = new BigDecimal(request.getParameter("capacidad"));
+            fecha = LocalDate.parse(request.getParameter("fechaActivacion"));
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException("Capacidad o fecha inválidas");
+        }
+        if (capacidad.compareTo(BigDecimal.ZERO) <= 0 || capacidad.scale() > 2 ||
+                capacidad.compareTo(new BigDecimal("9999999999.99")) > 0)
+            throw new IllegalArgumentException("La capacidad debe ser positiva, con hasta dos decimales");
+
+        Servicio servicio = new Servicio();
+        servicio.setIdCliente(idCliente);
+        servicio.setIdRuta(idRuta);
+        // Los nombres se obtienen de RutaDAO, no se aceptan del formulario.
+        servicio.setOrigen(ruta.getNombreOrigen());
+        servicio.setDestino(ruta.getNombreDestino());
+        if (servicio.getOrigen() == null || servicio.getDestino() == null)
+            throw new IllegalArgumentException("La ruta no tiene estaciones de origen y destino definidas");
+        servicio.setCapacidadContratada(capacidad);
+        servicio.setFechaActivacion(fecha);
+        return servicio;
     }
 }
