@@ -17,7 +17,7 @@ public class SolicitudServlet extends HttpServlet {
     private int usuarioActual(HttpServletRequest req){
         HttpSession s=req.getSession(false);if(s==null)return 0;
         Object id=s.getAttribute("idUsuario");if(id instanceof Number)return ((Number)id).intValue();
-        Object u=s.getAttribute("usuario");if(u instanceof Usuario){try{return Integer.parseInt(((Usuario)u).getIdUsuario());}catch(Exception ignored){}}
+        Object u=s.getAttribute("usuario");if(u instanceof Usuario){try{return ((Usuario)u).getIdUsuario();}catch(Exception ignored){}}
         return 0;
     }
     @Override protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
