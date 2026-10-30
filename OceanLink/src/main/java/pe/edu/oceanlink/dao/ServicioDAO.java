@@ -80,7 +80,11 @@ public class ServicioDAO {
                 pstmt.setInt(3, servicio.getIdRuta());
                 pstmt.setString(4, servicio.getOrigen());
                 pstmt.setString(5, servicio.getDestino());
-                pstmt.setBigDecimal(6, servicio.getCapacidadContratada());
+                if (servicio.getCapacidadContratada() == null) {
+                    pstmt.setNull(6, java.sql.Types.DECIMAL);
+                } else {
+                    pstmt.setBigDecimal(6, servicio.getCapacidadContratada());
+                }
                 pstmt.setDate(7, java.sql.Date.valueOf(servicio.getFechaActivacion()));
                 pstmt.setString(8, servicio.getEstado());
                 if (pstmt.executeUpdate() != 1) throw new SQLException("No se registró el servicio");

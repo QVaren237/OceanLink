@@ -147,12 +147,12 @@
           <td><strong><%=esc(servicio.getCodigo())%></strong></td>
           <td><%=esc(servicio.getOrigen())%></td>
           <td><%=esc(servicio.getDestino())%></td>
-          <td><strong><%=servicio.getCapacidadContratada()%> Gbps</strong></td>
+          <td><strong><%=servicio.getCapacidadContratada()==null ? "Pendiente de asignación" : servicio.getCapacidadContratada()+" Gbps"%></strong></td>
           <td data-sort="<%=servicio.getFechaActivacion()%>"><%=servicio.getFechaActivacion()==null?"":servicio.getFechaActivacion().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))%></td>
           <td><span class="pill <%= "Activo".equals(servicio.getEstado())?"pill-ok": "Suspendido".equals(servicio.getEstado())?"pill-warn":"pill-crit" %>"><span class="dot"></span><%=esc(servicio.getEstado())%></span></td>
           <td>
             <div class="detalle-action-group">
-              <button type="button" class="detalle-icon-btn" title="Ver ruta" aria-label="Ver servicio" data-codigo="<%=esc(servicio.getCodigo())%>" data-ruta="<%=esc(servicio.getNombreRuta())%>" data-cliente="<%=esc(cliente.getRazonSocial())%>" data-origen="<%=esc(servicio.getOrigen())%>" data-destino="<%=esc(servicio.getDestino())%>" data-capacidad="<%=servicio.getCapacidadContratada()%>" data-fecha="<%=servicio.getFechaActivacion()%>" data-estado="<%=esc(servicio.getEstado())%>" onclick="verServicio(this)">
+              <button type="button" class="detalle-icon-btn" title="Ver información del servicio" aria-label="Ver servicio" data-codigo="<%=esc(servicio.getCodigo())%>" data-ruta="<%=esc(servicio.getNombreRuta())%>" data-cliente="<%=esc(cliente.getRazonSocial())%>" data-origen="<%=esc(servicio.getOrigen())%>" data-destino="<%=esc(servicio.getDestino())%>" data-capacidad="<%=servicio.getCapacidadContratada()==null ? "" : servicio.getCapacidadContratada()%>" data-fecha="<%=servicio.getFechaActivacion()%>" data-estado="<%=esc(servicio.getEstado())%>" onclick="verServicio(this)">
                 <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               <button type="button" class="detalle-icon-btn" title="Cambiar estado" aria-label="Cambiar estado" data-id="<%=servicio.getIdServicio()%>" data-codigo="<%=esc(servicio.getCodigo())%>" data-estado="<%=esc(servicio.getEstado())%>" onclick="abrirEstado(this)">
@@ -217,7 +217,7 @@ function verServicio(btn){
  const d=btn.dataset;
  document.getElementById('detalleRutaCodigo').textContent=d.codigo||'';
  document.getElementById('detalleRutaCliente').textContent=d.cliente||'';
- document.getElementById('detalleRutaCapacidad').textContent=(d.capacidad||'')+' Gbps';
+ document.getElementById('detalleRutaCapacidad').textContent=d.capacidad ? d.capacidad+' Gbps' : 'Pendiente de asignación';
  document.getElementById('detalleRutaEstado').textContent=d.estado||'';
  const tramos=document.getElementById('detalleRutaTramos');
  tramos.replaceChildren();

@@ -14,7 +14,6 @@ import pe.edu.oceanlink.dao.RutaDAO;
 import pe.edu.oceanlink.dao.ServicioDAO;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -55,6 +54,20 @@ public class ServicioServlet extends HttpServlet {
                     view.forward(request, response);
                     break;
                 }
+                case "exito": {
+                    int idCliente = idPositivo(request.getParameter("cliente"));
+                    int idServicio = idPositivo(request.getParameter("servicio"));
+                    Servicio guardado = servicioDAO.obtenerServicio(idServicio);
+                    if (guardado == null || guardado.getIdCliente() != idCliente) {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Servicio no encontrado para este cliente");
+                        return;
+                    }
+                    request.setAttribute("servicioGuardado", guardado);
+                    request.setAttribute("clienteId", idCliente);
+                    view = request.getRequestDispatcher("/views/servicio-exito.jsp");
+                    view.forward(request, response);
+                    break;
+                }
                 case "formCrear": {
                     int idCliente = idPositivo(request.getParameter("cliente"));
                     Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
@@ -63,7 +76,15 @@ public class ServicioServlet extends HttpServlet {
                         return;
                     }
                     request.setAttribute("cliente", cliente);
-                    request.setAttribute("rutas", rutaDAO.obtenerListaRutas());
+                    ArrayList<Ruta> rutas = rutaDAO.obtenerListaRutas();
+                    // Cargar segmentos REALES ordenados, no los del HTML de demostración.
+                    for (Ruta r : rutas) {
+                        if ("Operativa".equals(r.getEstado())) {
+                            Ruta completa = rutaDAO.obtenerRuta(r.getIdRuta());
+                            if (completa != null) r.setSegmentos(completa.getSegmentos());
+                        }
+                    }
+                    request.setAttribute("rutas", rutas);
                     view = request.getRequestDispatcher("/views/servicio-form.jsp");
                     view.forward(request, response);
                     break;
@@ -98,10 +119,11 @@ public class ServicioServlet extends HttpServlet {
                 Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
                 servicio.setCodigo("SRV-" + LocalDate.now().getYear() + "-" +
                         UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+                // Estado administrativo actual; no implica una reserva física de capacidad.
                 servicio.setEstado("Activo");
                 int nuevoId = servicioDAO.crearServicio(servicio);
-                response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=detalle&cliente=" +
-                        servicio.getIdCliente() + "&creado=" + nuevoId);
+                response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=exito&cliente=" +
+                        servicio.getIdCliente() + "&servicio=" + nuevoId);
             } else if ("estado".equals(action)) {
                 int idServicio = idPositivo(request.getParameter("idServicio"));
                 int idCliente = idPositivo(request.getParameter("cliente"));
@@ -144,17 +166,12 @@ public class ServicioServlet extends HttpServlet {
         if (ruta == null || !"Operativa".equals(ruta.getEstado()))
             throw new IllegalArgumentException("Selecciona una ruta operativa");
 
-        BigDecimal capacidad;
         LocalDate fecha;
         try {
-            capacidad = new BigDecimal(request.getParameter("capacidad"));
             fecha = LocalDate.parse(request.getParameter("fechaActivacion"));
         } catch (RuntimeException ex) {
-            throw new IllegalArgumentException("Capacidad o fecha inválidas");
+            throw new IllegalArgumentException("Fecha de activación inválida");
         }
-        if (capacidad.compareTo(BigDecimal.ZERO) <= 0 || capacidad.scale() > 2 ||
-                capacidad.compareTo(new BigDecimal("9999999999.99")) > 0)
-            throw new IllegalArgumentException("La capacidad debe ser positiva, con hasta dos decimales");
 
         Servicio servicio = new Servicio();
         servicio.setIdCliente(idCliente);
@@ -164,7 +181,8 @@ public class ServicioServlet extends HttpServlet {
         servicio.setDestino(ruta.getNombreDestino());
         if (servicio.getOrigen() == null || servicio.getDestino() == null)
             throw new IllegalArgumentException("La ruta no tiene estaciones de origen y destino definidas");
-        servicio.setCapacidadContratada(capacidad);
+        // La capacidad se asignará desde el módulo Capacidad, aún pendiente.
+        servicio.setCapacidadContratada(null);
         servicio.setFechaActivacion(fecha);
         return servicio;
     }

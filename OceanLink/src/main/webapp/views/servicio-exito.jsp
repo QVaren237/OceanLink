@@ -34,6 +34,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+  <style>
+    /* Diseño equivalente a service-success.html original, sin cambiar styles.css. */
+    .ocean-success-card { margin:auto; max-width:500px; }
+    .ocean-success-card .cs-ic { border-color:#55b6a8; color:var(--teal); font-weight:bold; }
+    .ocean-success-card .ocean-success-button { margin-top:10px; }
+  </style>
 </head>
 <body>
   <div class="shell rutas-shell">
@@ -78,7 +84,13 @@
       </div>
 
       <div class="content" style="flex:1">
-<div class="card center-state" style="margin:auto;max-width:500px"><div class="cs-ic" style="color:var(--teal)">✓</div><h2>El servicio se guardó correctamente</h2><p>El servicio fue registrado en la base de datos.</p><a href="<%=request.getContextPath()%>/capacity-planner/servicios" class="btn btn-primary">Volver a clientes</a></div>
+<div class="card center-state ocean-success-card">
+          <div class="cs-ic" aria-hidden="true">✓</div>
+          <h2>El servicio se guardó correctamente</h2>
+          <p>El servicio contratado se registró exitosamente para el cliente.</p>
+          <a href="<%=request.getContextPath()%>/capacity-planner/servicios?action=detalle&amp;cliente=<%=request.getAttribute("clienteId")%>"
+             class="btn btn-primary ocean-success-button">Aceptar</a>
+        </div>
       </div>
       <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
     </div>

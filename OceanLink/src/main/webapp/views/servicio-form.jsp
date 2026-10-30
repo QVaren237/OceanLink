@@ -79,18 +79,35 @@
       </div>
 
       <div class="content" style="flex:1">
-<div class="page-head"><div><h1>Registrar nuevo servicio</h1><div class="psub">Asigna una ruta comercial al cliente. Los datos se obtienen de MySQL.</div></div></div>
-<div class="card card-pad" style="max-width:780px"><form method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=confirmar">
+<div class="page-head"><div><h1>Registrar nuevo servicio</h1><div class="psub">Asigna la ruta comercial al cliente y verifica la topología física subyacente.</div></div></div>
+<div class="card card-pad" style="max-width:720px"><form method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=confirmar">
 <input type="hidden" name="cliente" value="<%=cliente.getIdCliente()%>">
-<div class="field"><label>Cliente titular (*)</label><input class="input" value="<%=esc(cliente.getRazonSocial())%>" readonly></div>
-<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-<div class="field"><label for="ruta">Ruta extremo a extremo (*)</label><select class="input" id="ruta" name="ruta" required><option value="">Selecciona la ruta solicitada...</option>
+<div class="field"><label>Cliente titular (*)</label><input class="input" value="<%=esc(cliente.getRazonSocial())%>" readonly style="background:var(--surface-2);color:var(--muted);border-style:dashed;"></div>
+<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+<div class="field"><label for="ruta">Ruta extremo a extremo (*)</label><select class="input" id="ruta" name="ruta" required onchange="mostrarTopologia()"><option value="">Selecciona la ruta solicitada...</option>
 <% if(rutas!=null)for(Ruta r:rutas){ if("Operativa".equals(r.getEstado())){ %><option value="<%=r.getIdRuta()%>"><%=esc(r.getNombre())%></option><% }} %></select></div>
 <div class="field"><label for="fechaActivacion">Fecha de activación programada (*)</label><input class="input" type="date" name="fechaActivacion" id="fechaActivacion" required></div></div>
-<div class="field"><label for="capacidad">Capacidad contratada (Gbps) (*)</label><input class="input" type="number" name="capacidad" id="capacidad" step="0.01" min="0.01" max="9999999999.99" placeholder="Ej.: 100.00" required></div>
-<div class="slabel" style="margin-top:20px">Topología física involucrada</div>
-<div class="hint">La visualización y validación de los segmentos de la ruta requiere integrar RutaSegmentoDAO y comprobar capacidad disponible. No se muestra una reserva ficticia.</div>
-<div class="form-actions"><a class="btn btn-outline" href="<%=request.getContextPath()%>/capacity-planner/servicios?action=detalle&amp;cliente=<%=cliente.getIdCliente()%>">Cancelar</a><button type="submit" class="btn btn-primary">Validar y continuar</button></div></form></div>
+<div class="slabel" style="margin-top:24px;border-top:1px solid var(--line);padding-top:18px">Topología Física Involucrada</div>
+<div class="hint" style="margin-bottom:12px">Los siguientes segmentos de fibra óptica componen la ruta seleccionada:</div>
+<div id="segmentList" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;min-height:60px">
+ <div style="padding:20px;text-align:center;background:var(--surface-2);border-radius:11px;border:1px dashed var(--line-strong);font-size:12px;color:var(--muted)">Selecciona una ruta arriba para visualizar los enlaces físicos.</div>
+</div>
+<% if(rutas!=null) for(Ruta r:rutas) { if("Operativa".equals(r.getEstado())) { %>
+<template id="tramos-ruta-<%=r.getIdRuta()%>">
+ <% if(r.getSegmentos()!=null && !r.getSegmentos().isEmpty()) { for(pe.edu.oceanlink.bean.RutaSegmento tramo:r.getSegmentos()) {
+ boolean operativo="Operativo".equalsIgnoreCase(tramo.getEstado()); %>
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--line-strong);border-radius:11px;background:#fff">
+  <div style="display:flex;align-items:center;gap:12px">
+   <span style="width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:<%=operativo?"#e1f1eb":"#f8e8da"%>;color:<%=operativo?"#3d8a77":"#a56731"%>;font-weight:800"><%=operativo?"✓":"!"%></span>
+   <div><strong style="font-size:12px"><%=esc(tramo.getCodigo())%></strong><div style="font-size:11px;color:var(--muted);margin-top:3px">Tramo Físico: <%=esc(tramo.getNombreOrigen())%> ↔ <%=esc(tramo.getNombreDestino())%></div></div>
+  </div>
+  <strong style="font-size:11px;color:<%=operativo?"#3d8a77":"#a56731"%>"><%=esc(tramo.getEstado())%></strong>
+ </div>
+ <% }} else { %><div class="hint">Esta ruta no tiene segmentos asociados.</div><% } %>
+</template>
+<% }} %>
+<div class="hint" style="margin-top:24px">Campos obligatorios (*)</div>
+<div class="form-actions" style="justify-content:flex-end;margin-top:10px"><a class="btn btn-outline" href="<%=request.getContextPath()%>/capacity-planner/servicios?action=detalle&amp;cliente=<%=cliente.getIdCliente()%>">Cancelar</a><button type="submit" class="btn btn-primary">Validar y continuar</button></div></form></div>
       </div>
       <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
     </div>
@@ -101,6 +118,16 @@ function filtrarFilas(inputId, tableId){
  document.querySelectorAll('#'+tableId+' tbody tr').forEach(tr=>{
   tr.style.display=tr.textContent.toLocaleLowerCase().includes(query)?'':'none';
  });
+}
+</script>
+<script>
+function mostrarTopologia() {
+ const id=document.getElementById('ruta').value;
+ const plantilla=document.getElementById('tramos-ruta-'+id);
+ const contenedor=document.getElementById('segmentList');
+ contenedor.replaceChildren();
+ if(plantilla) contenedor.appendChild(plantilla.content.cloneNode(true));
+ else contenedor.textContent='Selecciona una ruta arriba para visualizar los enlaces físicos.';
 }
 </script>
 </body></html>

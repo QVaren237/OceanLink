@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
   `idRuta` INT NOT NULL,
   `origen` VARCHAR(100) NOT NULL,
   `destino` VARCHAR(100) NOT NULL,
-  `capacidadContratada` DECIMAL(12,2) NOT NULL,
+  `capacidadContratada` DECIMAL(12,2) NULL,
   `fechaActivacion` DATE NOT NULL,
   `estado` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`idServicio`),

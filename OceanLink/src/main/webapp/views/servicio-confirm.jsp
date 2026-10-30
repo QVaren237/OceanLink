@@ -48,27 +48,17 @@
       <nav class="nav-sec">
         <div class="nav-label">Módulos</div>
         <a class="nav-item" href="<%=request.getContextPath()%>/CapacityPlannerServlet">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-          <span>Panel General</span>
-        </a>
-        <a class="nav-item active" href="<%=request.getContextPath()%>/capacity-planner/servicios">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          <span>Servicios por cliente</span>
-        </a>
-        <a class="nav-item" href="<%=request.getContextPath()%>/capacity-planner/rutas">
-          <svg viewBox="0 0 24 24"><path d="M3 15a9 9 0 0 1 18 0"/></svg>
-          <span>Rutas</span>
-        </a>
-        <a class="nav-item" href="#">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          <span>Solicitudes</span>
-        </a>
-        <a class="nav-item" href="#">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          <span>Alertas de Red</span>
-        </a>
-        <a class="nav-item" href="#">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Panel General</span>
+            </a>
+            <a class="nav-item active" aria-current="page" href="<%= request.getContextPath() %>/capacity-planner/servicios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Servicios por cliente</span></a>
+            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/rutas">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h8a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h8"/></svg>
+                <span>Rutas</span>
+            </a>
+            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/capacidad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15a9 9 0 0 1 18 0M12 15l4-6"/></svg><span>Capacidad</span></a>
+            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/solicitudes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8"/></svg><span>Solicitudes</span></a>
+            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/alertas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20zM12 9v5M12 17v1"/></svg><span>Alertas de Red</span></a>
+            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/historico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
           <span>Histórico</span>
         </a>
       </nav>
@@ -102,7 +92,7 @@
 <div class="page-head confirm-wrap">
   <div>
     <h1>Confirmar asignación de servicio</h1>
-    <div class="psub">Revisa la ruta y la capacidad antes de registrar el servicio para el cliente.</div>
+    <div class="psub">Revisa los datos de la ruta antes de registrar el servicio para el cliente.</div>
   </div>
 </div>
 <div class="card card-pad confirm-wrap">
@@ -127,15 +117,15 @@
       <%   }
          } else { %>—<% } %>
     </strong></div>
-    <div class="summary-row"><span>Capacidad contratada</span><strong><%=servicio.getCapacidadContratada()%> Gbps</strong></div>
+
   </div>
 
-  <p class="confirm-note">Este registro crea el servicio contratado; la reserva de capacidad en la tabla reserva_capacidad todavía no está implementada.</p>
+  <p class="confirm-note">La capacidad será asignada posteriormente desde el módulo Capacidad; este registro no realiza una reserva física.</p>
 
   <form method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=guardar">
     <input type="hidden" name="cliente" value="<%=servicio.getIdCliente()%>">
     <input type="hidden" name="ruta" value="<%=servicio.getIdRuta()%>">
-    <input type="hidden" name="capacidad" value="<%=servicio.getCapacidadContratada()%>">
+
     <input type="hidden" name="fechaActivacion" value="<%=servicio.getFechaActivacion()%>">
     <div class="form-actions">
       <a class="btn btn-outline" href="<%=request.getContextPath()%>/capacity-planner/servicios?action=formCrear&amp;cliente=<%=servicio.getIdCliente()%>">Volver a editar</a>
