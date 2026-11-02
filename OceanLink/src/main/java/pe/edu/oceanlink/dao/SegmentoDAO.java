@@ -15,7 +15,7 @@ public class SegmentoDAO {
     public void crearSegmento(Segmento s) {
         try {
             String user = "root";
-            String pass = "070501";
+            String pass = "root";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -42,7 +42,7 @@ public class SegmentoDAO {
         ArrayList<Segmento> lista = new ArrayList<>();
         try {
             String user = "root";
-            String pass = "070501";
+            String pass = "root";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(url, user, pass);
@@ -69,7 +69,7 @@ public class SegmentoDAO {
         Segmento s = null;
         try {
             String user = "root";
-            String pass = "070501";
+            String pass = "root";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -97,7 +97,7 @@ public class SegmentoDAO {
     public void actualizarSegmento(Segmento s) {
         try {
             String user = "root";
-            String pass = "070501";
+            String pass = "root";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -124,7 +124,7 @@ public class SegmentoDAO {
     public void cambiarEstado(String id, String nuevoEstado) {
         String url = "jdbc:mysql://localhost:3306/oceanlink";
         String user = "root";
-        String pass = "070501";
+        String pass = "root";
         String sql = "UPDATE segmento SET estado = ? WHERE idSegmento = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
