@@ -11,10 +11,35 @@ import java.util.ArrayList;
 
 public class UsuarioDAO {
 
+    public byte[] obtenerFoto(int id) throws SQLException {
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT foto FROM usuario WHERE idUsuario=?")) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getBytes(1) : null; }
+        }
+    }
+
+    public void actualizarPerfil(Usuario usuario, String claveActual, byte[] foto, boolean quitarFoto)
+            throws SQLException {
+        String sql = "UPDATE usuario SET nombre=?, apellido=?, correo=?, "
+                + "password=CASE WHEN ?='' THEN password ELSE ? END"
+                + (foto != null || quitarFoto ? ", foto=?" : "")
+                + " WHERE idUsuario=? AND password=?";
+        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, usuario.getNombre()); ps.setString(2, usuario.getApellido());
+            ps.setString(3, usuario.getCorreo());
+            ps.setString(4, usuario.getPassword()); ps.setString(5, usuario.getPassword());
+            int indice = 6;
+            if (foto != null || quitarFoto) ps.setBytes(indice++, quitarFoto ? null : foto);
+            ps.setInt(indice++, usuario.getIdUsuario()); ps.setString(indice, claveActual);
+            if (ps.executeUpdate() != 1) throw new IllegalArgumentException("La contraseña actual no es correcta o la cuenta ya no existe.");
+        }
+    }
+
     public void crearUsuario(Usuario u) {
         try {
             String user = "root";
-            String pass = "1029";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -38,7 +63,7 @@ public class UsuarioDAO {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try {
             String user = "root";
-            String pass = "1029";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(url, user, pass);
@@ -70,7 +95,7 @@ public class UsuarioDAO {
         Usuario usuario = null;
         try {
             String user = "root";
-            String pass = "1029";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -101,7 +126,7 @@ public class UsuarioDAO {
     public void actualizarUsuario(Usuario u) {
         try {
             String user = "root";
-            String pass = "1029";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -132,7 +157,7 @@ public class UsuarioDAO {
     public void cambiarEstado(String id, String nuevoEstado) {
         String url = "jdbc:mysql://localhost:3306/oceanlink";
         String user = "root";
-        String pass = "1029";
+        String pass = "070501";
         String sql = "UPDATE usuario SET estado = ? WHERE idUsuario = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

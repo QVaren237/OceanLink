@@ -10,9 +10,15 @@ public class Conexion {
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
 
     private static final String USUARIO = "root";
-    private static final String CLAVE = "root";
+    private static final String CLAVE = "070501";
 
     public static Connection getConnection() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException(
+                    "No se encontró el controlador JDBC de MySQL.", e);
+        }
         return DriverManager.getConnection(URL, USUARIO, CLAVE);
     }
 }

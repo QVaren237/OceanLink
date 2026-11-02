@@ -1,64 +1,24 @@
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    String ctx = request.getContextPath();
-    String tipo = request.getParameter("tipo");
-    if (tipo == null) {
-        tipo = (String) request.getAttribute("tipo");
-    }
-
-    String mensaje = "La operación se completó correctamente.";
-
-    if ("incidencia".equals(tipo)) {
-        mensaje = "La incidencia se registró correctamente.";
-    } else if ("actualizacion".equals(tipo)) {
-        mensaje = "El estado de la incidencia se actualizó correctamente.";
-    } else if ("restauracion".equals(tipo)) {
-        mensaje = "La restauración se registró correctamente.";
-    } else if ("observacion".equals(tipo)) {
-        mensaje = "La observación se registró correctamente.";
-    } else if ("solicitud".equals(tipo)) {
-        mensaje = "La solicitud de capacidad se registró correctamente.";
-    }
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.*" %>
+<%!
+ private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
+ private String pill(String v) {
+   if (v==null) return "pill-neutral";
+   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
+   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
+   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
+   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+ }
 %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Operación completada - OceanLink</title>
-    <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
-</head>
-<body>
-<div class="shell">
-    <aside class="side">
-        <div class="brand brand-side">
-            <img class="brand-img" src="<%=ctx%>/assets/logo.png" alt="OceanLink">
-        </div>
-        <nav class="nav-sec">
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=panel">Panel</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=redes">Estado de la red</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Incidencias</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Solicitudes de capacidad</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=historial">Historial</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <section class="content">
-            <h1>¡Operación completada!</h1>
-            <p><%=mensaje%></p>
-            <p>
-                <a href="<%=ctx%>/NetworkOperatorServlet?action=panel">Volver al panel</a>
-            </p>
-            <p>
-                <a href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Ir a incidencias</a>
-            </p>
-            <p>
-                <a href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Ir a solicitudes</a>
-            </p>
-        </section>
-    </main>
-</div>
-</body>
-</html>
+<% String ctx=request.getContextPath(); %>
+<% request.setAttribute("tituloNO","Operación completada");request.setAttribute("seccionNO","incidencias");
+String tipo=request.getParameter("tipo");String titulo="Operación completada",mensaje="La operación se completó correctamente.";String destino="incidencias";
+if("incidencia".equals(tipo)){titulo="Incidencia registrada";mensaje="La incidencia se registró correctamente y quedó incorporada al seguimiento operativo de la red.";}
+else if("actualizacion".equals(tipo)){titulo="Estado actualizado";mensaje="El estado de la incidencia se actualizó correctamente.";}
+else if("restauracion".equals(tipo)){titulo="Restauración registrada";mensaje="La restauración del servicio se registró correctamente.";}
+else if("observacion".equals(tipo)){titulo="Observación registrada";mensaje="La observación quedó incorporada al seguimiento de la incidencia.";}
+else if("solicitud".equals(tipo)){titulo="Solicitud enviada";mensaje="La solicitud de capacidad se registró para su evaluación.";destino="solicitudes";request.setAttribute("seccionNO",destino);}
+%>
+<jsp:include page="/views/no-inicio.jsp"/>
+<div class="card center-state"><div class="cs-ic" style="border-color:#8dcac3;color:var(--teal)">✓</div><h2><%=h(titulo)%></h2><p><%=h(mensaje)%></p><a class="btn btn-primary" href="<%=ctx%>/NetworkOperatorServlet?action=<%=destino%>">Volver a <%=destino%></a></div>
+<jsp:include page="/views/no-fin.jsp"/>

@@ -1,70 +1,32 @@
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="pe.edu.oceanlink.bean.Incidencia" %>
-<%
-    String ctx = request.getContextPath();
-    Incidencia incidencia =
-        (Incidencia) request.getAttribute("incidencia");
-    String error = (String) request.getAttribute("error");
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.*" %>
+<%!
+ private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
+ private String pill(String v) {
+   if (v==null) return "pill-neutral";
+   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
+   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
+   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
+   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+ }
 %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Actualizar incidencia - OceanLink</title>
-    <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
-</head>
-<body>
-<div class="shell">
-    <aside class="side">
-        <div class="brand brand-side">
-            <img class="brand-img" src="<%=ctx%>/assets/logo.png" alt="OceanLink">
-        </div>
-        <nav class="nav-sec">
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=panel">Panel</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=redes">Estado de la red</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Incidencias</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Solicitudes de capacidad</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=historial">Historial</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <header class="topbar"><h2>Actualizar estado</h2></header>
-        <section class="content">
-            <% if (incidencia == null) { %>
-                <p>No se encontró la incidencia.</p>
-            <% } else { %>
-                <h1><%=incidencia.getCodigo()%> - <%=incidencia.getTitulo()%></h1>
-                <p>Estado actual: <strong><%=incidencia.getEstado()%></strong></p>
-
-                <% if (error != null) { %>
-                    <p class="error"><%=error%></p>
-                <% } %>
-
-                <form method="post" action="<%=ctx%>/NetworkOperatorServlet">
-                    <input type="hidden" name="action" value="actualizarEstado">
-                    <input type="hidden" name="id" value="<%=incidencia.getIdIncidencia()%>">
-
-                    <label for="nuevoEstado">Nuevo estado *</label>
-                    <select id="nuevoEstado" name="nuevoEstado" required>
-                        <option value="">Selecciona un estado</option>
-                        <option value="Detectada">Detectada</option>
-                        <option value="En análisis">En análisis</option>
-                        <option value="Servicio restaurado">Servicio restaurado</option>
-                        <option value="Cerrada">Cerrada</option>
-                    </select>
-
-                    <label for="observacion">Observación (opcional)</label>
-                    <textarea id="observacion" name="observacion" rows="4"></textarea>
-
-                    <button type="submit">Guardar cambios</button>
-                    <a href="<%=ctx%>/NetworkOperatorServlet?action=detalleIncidencia&id=<%=incidencia.getIdIncidencia()%>">Cancelar</a>
-                </form>
-            <% } %>
-        </section>
-    </main>
-</div>
-</body>
-</html>
+<% String ctx=request.getContextPath(); %>
+<% request.setAttribute("tituloNO","Actualizar estado");request.setAttribute("seccionNO","incidencias");
+Incidencia incidencia=(Incidencia)request.getAttribute("incidencia");
+%>
+<jsp:include page="/views/no-inicio.jsp"/>
+<% if(incidencia==null){ %><div class="card center-state"><h2>Incidencia no encontrada</h2><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Volver</a></div><% }else{ %><% if(request.getAttribute("error")!=null){ %><div class="banner banner-err" role="alert"><%=h(request.getAttribute("error"))%></div><% } %><div class="page-head"><div><h1>Actualizar estado de incidencia</h1><div class="psub">Actualiza el estado y deja registrada la atención de la incidencia.</div></div><div class="grow"></div></div><div class="card card-pad"><form method="post" action="<%=ctx%>/NetworkOperatorServlet" data-confirm-form class="form-grid" style="max-width:700px"><input type="hidden" name="action" value="actualizarEstado"><input type="hidden" name="id" value="<%=incidencia.getIdIncidencia()%>"><div id="noFormView"><div class="field"><label>Incidencia</label><div class="ro-field"><%=h(incidencia.getCodigo())%> — <%=h(incidencia.getTitulo())%></div></div><div class="field"><label>Estado actual</label><div class="ro-field"><%=h(incidencia.getEstado())%></div></div><div class="field"><label for="no-field-1">Nuevo estado <span class="required-mark">*</span></label><select id="no-field-1" class="input" name="nuevoEstado" required><option value="" selected>Seleccionar nuevo estado</option><option>Detectada</option><option>En análisis</option><option>Reparación programada</option><option>En reparación</option><option>Servicio restaurado</option><option>Cerrada</option></select><span class="validation-message">Este campo es obligatorio.</span><div class="hint">Actualiza el estado de la incidencia.</div></div><div class="field"><label for="no-field-2">Observación de la actualización (opcional)</label><textarea id="no-field-2" name="observacion" class="input" rows="3" placeholder="Ej. Se reemplazó el módulo óptico; en verificación."></textarea></div><div class="form-actions"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=detalleIncidencia&amp;id=<%=incidencia.getIdIncidencia()%>">Cancelar</a><button class="btn btn-primary" type="submit">Guardar cambios</button></div></div><div id="noConfirmView" hidden><div class="page-head"><div><h1>Confirmar actualización</h1><div class="psub">Revisa la información antes de confirmar.</div></div></div><div class="card card-pad" style="max-width:720px"><div class="info-strip"><div class="ii">!</div><div><div class="it">CONFIRMAR OPERACIÓN</div><div class="id">La información se guardará al confirmar.</div></div></div><div id="noConfirmFields"></div><div class="form-actions"><button type="button" class="btn btn-outline" id="noBack">Volver a editar</button><button type="button" class="btn btn-primary" id="noSave">Confirmar</button></div></div></div></form></div><% } %><script>
+(function(){const form=document.querySelector('[data-confirm-form]');if(!form)return;let confirmed=false;
+const original=document.getElementById('noFormView'),review=document.getElementById('noConfirmView'),fields=document.getElementById('noConfirmFields');
+form.addEventListener('submit',function(e){if(confirmed)return;e.preventDefault();if(!form.reportValidity())return;
+ const checks=Array.from(form.querySelectorAll('input[name="segmentos"]'));if(checks.length&&!checks.some(c=>c.checked)){const error=document.getElementById('noSegmentError');error.hidden=false;return;}
+ fields.replaceChildren();form.querySelectorAll('.field, .data-list > div').forEach(function(field){
+ const controls=Array.from(field.querySelectorAll('input:not([type="hidden"]),textarea,select')),readonly=field.querySelector('.ro-field');if(!controls.length&&!readonly)return;
+ const label=field.querySelector('label');let title=label?label.textContent.replace('*','').trim():field.previousElementSibling?field.previousElementSibling.textContent.trim():'';
+ let values=controls.filter(c=>c.type!=='checkbox'||c.checked).map(c=>c.type==='checkbox'?c.parentElement.textContent.trim():c.tagName==='SELECT'?(c.selectedOptions[0]?c.selectedOptions[0].textContent:''):c.value).filter(Boolean);
+ if(!values.length&&readonly)values=[readonly.textContent.trim()];if(!values.length)return;const item=document.createElement('div');item.className='field';const l=document.createElement('label');l.textContent=title;const v=document.createElement('div');v.className='ro-field';v.textContent=values.join(' · ');item.append(l,v);fields.append(item);
+ });original.hidden=true;review.hidden=false;const heading=document.querySelector('.content>.page-head');if(heading)heading.hidden=true;const card=form.closest('.card')||form;if(card)card.style.maxWidth='760px';window.scrollTo(0,0);});
+ document.getElementById('noBack').onclick=()=>{review.hidden=true;original.hidden=false;const heading=document.querySelector('.content>.page-head');if(heading)heading.hidden=false;const card=form.closest('.card')||form;if(card)card.style.maxWidth='';};document.getElementById('noSave').onclick=()=>{confirmed=true;form.requestSubmit();};
+})();
+</script>
+<jsp:include page="/views/no-fin.jsp"/>

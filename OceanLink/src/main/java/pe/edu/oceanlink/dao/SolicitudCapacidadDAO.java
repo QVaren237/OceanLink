@@ -7,6 +7,45 @@ import java.util.ArrayList;
 
 public class SolicitudCapacidadDAO {
 
+    public ArrayList<String> listarMotivos() {
+        java.util.Set<String> motivos = new java.util.LinkedHashSet<>();
+        motivos.add("Contingencia por incidencia");
+        motivos.add("Refuerzo operativo");
+        String sql = "SELECT DISTINCT TRIM(motivo) AS motivo FROM solicitud "
+                + "WHERE motivo IS NOT NULL AND TRIM(motivo) <> '' ORDER BY motivo";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) motivos.add(rs.getString("motivo"));
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudieron consultar los motivos de solicitud", e);
+        }
+        ArrayList<String> lista = new ArrayList<>(motivos);
+        lista.sort(java.text.Collator.getInstance(new java.util.Locale("es", "PE")));
+        return lista;
+    }
+
+    public String[] obtenerResumenReserva(int id) {
+        String sql = "SELECT s.codigo, SUM(rc.capacidadReservada) AS capacidad, "
+                + "GROUP_CONCAT(DISTINCT CONCAT(u.nombre,' ',u.apellido) SEPARATOR ', ') AS responsables "
+                + "FROM reserva_capacidad rc JOIN segmento s ON s.idSegmento=rc.idSegmento "
+                + "JOIN usuario u ON u.idUsuario=rc.idUsuario WHERE rc.idSolicitud=? "
+                + "AND COALESCE(rc.estado,'') NOT IN ('Liberada','Cancelada') GROUP BY s.idSegmento,s.codigo";
+        ArrayList<String> capacidades = new ArrayList<>();
+        java.util.Set<String> responsables = new java.util.LinkedHashSet<>();
+        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    capacidades.add(rs.getString("codigo")+": "+rs.getBigDecimal("capacidad").stripTrailingZeros().toPlainString()+" Gbps");
+                    responsables.add(rs.getString("responsables"));
+                }
+            }
+        } catch (SQLException e) { throw new RuntimeException("No se pudo consultar la reserva de la solicitud", e); }
+        return new String[]{capacidades.isEmpty()?"Sin reservas vigentes":String.join(" · ",capacidades),
+                responsables.isEmpty()?"Sin asignación registrada":String.join(" · ",responsables)};
+    }
+
     public ArrayList<SolicitudCapacidad> listar(String busqueda,
                                                 String estado) {
         ArrayList<SolicitudCapacidad> lista = new ArrayList<>();

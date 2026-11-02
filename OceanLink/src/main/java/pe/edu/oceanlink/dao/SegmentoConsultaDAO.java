@@ -6,6 +6,17 @@ import java.util.ArrayList;
 
 public class SegmentoConsultaDAO {
 
+    public int contarLandingStations() {
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM landing_station");
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudieron contar las landing stations", e);
+        }
+    }
+
     public ArrayList<Segmento> listar(String busqueda, String estado) {
         ArrayList<Segmento> lista = new ArrayList<>();
 

@@ -1,59 +1,19 @@
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="pe.edu.oceanlink.bean.SolicitudCapacidad" %>
-<%
-    String ctx = request.getContextPath();
-    SolicitudCapacidad solicitud =
-        (SolicitudCapacidad) request.getAttribute("solicitud");
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.*" %>
+<%!
+ private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
+ private String pill(String v) {
+   if (v==null) return "pill-neutral";
+   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
+   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
+   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
+   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+ }
 %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle de solicitud - OceanLink</title>
-    <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
-</head>
-<body>
-<div class="shell">
-    <aside class="side">
-        <div class="brand brand-side">
-            <img class="brand-img" src="<%=ctx%>/assets/logo.png" alt="OceanLink">
-        </div>
-        <nav class="nav-sec">
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=panel">Panel</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=redes">Estado de la red</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Incidencias</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Solicitudes de capacidad</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=historial">Historial</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <header class="topbar"><h2>Detalle de solicitud</h2></header>
-        <section class="content">
-            <% if (solicitud == null) { %>
-                <h1>Solicitud no encontrada</h1>
-                <p>No se encontró la solicitud solicitada.</p>
-            <% } else { %>
-                <h1><%=solicitud.getCodigo()%></h1>
-                <p><strong>Cliente:</strong> <%=solicitud.getCliente()%></p>
-                <p><strong>Ruta:</strong> <%=solicitud.getRuta()%></p>
-                <p><strong>Capacidad solicitada:</strong>
-                    <%=solicitud.getCapacidadSolicitada()%></p>
-                <p><strong>Fecha de solicitud:</strong>
-                    <%=solicitud.getFechaSolicitud()%></p>
-                <p><strong>Fecha límite:</strong>
-                    <%=solicitud.getFechaLimite() == null ? "-" : solicitud.getFechaLimite()%></p>
-                <p><strong>Motivo:</strong> <%=solicitud.getMotivo()%></p>
-                <p><strong>Estado:</strong> <%=solicitud.getEstado()%></p>
-                <p><strong>Observación:</strong>
-                    <%=solicitud.getObservacion() == null ? "-" : solicitud.getObservacion()%></p>
-            <% } %>
-
-            <p><a href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Volver a solicitudes</a></p>
-        </section>
-    </main>
-</div>
-</body>
-</html>
+<% String ctx=request.getContextPath(); %>
+<% request.setAttribute("tituloNO","Detalle de solicitud");request.setAttribute("seccionNO","solicitudes");
+String[] resumen=(String[])request.getAttribute("resumenReserva");if(resumen==null)resumen=new String[]{"Sin reservas vigentes","Sin asignación registrada"};SolicitudCapacidad so=(SolicitudCapacidad)request.getAttribute("solicitud");
+%>
+<jsp:include page="/views/no-inicio.jsp"/>
+<% if(so==null){ %><div class="card center-state"><h2>Solicitud no encontrada</h2></div><% }else{ boolean finalizada=Arrays.asList("Aprobada","Rechazada","Reservada","Provisionada","Cancelada").contains(so.getEstado()); %><div class="back-row"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Volver</a></div><div class="page-head"><div><h1>Detalle de solicitud</h1><div class="psub">Consulta el estado y resultado de la solicitud enviada al Capacity Planner.</div></div><div class="grow"></div><div id="statusTop"><span class="pill <%=pill(so.getEstado())%>"><span class="dot"></span><%=h(so.getEstado())%></span></div></div><div class="detail-grid request-detail-grid"><div class="detail-card"><div class="dc-head"><div><div class="dc-sub">Información</div><h3 id="detailTitle">Datos de la solicitud</h3></div></div><div class="data-list"><div class="data-label">Solicitud</div><div class="data-value" id="idVal"><%=h(so.getCodigo())%></div><div class="data-label">Incidencia</div><div id="incVal"><%="No registrada en esta solicitud"%></div><div class="data-label">Enlace</div><div id="linkVal"><%=h(so.getRuta())%></div><div class="data-label">Capacidad solicitada</div><div class="data-value" id="capVal"><%=so.getCapacidadSolicitada()+" Gbps"%></div><div class="data-label">Motivo</div><div id="reasonVal"><%=h(so.getMotivo())%></div><div class="data-label">Observación</div><div id="obsVal"><%=h(so.getObservacion())%></div><div class="data-label">Fecha de solicitud</div><div id="dateVal"><%=h(so.getFechaSolicitud())%></div></div></div><div class="detail-card"><div class="dc-head"><div><div class="dc-sub">Seguimiento</div><h3>Estado de la solicitud</h3></div></div><div class="state-flow" style="padding:22px 20px 24px"><div class="state-step done"><div class="state-dot">✓</div><span>Enviada</span></div><div class="state-line"></div><div class="state-step <%=finalizada?"done":"current"%>" id="reviewStep"><div class="state-dot">2</div><span>En evaluación</span></div><div class="state-line"></div><div class="state-step <%=finalizada?"current":""%>" id="finalStep"><div class="state-dot">3</div><span>Resultado</span></div></div></div><div class="detail-card detail-card-full"><div class="dc-head"><div><div class="dc-sub">Resultado</div><h3>Evaluación del Capacity Planner</h3></div></div><div class="data-list"><div class="data-label">Capacidad reservada</div><div id="reservedVal"><%=h(resumen[0])%></div><div class="data-label">Decisión</div><div id="decisionVal"><span class="pill <%=pill(so.getEstado())%>"><span class="dot"></span><%=h(so.getEstado())%></span></div><div class="data-label">Capacity Planner</div><div id="plannerVal"><%=h(resumen[1])%></div><div class="data-label">Comentario</div><div id="commentVal"><%="Consulta el módulo de Capacity Planner para la evaluación."%></div></div></div></div><% } %>
+<jsp:include page="/views/no-fin.jsp"/>

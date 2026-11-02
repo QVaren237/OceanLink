@@ -1,96 +1,29 @@
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*" %>
-<%@ page import="pe.edu.oceanlink.bean.*" %>
-<%
-    String ctx = request.getContextPath();
-    Incidencia incidencia =
-        (Incidencia) request.getAttribute("incidencia");
-    ArrayList<ObservacionIncidencia> eventos =
-        (ArrayList<ObservacionIncidencia>) request.getAttribute("eventos");
-    if (eventos == null) eventos = new ArrayList<>();
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.*" %>
+<%!
+ private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
+ private String pill(String v) {
+   if (v==null) return "pill-neutral";
+   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
+   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
+   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
+   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+ }
 %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle de incidencia - OceanLink</title>
-    <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
-</head>
-<body>
-<div class="shell">
-    <aside class="side">
-        <div class="brand brand-side">
-            <img class="brand-img" src="<%=ctx%>/assets/logo.png" alt="OceanLink">
-        </div>
-        <nav class="nav-sec">
-            <div class="nav-label">Módulos</div>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=panel">Panel</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=redes">Estado de la red</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Incidencias</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Solicitudes de capacidad</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=historial">Historial</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <header class="topbar"><h2>Detalle de incidencia</h2></header>
-        <section class="content">
-            <% if (incidencia == null) { %>
-                <h1>Incidencia no encontrada</h1>
-                <p>No se encontró la incidencia solicitada.</p>
-            <% } else { %>
-                <h1><%=incidencia.getTitulo()%></h1>
-
-                <p><strong>Código:</strong> <%=incidencia.getCodigo()%></p>
-                <p><strong>Descripción:</strong> <%=incidencia.getDescripcion()%></p>
-                <p><strong>Severidad:</strong> <%=incidencia.getSeveridad()%></p>
-                <p><strong>Estado:</strong> <%=incidencia.getEstado()%></p>
-                <p><strong>Redes afectadas:</strong>
-                    <%=incidencia.getRedes() == null ? "-" : incidencia.getRedes()%>
-                </p>
-                <p><strong>Fecha de detección:</strong>
-                    <%=incidencia.getFechaDeteccion() == null ? "-" : incidencia.getFechaDeteccion()%>
-                </p>
-                <p><strong>Fecha de cierre:</strong>
-                    <%=incidencia.getFechaCierre() == null ? "-" : incidencia.getFechaCierre()%>
-                </p>
-
-                <p>
-                    <a href="<%=ctx%>/NetworkOperatorServlet?action=actualizarIncidencia&id=<%=incidencia.getIdIncidencia()%>">Actualizar estado</a>
-                    |
-                    <a href="<%=ctx%>/NetworkOperatorServlet?action=restauracion&id=<%=incidencia.getIdIncidencia()%>">Registrar restauración</a>
-                    |
-                    <a href="<%=ctx%>/NetworkOperatorServlet?action=observacion&id=<%=incidencia.getIdIncidencia()%>">Agregar observación</a>
-                    |
-                    <a href="<%=ctx%>/NetworkOperatorServlet?action=historial&id=<%=incidencia.getIdIncidencia()%>">Ver historial</a>
-                </p>
-
-                <h2>Historial de eventos</h2>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                        <tr><th>Fecha</th><th>Tipo</th><th>Detalle</th></tr>
-                        </thead>
-                        <tbody>
-                        <% for (ObservacionIncidencia evento : eventos) { %>
-                        <tr>
-                            <td><%=evento.getFechaRegistro()%></td>
-                            <td><%=evento.getTipo()%></td>
-                            <td><%=evento.getDetalle()%></td>
-                        </tr>
-                        <% } %>
-                        <% if (eventos.isEmpty()) { %>
-                        <tr><td colspan="3">No hay eventos registrados.</td></tr>
-                        <% } %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } %>
-            <p><a href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Volver a incidencias</a></p>
-        </section>
-    </main>
+<% String ctx=request.getContextPath(); %>
+<% request.setAttribute("tituloNO","Detalle de incidencia");request.setAttribute("seccionNO","incidencias");
+Incidencia incidencia=(Incidencia)request.getAttribute("incidencia");ArrayList<ObservacionIncidencia> eventos=(ArrayList<ObservacionIncidencia>)request.getAttribute("eventos");if(eventos==null)eventos=new ArrayList<>();ArrayList<String[]> servicios=(ArrayList<String[]>)request.getAttribute("serviciosAfectados");if(servicios==null)servicios=new ArrayList<>();
+%>
+<jsp:include page="/views/no-inicio.jsp"/>
+<% if(incidencia==null){ %><div class="card center-state"><h2>Incidencia no encontrada</h2></div><% }else{ %><div class="back-row"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Volver</a></div>
+<div class="detail-grid">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div class="detail-card"><div class="dc-head"><div><div class="dc-sub">Información</div><h3>Datos de la incidencia</h3></div><a class="btn btn-primary btn-sm" href="<%=ctx%>/NetworkOperatorServlet?action=actualizarIncidencia&amp;id=<%=incidencia.getIdIncidencia()%>">Actualizar estado</a></div><div class="data-list"><div class="data-label">Título</div><div class="data-value"><%=h(incidencia.getTitulo())%></div><div class="data-label">Descripción</div><div><%=h(incidencia.getDescripcion())%></div><div class="data-label">Severidad</div><div><span class="pill <%=pill(incidencia.getSeveridad())%>"><span class="dot"></span><%=h(incidencia.getSeveridad())%></span></div><div class="data-label">Red afectada</div><div><%=h(incidencia.getRedes())%></div><div class="data-label">Network Operator asignado</div><div class="data-value"><%=h(request.getAttribute("responsableIncidencia"))%></div><div class="data-label">Supervisor responsable</div><div class="data-value">Sin asignación registrada</div></div></div>
+<div class="detail-card"><div class="dc-head"><div><h3>Seguimiento del estado</h3></div></div><div class="state-flow"><% String[] estados={"Detectada","En análisis","Reparación programada","En reparación","Servicio restaurado","Cerrada"};int actual=Arrays.asList(estados).indexOf(incidencia.getEstado());for(int n=0;n<estados.length;n++){if(n>0){ %><div class="state-line"></div><% } %><div class="state-step <%=n<actual?"done":n==actual?"current":""%>"><div class="state-dot"><%=n<actual?"✓":String.valueOf(n+1)%></div><span><%=h(estados[n])%></span></div><% } %></div></div>
+<div class="detail-card"><div class="dc-head"><div><h3>Observaciones</h3></div><a class="btn btn-outline btn-sm" href="<%=ctx%>/NetworkOperatorServlet?action=observacion&amp;id=<%=incidencia.getIdIncidencia()%>">+ Registrar observación</a></div><div class="obs-list"><% for(ObservacionIncidencia evento:eventos){ %><div class="obs-item"><div class="obs-date"><%=h(evento.getFechaRegistro())%> · <%=h(evento.getTipo())%></div><div class="obs-text"><%=h(evento.getDetalle())%></div></div><% } if(eventos.isEmpty()){ %><div class="obs-item">No hay observaciones registradas.</div><% } %></div></div>
 </div>
-</body>
-</html>
+<div style="display:flex;flex-direction:column;gap:18px">
+<div class="detail-card"><div class="dc-head"><div><h3>Servicios y clientes afectados</h3></div></div><table class="mini-table"><thead><tr><th>Servicio</th><th>Cliente</th><th>Estado</th></tr></thead><tbody><% for(String[] servicio:servicios){ %><tr><td class="strong"><%=h(servicio[0])%></td><td><%=h(servicio[1])%></td><td><%=h(servicio[2])%></td></tr><% } if(servicios.isEmpty()){ %><tr><td colspan="3">No hay servicios asociados a los segmentos de esta incidencia.</td></tr><% } %></tbody></table></div>
+<div class="detail-card"><div class="dc-head"><div><h3>Restauración del servicio</h3></div></div><div class="notice-soft">La restauración se registra cuando el servicio ha sido restablecido y verificado.</div><div class="action-row"><a class="btn btn-primary" href="<%=ctx%>/NetworkOperatorServlet?action=restauracion&amp;id=<%=incidencia.getIdIncidencia()%>">Registrar restauración</a></div></div>
+</div></div><% } %>
+<jsp:include page="/views/no-fin.jsp"/>

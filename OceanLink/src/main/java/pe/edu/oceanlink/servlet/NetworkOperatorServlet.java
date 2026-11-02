@@ -4,12 +4,15 @@ package pe.edu.oceanlink.servlet;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import pe.edu.oceanlink.bean.Incidencia;
 import pe.edu.oceanlink.bean.SolicitudCapacidad;
+import pe.edu.oceanlink.bean.Usuario;
+import pe.edu.oceanlink.dao.UsuarioDAO;
 import pe.edu.oceanlink.dao.IncidenciaDAO;
 import pe.edu.oceanlink.dao.ObservacionIncidenciaDAO;
 import pe.edu.oceanlink.dao.SegmentoConsultaDAO;
@@ -20,6 +23,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@MultipartConfig(maxFileSize = 2097152, maxRequestSize = 3145728)
 @WebServlet(name = "NetworkOperatorServlet",
         value = "/NetworkOperatorServlet")
 public class NetworkOperatorServlet extends HttpServlet {
@@ -54,13 +58,20 @@ public class NetworkOperatorServlet extends HttpServlet {
                             incidenciaDAO.listar("", "");
 
                     request.setAttribute("incidencias", incidencias);
+                    request.setAttribute("landingStations", segmentoDAO.contarLandingStations());
                     request.setAttribute(
                             "segmentos", segmentoDAO.listar("", ""));
 
                     forward(request, response, "/views/no-panel.jsp");
                     break;
 
+                case "sesionCerrada":
+                    forward(request, response, "/views/no-sesion-cerrada.jsp");
+                    break;
+
                 case "redes":
+                    request.setAttribute("landingStations", segmentoDAO.contarLandingStations());
+                    request.setAttribute("incidenciasActivas", incidenciaDAO.listarAbiertas().size());
                     request.setAttribute(
                             "lista",
                             segmentoDAO.listar(
@@ -127,12 +138,13 @@ public class NetworkOperatorServlet extends HttpServlet {
                             parseId(request.getParameter("id"));
 
                     if (idHistorial > 0) {
-                        request.setAttribute(
-                                "lista",
-                                eventoDAO.listarPorIncidencia(idHistorial));
+                        ArrayList<Incidencia> seleccion = new ArrayList<>();
+                        Incidencia elegida = incidenciaDAO.obtener(idHistorial);
+                        if (elegida != null) seleccion.add(elegida);
+                        request.setAttribute("lista", seleccion);
+                        request.setAttribute("eventos", eventoDAO.listarPorIncidencia(idHistorial));
                     } else {
-                        request.setAttribute(
-                                "lista", eventoDAO.listarTodos());
+                        request.setAttribute("lista", incidenciaDAO.listar("", ""));
                     }
 
                     forward(request, response,
@@ -151,6 +163,7 @@ public class NetworkOperatorServlet extends HttpServlet {
                     break;
 
                 case "nuevaSolicitud":
+                    request.setAttribute("motivos", solicitudDAO.listarMotivos());
                     request.setAttribute(
                             "clientes", solicitudDAO.listarClientes());
 
@@ -162,6 +175,7 @@ public class NetworkOperatorServlet extends HttpServlet {
                     break;
 
                 case "detalleSolicitud":
+                    request.setAttribute("resumenReserva", solicitudDAO.obtenerResumenReserva(parseId(request.getParameter("id"))));
                     request.setAttribute(
                             "solicitud",
                             solicitudDAO.obtener(
@@ -176,6 +190,11 @@ public class NetworkOperatorServlet extends HttpServlet {
                             "tipo", request.getParameter("tipo"));
 
                     forward(request, response, "/views/no-exito.jsp");
+                    break;
+
+                case "perfil":
+                    cargarFotoPerfil(request);
+                    forward(request, response, "/views/no-perfil.jsp");
                     break;
 
                 default:
@@ -202,6 +221,56 @@ public class NetworkOperatorServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         try {
+            if ("guardarPerfil".equals(action)) {
+                Object cuenta = request.getSession().getAttribute("usuarioSesion");
+                if (!(cuenta instanceof Usuario)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Inicia sesión para editar tu perfil.");
+                    return;
+                }
+                Usuario actual = (Usuario) cuenta;
+                try {
+                    String nombre = trim(request.getParameter("nombre"));
+                    String apellido = trim(request.getParameter("apellido"));
+                    String correo = trim(request.getParameter("correo"));
+                    String nueva = request.getParameter("nuevaPassword") == null ? "" : request.getParameter("nuevaPassword");
+                    if (nombre.isEmpty() || apellido.isEmpty() || nombre.length()>50 || apellido.length()>50)
+                        throw new IllegalArgumentException("Nombre y apellido son obligatorios y admiten hasta 50 caracteres.");
+                    if (correo.length()>50 || !correo.matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+"))
+                        throw new IllegalArgumentException("Ingresa un correo válido de hasta 50 caracteres.");
+                    if (nueva.length()>256 || !nueva.equals(request.getParameter("confirmarPassword")))
+                        throw new IllegalArgumentException("Las contraseñas nuevas deben coincidir y admitir hasta 256 caracteres.");
+                    String claveActual = request.getParameter("claveActual");
+                    if (claveActual == null || claveActual.isEmpty()) throw new IllegalArgumentException("Ingresa tu contraseña actual.");
+                    byte[] foto = null;
+                    jakarta.servlet.http.Part archivo = request.getPart("foto");
+                    if (archivo != null && archivo.getSize()>0) {
+                        if (!"image/jpeg".equals(archivo.getContentType()) && !"image/png".equals(archivo.getContentType()))
+                            throw new IllegalArgumentException("La foto debe ser JPG o PNG.");
+                        try (java.io.InputStream entrada = archivo.getInputStream()) { foto = entrada.readAllBytes(); }
+                        if (javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(foto)) == null)
+                            throw new IllegalArgumentException("El archivo no es una imagen válida.");
+                    }
+                    Usuario editado = new Usuario();
+                    editado.setIdUsuario(actual.getIdUsuario());editado.setNombre(nombre);editado.setApellido(apellido);
+                    editado.setCorreo(correo);editado.setPassword(nueva);
+                    new UsuarioDAO().actualizarPerfil(editado, claveActual, foto, "true".equals(request.getParameter("quitarFoto")));
+                    actual.setNombre(nombre);actual.setApellido(apellido);actual.setCorreo(correo);
+                    response.sendRedirect(request.getContextPath()+"/NetworkOperatorServlet?action=perfil&guardado=1");
+                } catch (IllegalArgumentException | java.sql.SQLException e) {
+                    log("No se pudo actualizar el perfil", e);
+                    request.setAttribute("error", e instanceof java.sql.SQLException
+                            ? (((java.sql.SQLException)e).getErrorCode()==1062 ? "El correo ya está registrado." : "No se pudo guardar el perfil.") : e.getMessage());
+                    cargarFotoPerfil(request);
+                    forward(request, response, "/views/no-perfil.jsp");
+                }
+                return;
+            }
+            if ("cerrarSesion".equals(action)) {
+                if (request.getSession(false) != null) request.getSession(false).invalidate();
+                response.sendRedirect(request.getContextPath()
+                        + "/NetworkOperatorServlet?action=sesionCerrada");
+                return;
+            }
             if ("crearIncidencia".equals(action)) {
 
                 String titulo = trim(request.getParameter("titulo"));
@@ -352,15 +421,19 @@ public class NetworkOperatorServlet extends HttpServlet {
                 String ruta = request.getParameter("idRuta");
                 String capacidad = request.getParameter("capacidad");
                 String motivo = trim(request.getParameter("motivo"));
+                if ("__otro__".equals(motivo)) {
+                    motivo = trim(request.getParameter("motivoPersonalizado"));
+                }
 
                 if (cliente == null
                         || ruta == null
                         || capacidad == null
                         || capacidad.trim().isEmpty()
-                        || motivo.isEmpty()) {
+                        || motivo.isEmpty() || motivo.length() > 255) {
 
                     request.setAttribute(
-                            "error", "Completa todos los campos obligatorios.");
+                            "error", "Completa todos los campos obligatorios. El motivo debe tener entre 1 y 255 caracteres.");
+                    request.setAttribute("motivos", solicitudDAO.listarMotivos());
 
                     request.setAttribute(
                             "clientes", solicitudDAO.listarClientes());
@@ -417,6 +490,18 @@ public class NetworkOperatorServlet extends HttpServlet {
         request.setAttribute("incidencia", incidenciaDAO.obtener(id));
         request.setAttribute(
                 "eventos", eventoDAO.listarPorIncidencia(id));
+        request.setAttribute("serviciosAfectados", incidenciaDAO.listarServiciosAfectados(id));
+        request.setAttribute("responsableIncidencia", incidenciaDAO.obtenerResponsable(id));
+    }
+
+    private void cargarFotoPerfil(HttpServletRequest request) throws java.sql.SQLException {
+        Object cuenta = request.getSession().getAttribute("usuarioSesion");
+        if (cuenta instanceof Usuario) {
+            byte[] foto = new UsuarioDAO().obtenerFoto(((Usuario)cuenta).getIdUsuario());
+            if (foto != null) request.setAttribute("fotoPerfil", "data:image/"
+                    + (foto.length>0 && foto[0]==(byte)0x89 ? "png" : "jpeg")
+                    + ";base64,"+java.util.Base64.getEncoder().encodeToString(foto));
+        }
     }
 
     private void forward(HttpServletRequest request,

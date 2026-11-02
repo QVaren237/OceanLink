@@ -1,102 +1,37 @@
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*" %>
-<%@ page import="pe.edu.oceanlink.bean.SolicitudCapacidad" %>
-<%
-    String ctx = request.getContextPath();
-    ArrayList<SolicitudCapacidad> lista =
-        (ArrayList<SolicitudCapacidad>) request.getAttribute("lista");
-    if (lista == null) lista = new ArrayList<>();
-    String buscar = request.getParameter("buscar") == null
-        ? "" : request.getParameter("buscar");
-    String estado = request.getParameter("estado") == null
-        ? "" : request.getParameter("estado");
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*,pe.edu.oceanlink.bean.*" %>
+<%!
+ private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
+ private String pill(String v) {
+   if (v==null) return "pill-neutral";
+   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
+   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
+   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
+   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+ }
 %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Solicitudes de capacidad - OceanLink</title>
-    <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
-</head>
-<body>
-<div class="shell">
-    <aside class="side">
-        <div class="brand brand-side">
-            <img class="brand-img" src="<%=ctx%>/assets/logo.png" alt="OceanLink">
-        </div>
-        <nav class="nav-sec">
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=panel">Panel</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=redes">Estado de la red</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=incidencias">Incidencias</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Solicitudes de capacidad</a>
-            <a class="nav-item" href="<%=ctx%>/NetworkOperatorServlet?action=historial">Historial</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <header class="topbar"><h2>Solicitudes de capacidad</h2></header>
-        <section class="content">
-            <h1>Solicitudes de capacidad</h1>
-            <p>Registra y consulta solicitudes de capacidad.</p>
-
-            <a class="btn" href="<%=ctx%>/NetworkOperatorServlet?action=nuevaSolicitud">
-                Nueva solicitud
-            </a>
-
-            <form method="get" action="<%=ctx%>/NetworkOperatorServlet">
-                <input type="hidden" name="action" value="solicitudes">
-                <input type="text" name="buscar" placeholder="Buscar código, ruta o motivo"
-                       value="<%=buscar%>">
-
-                <select name="estado">
-                    <option value="">Todos los estados</option>
-                    <option value="Registrada" <%= "Registrada".equals(estado) ? "selected" : "" %>>Registrada</option>
-                    <option value="En revisión" <%= "En revisión".equals(estado) ? "selected" : "" %>>En revisión</option>
-                    <option value="Aprobada" <%= "Aprobada".equals(estado) ? "selected" : "" %>>Aprobada</option>
-                    <option value="Rechazada" <%= "Rechazada".equals(estado) ? "selected" : "" %>>Rechazada</option>
-                </select>
-
-                <button type="submit">Buscar</button>
-                <a href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Limpiar</a>
-            </form>
-
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Cliente</th>
-                        <th>Ruta</th>
-                        <th>Capacidad solicitada</th>
-                        <th>Fecha de solicitud</th>
-                        <th>Estado</th>
-                        <th>Detalle</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% for (SolicitudCapacidad s : lista) { %>
-                    <tr>
-                        <td><%=s.getCodigo()%></td>
-                        <td><%=s.getCliente()%></td>
-                        <td><%=s.getRuta()%></td>
-                        <td><%=s.getCapacidadSolicitada()%></td>
-                        <td><%=s.getFechaSolicitud()%></td>
-                        <td><%=s.getEstado()%></td>
-                        <td>
-                            <a href="<%=ctx%>/NetworkOperatorServlet?action=detalleSolicitud&id=<%=s.getIdSolicitud()%>">Ver detalle</a>
-                        </td>
-                    </tr>
-                    <% } %>
-                    <% if (lista.isEmpty()) { %>
-                    <tr><td colspan="7">No se encontraron solicitudes.</td></tr>
-                    <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-</div>
-</body>
-</html>
+<% String ctx=request.getContextPath(); %>
+<% request.setAttribute("tituloNO","Solicitudes de capacidad");request.setAttribute("seccionNO","solicitudes");
+ArrayList<SolicitudCapacidad> lista=(ArrayList<SolicitudCapacidad>)request.getAttribute("lista");if(lista==null)lista=new ArrayList<>();
+%>
+<jsp:include page="/views/no-inicio.jsp"/>
+<div class="page-head"><div><h1>Solicitudes de capacidad</h1><div class="psub">Consulta las solicitudes enviadas al Capacity Planner.</div></div><div class="grow"></div><a class="btn btn-primary" href="<%=ctx%>/NetworkOperatorServlet?action=nuevaSolicitud">+ Nueva solicitud</a></div><div class="card"><div class="card-pad table-toolbar"><div class="usearch-box table-search"><span class="usearch-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span><input id="sol-search" type="search" placeholder="Buscar por solicitud, enlace o motivo..."></div><select class="input" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option>Registrada</option><option>En evaluación</option><option>Pendiente por capacidad</option><option>Aprobada</option><option>Reservada</option><option>Provisionada</option><option>Cancelada</option><option>Rechazada</option></select></div><div class="table-wrap"><table data-no-table><thead><tr><th class="sortable">Solicitud <span class="sarrow">▲</span></th><th class="sortable">Enlace <span class="sarrow">▲</span></th><th class="sortable">Capacidad <span class="sarrow">▲</span></th><th class="sortable">Motivo <span class="sarrow">▲</span></th><th class="sortable">Estado <span class="sarrow">▲</span></th><th>Acción</th></tr></thead><tbody><% for(SolicitudCapacidad so:lista){ %><tr data-row data-estado="<%=h(so.getEstado())%>"><td class="u-name"><%=h(so.getCodigo())%></td><td><%=h(so.getRuta())%><br><small><%=h(so.getCliente())%></small></td><td><strong><%=so.getCapacidadSolicitada()%> Gbps</strong></td><td><%=h(so.getMotivo())%></td><td><span class="pill <%=pill(so.getEstado())%>"><span class="dot"></span><%=h(so.getEstado())%></span></td><td><a class="btn btn-outline btn-sm btn-eye" title="Ver solicitud" aria-label="Ver solicitud" href="<%=ctx%>/NetworkOperatorServlet?action=detalleSolicitud&amp;id=<%=so.getIdSolicitud()%>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/></svg></a></td></tr><% } %></tbody></table></div><nav class="pagination" aria-label="Paginación"></nav></div><script>
+(function(){
+ const table=document.querySelector('[data-no-table]');if(!table)return;
+ const tbody=table.tBodies[0],rows=Array.from(tbody.querySelectorAll('tr[data-row]'));
+ const search=document.querySelector('.table-search input'),filter=document.querySelector('.table-toolbar select');
+ const nav=document.querySelector('.pagination');let page=1,col=-1,asc=true;
+ function paint(){
+  const q=(search?search.value:'').toLocaleLowerCase('es');
+  let found=rows.filter(r=>r.textContent.toLocaleLowerCase('es').includes(q)&&(!filter||!filter.value||r.dataset.estado===filter.value));
+  if(col>=0)found.sort((a,b)=>a.cells[col].textContent.trim().localeCompare(b.cells[col].textContent.trim(),'es',{numeric:true})*(asc?1:-1));
+  const total=Math.max(1,Math.ceil(found.length/5));page=Math.min(page,total);tbody.replaceChildren(...found.slice((page-1)*5,page*5));
+  if(!found.length){const tr=tbody.insertRow(),td=tr.insertCell();td.colSpan=table.tHead.rows[0].cells.length;td.textContent='No hay resultados para los filtros seleccionados.';}
+  nav.replaceChildren();function button(text,n,disabled){let b=document.createElement('button');b.type='button';b.className='page-btn'+(text===String(page)?' active':'');b.textContent=text;b.disabled=disabled;b.setAttribute('aria-label',text==='‹'?'Página anterior':text==='›'?'Página siguiente':'Página '+text);if(text===String(page))b.setAttribute('aria-current','page');b.onclick=()=>{page=n;paint();};nav.appendChild(b);}
+  button('‹',page-1,page===1);for(let n=1;n<=total;n++)button(String(n),n,false);button('›',page+1,page===total);
+ }
+ if(search)search.oninput=()=>{page=1;paint();};if(filter)filter.onchange=()=>{page=1;paint();};
+ Array.from(table.tHead.rows[0].cells).forEach((th,n)=>{if(th.textContent.trim()==='Acción')return;th.classList.add('sortable');th.tabIndex=0;function sort(){asc=col===n?!asc:true;col=n;page=1;paint();table.querySelectorAll('.sarrow').forEach(s=>s.textContent='⇅');let a=th.querySelector('.sarrow');if(a)a.textContent=asc?'▲':'▼';}th.onclick=sort;th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sort();}};});paint();
+})();
+</script>
+<jsp:include page="/views/no-fin.jsp"/>

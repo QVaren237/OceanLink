@@ -176,7 +176,40 @@ public class IncidenciaDAO {
     }
 
     public ArrayList<Incidencia> listarAbiertas() {
-        return listar("", "");
+        ArrayList<Incidencia> abiertas = listar("", "");
+        abiertas.removeIf(i -> "Cerrada".equalsIgnoreCase(i.getEstado()));
+        return abiertas;
+    }
+
+    public String obtenerResponsable(int id) {
+        String sql = "SELECT CONCAT(u.nombre, ' ', u.apellido) FROM incidencia i "
+                + "JOIN usuario u ON u.idUsuario=i.idUsuario WHERE i.idIncidencia=?";
+        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : "Sin asignación registrada";
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudo consultar el responsable", e);
+        }
+    }
+
+    public ArrayList<String[]> listarServiciosAfectados(int id) {
+        String sql = "SELECT DISTINCT s.codigo, c.razonSocial, s.estado FROM servicio s "
+                + "JOIN cliente c ON c.idCliente=s.idCliente "
+                + "JOIN ruta_segmento rs ON rs.idRuta=s.idRuta "
+                + "JOIN incidencia_segmento isg ON isg.idSegmento=rs.idSegmento "
+                + "WHERE isg.idIncidencia=? ORDER BY s.codigo";
+        ArrayList<String[]> servicios = new ArrayList<>();
+        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) servicios.add(new String[]{rs.getString(1),rs.getString(2),rs.getString(3)});
+            }
+            return servicios;
+        } catch (SQLException e) {
+            throw new RuntimeException("No se pudieron consultar los servicios afectados", e);
+        }
     }
 
     private Incidencia mapear(ResultSet rs) throws SQLException {
