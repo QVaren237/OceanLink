@@ -14,7 +14,7 @@ public class RutaDAO {
     // Mismo acceso JDBC de las clases 6.5, 7.2 y 7.3. Ajustar a MySQL local.
     protected Connection abrirConexion() throws SQLException, ClassNotFoundException {
         String user = "root";
-        String pass = "root";
+        String pass = "070501";
         String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(url, user, pass);

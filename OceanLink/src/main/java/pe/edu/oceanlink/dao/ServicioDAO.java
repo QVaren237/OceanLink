@@ -18,7 +18,7 @@ public class ServicioDAO {
             throws SQLException, ClassNotFoundException {
         ArrayList<Servicio> lista = new ArrayList<>();
         String user = "root";
-        String pass = "root"; // Cambiar por la contraseña local de MySQL
+        String pass = "070501"; // Cambiar por la contraseña local de MySQL
         String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
         Class.forName("com.mysql.cj.jdbc.Driver");
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -44,7 +44,7 @@ public class ServicioDAO {
     public Servicio obtenerServicio(int idServicio) throws SQLException, ClassNotFoundException {
         Servicio servicio = null;
         String user = "root";
-        String pass = "root"; // Cambiar por la contraseña local de MySQL
+        String pass = "070501"; // Cambiar por la contraseña local de MySQL
         String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
         Class.forName("com.mysql.cj.jdbc.Driver");
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -67,7 +67,7 @@ public class ServicioDAO {
     // CREATE: registrar servicio y devolver el ID autogenerado.
     public int crearServicio(Servicio servicio) throws SQLException, ClassNotFoundException {
         String user = "root";
-        String pass = "root"; // Cambiar por la contraseña local de MySQL
+        String pass = "070501"; // Cambiar por la contraseña local de MySQL
         String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
         Class.forName("com.mysql.cj.jdbc.Driver");
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -103,7 +103,7 @@ public class ServicioDAO {
             throw new IllegalArgumentException("Estado inválido");
         }
         String user = "root";
-        String pass = "root"; // Cambiar por la contraseña local de MySQL
+        String pass = "070501"; // Cambiar por la contraseña local de MySQL
         String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
         Class.forName("com.mysql.cj.jdbc.Driver");
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
