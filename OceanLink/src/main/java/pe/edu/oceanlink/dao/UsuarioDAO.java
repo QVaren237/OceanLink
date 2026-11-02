@@ -45,7 +45,7 @@ public class UsuarioDAO {
             java.sql.Statement stmt = conn.createStatement();
             // JOIN con rol para traer el nombre del rol y mostrarlo en la tabla
             String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.password, u.estado, u.idRol, r.nombre AS nombreRol " +
-                         "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario";
+                    "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -75,7 +75,7 @@ public class UsuarioDAO {
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
                 String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.password, u.estado, u.idRol, r.nombre AS nombreRol " +
-                             "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol WHERE u.idUsuario = ?";
+                        "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol WHERE u.idUsuario = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setInt(1, Integer.parseInt(idUsuario));
                     ResultSet rs = pstmt.executeQuery();
@@ -142,5 +142,77 @@ public class UsuarioDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // Cuenta el total de usuarios registrados
+    public int contarUsuarios() {
+        int total = 0;
+        try {
+            String user = "root";
+            String pass = "root";
+            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 java.sql.Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM usuario")) {
+                if (rs.next()) total = rs.getInt(1);
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    // Cuenta solo los usuarios con estado Activo
+    public int contarUsuariosActivos() {
+        int total = 0;
+        try {
+            String user = "root";
+            String pass = "root";
+            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 java.sql.Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM usuario WHERE estado = 'Activo'")) {
+                if (rs.next()) total = rs.getInt(1);
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    // Trae los ultimos usuarios registrados (para la tabla del panel)
+    public ArrayList<Usuario> obtenerUsuariosRecientes(int limite) {
+        ArrayList<Usuario> lista = new ArrayList<>();
+        try {
+            String user = "root";
+            String pass = "root";
+            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+                String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.password, u.estado, u.idRol, r.nombre AS nombreRol " +
+                        "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario DESC LIMIT ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setInt(1, limite);
+                    ResultSet rs = pstmt.executeQuery();
+                    while (rs.next()) {
+                        Usuario usuario = new Usuario();
+                        usuario.setIdUsuario(rs.getInt("idUsuario"));
+                        usuario.setNombre(rs.getString("nombre"));
+                        usuario.setApellido(rs.getString("apellido"));
+                        usuario.setCorreo(rs.getString("correo"));
+                        usuario.setPassword(rs.getString("password"));
+                        usuario.setEstado(rs.getString("estado"));
+                        usuario.setIdRol(rs.getInt("idRol"));
+                        usuario.setNombreRol(rs.getString("nombreRol"));
+                        lista.add(usuario);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
