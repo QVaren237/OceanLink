@@ -11,10 +11,10 @@ import java.util.ArrayList;
 
 public class UsuarioDAO {
 
-    public void crearUsuario(Usuario u) {
+    public void crearUsuario(Usuario u) throws SQLException, ClassNotFoundException {
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -30,7 +30,7 @@ public class UsuarioDAO {
                 }
             }
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -38,7 +38,7 @@ public class UsuarioDAO {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(url, user, pass);
@@ -70,7 +70,7 @@ public class UsuarioDAO {
         Usuario usuario = null;
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -98,10 +98,10 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public void actualizarUsuario(Usuario u) {
+    public void actualizarUsuario(Usuario u) throws SQLException, ClassNotFoundException {
         try {
             String user = "root";
-            String pass = "root";
+            String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -121,18 +121,20 @@ public class UsuarioDAO {
                     pstmt.setString(i++, u.getEstado());
                     pstmt.setInt(i++, u.getIdRol());
                     pstmt.setInt(i, u.getIdUsuario());
-                    pstmt.executeUpdate();
+                    if (pstmt.executeUpdate() != 1) {
+                        throw new SQLException("El usuario ya no existe. Actualiza el listado.");
+                    }
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
     public void cambiarEstado(String id, String nuevoEstado) {
         String url = "jdbc:mysql://localhost:3306/oceanlink";
         String user = "root";
-        String pass = "root";
+        String pass = "070501";
         String sql = "UPDATE usuario SET estado = ? WHERE idUsuario = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
