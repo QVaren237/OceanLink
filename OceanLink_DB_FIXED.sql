@@ -293,8 +293,8 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta` (
 -- Table `oceanlink`.`servicio`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
-                                                      `idServicio` INT NOT NULL AUTO_INCREMENT,
-                                                      `codigo` VARCHAR(30) NOT NULL,
+    `idServicio` INT NOT NULL AUTO_INCREMENT,
+    `codigo` VARCHAR(30) NOT NULL,
     `idCliente` INT NOT NULL,
     `idRuta` INT NOT NULL,
     `origen` VARCHAR(100) NOT NULL,
