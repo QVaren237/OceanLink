@@ -16,7 +16,7 @@ public class UsuarioDAO {
             String user = "root";
             String pass = "070501";
             String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("cSom.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
                 String sql = "INSERT INTO usuario (nombre, apellido, correo, password, estado, idRol) VALUES (?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
