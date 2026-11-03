@@ -6,6 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class IncidenciaDAO {
+    protected Connection abrirConexion() throws SQLException {return Conexion.getConnection();}
+
 
     public ArrayList<Incidencia> listar(String busqueda, String estado) {
         ArrayList<Incidencia> lista = new ArrayList<>();
@@ -18,7 +20,7 @@ public class IncidenciaDAO {
                 "AND (?='' OR i.estado=?) " +
                 "GROUP BY i.idIncidencia ORDER BY i.fechaDeteccion DESC";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = abrirConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             String filtro = "%" +
@@ -50,7 +52,7 @@ public class IncidenciaDAO {
                 "LEFT JOIN segmento s ON isg.idSegmento=s.idSegmento " +
                 "WHERE i.idIncidencia=? GROUP BY i.idIncidencia";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = abrirConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -74,7 +76,7 @@ public class IncidenciaDAO {
                 "fechaDeteccion, fechaCierre, idUsuario) " +
                 "VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?)";
 
-        try (Connection conn = Conexion.getConnection()) {
+        try (Connection conn = abrirConexion()) {
             conn.setAutoCommit(false);
 
             try {
@@ -140,10 +142,15 @@ public class IncidenciaDAO {
     public void actualizarEstado(int id, String nuevoEstado,
                                  String observacion) throws SQLException {
 
-        try (Connection conn = Conexion.getConnection()) {
+        try (Connection conn = abrirConexion()) {
             conn.setAutoCommit(false);
 
             try {
+                try(PreparedStatement bloqueo=conn.prepareStatement("SELECT idIncidencia FROM incidencia WHERE idIncidencia=? FOR UPDATE")){
+                    bloqueo.setInt(1,id);try(ResultSet fila=bloqueo.executeQuery()){if(!fila.next())throw new IllegalArgumentException("La incidencia no existe.");}
+                }
+                if("Servicio restaurado".equals(nuevoEstado)&&!MantenimientoDAO.puedeRestaurar(conn,id))
+                    throw new IllegalArgumentException("Primero deben finalizarse los mantenimientos correctivos, con resultado registrado, para todos los segmentos de la incidencia.");
                 String sql = "UPDATE incidencia SET estado=?, " +
                         "fechaCierre=CASE WHEN ?='Cerrada' " +
                         "THEN NOW() ELSE fechaCierre END " +
@@ -165,7 +172,7 @@ public class IncidenciaDAO {
                 insertarEvento(conn, id, "ESTADO", detalle);
                 conn.commit();
 
-            } catch (SQLException e) {
+            } catch (SQLException | RuntimeException e) {
                 conn.rollback();
                 throw e;
 
@@ -173,6 +180,10 @@ public class IncidenciaDAO {
                 conn.setAutoCommit(true);
             }
         }
+    }
+
+    public boolean puedeRestaurar(int id) throws SQLException {
+        try(Connection conn=abrirConexion()){return MantenimientoDAO.puedeRestaurar(conn,id);}
     }
 
     public ArrayList<Incidencia> listarAbiertas() {
@@ -184,7 +195,7 @@ public class IncidenciaDAO {
     public String obtenerResponsable(int id) {
         String sql = "SELECT CONCAT(u.nombre, ' ', u.apellido) FROM incidencia i "
                 + "JOIN usuario u ON u.idUsuario=i.idUsuario WHERE i.idIncidencia=?";
-        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = abrirConexion(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getString(1) : "Sin asignación registrada";
@@ -201,7 +212,7 @@ public class IncidenciaDAO {
                 + "JOIN incidencia_segmento isg ON isg.idSegmento=rs.idSegmento "
                 + "WHERE isg.idIncidencia=? ORDER BY s.codigo";
         ArrayList<String[]> servicios = new ArrayList<>();
-        try (Connection conn = Conexion.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = abrirConexion(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) servicios.add(new String[]{rs.getString(1),rs.getString(2),rs.getString(3)});

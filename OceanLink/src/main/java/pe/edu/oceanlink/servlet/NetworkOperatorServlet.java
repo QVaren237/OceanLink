@@ -312,6 +312,10 @@ public class NetworkOperatorServlet extends HttpServlet {
             if ("registrarRestauracion".equals(action)) {
 
                 int id = parseId(request.getParameter("id"));
+                if(!incidenciaDAO.puedeRestaurar(id)){
+                    response.setStatus(400);request.setAttribute("error","Primero deben finalizarse los mantenimientos correctivos de la infraestructura afectada y registrar sus resultados.");
+                    cargarDetalle(request,id);forward(request,response,"/views/no-incidencia-restauracion.jsp");return;
+                }
                 String resultado = request.getParameter("resultado");
                 String detalle = trim(
                         request.getParameter("observaciones"));
@@ -456,6 +460,8 @@ public class NetworkOperatorServlet extends HttpServlet {
                     request.getContextPath()
                             + "/NetworkOperatorServlet?action=panel");
 
+        } catch (IllegalArgumentException e) {
+            response.sendError(400,e.getMessage());
         } catch (Exception e) {
             throw new ServletException(
                     "No se pudo guardar la operación. "
@@ -463,7 +469,8 @@ public class NetworkOperatorServlet extends HttpServlet {
         }
     }
 
-    private void cargarDetalle(HttpServletRequest request, int id) {
+    private void cargarDetalle(HttpServletRequest request, int id) throws java.sql.SQLException {
+        request.setAttribute("restauracionHabilitada", incidenciaDAO.puedeRestaurar(id));
         request.setAttribute("incidencia", incidenciaDAO.obtener(id));
         request.setAttribute(
                 "eventos", eventoDAO.listarPorIncidencia(id));

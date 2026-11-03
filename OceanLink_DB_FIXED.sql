@@ -192,6 +192,9 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_segmento` (
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento` (
                                                            `idMantenimiento` INT NOT NULL AUTO_INCREMENT,
                                                            `codigo` VARCHAR(30) NOT NULL,
+    `titulo` VARCHAR(150) NULL DEFAULT NULL,
+    `descripcion` TEXT NULL,
+    `fechaFin` DATETIME NULL DEFAULT NULL,
     `tipo` VARCHAR(20) NULL DEFAULT NULL,
     `idIncidencia` INT NULL DEFAULT NULL,
     `idSegmento` INT NULL DEFAULT NULL,
@@ -243,6 +246,22 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_segmento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
+
+-- Bitácora de Maintenance Coordinator.
+CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_evento` (
+    `idEvento` INT NOT NULL AUTO_INCREMENT,
+    `idMantenimiento` INT NOT NULL,
+    `idUsuario` INT NOT NULL,
+    `tipo` VARCHAR(30) NOT NULL,
+    `estadoAnterior` VARCHAR(30) NULL,
+    `estadoNuevo` VARCHAR(30) NULL,
+    `detalle` TEXT NOT NULL,
+    `fechaRegistro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`idEvento`),
+    INDEX `idx_mc_evento_mantenimiento` (`idMantenimiento`,`fechaRegistro`),
+    CONSTRAINT `fk_mc_evento_mantenimiento` FOREIGN KEY (`idMantenimiento`) REFERENCES `oceanlink`.`mantenimiento` (`idMantenimiento`),
+    CONSTRAINT `fk_mc_evento_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `oceanlink`.`usuario` (`idUsuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`ruta`
@@ -894,3 +913,11 @@ ORDER BY sv.codigo;
 -- Para actualizar una base existente con Alertas de Red, ejecutar únicamente
 -- el bloque CREATE TABLE IF NOT EXISTS oceanlink.ampliacion_capacidad anterior.
 -- Registrar un requerimiento no modifica la capacidad física del segmento.
+
+-- ACTUALIZACION MAINTENANCE COORDINATOR (conserva los datos existentes):
+-- ALTER TABLE oceanlink.mantenimiento ADD COLUMN titulo VARCHAR(150) NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.mantenimiento ADD COLUMN descripcion TEXT NULL;
+-- ALTER TABLE oceanlink.mantenimiento ADD COLUMN fechaFin DATETIME NULL DEFAULT NULL;
+-- Ejecutar también el bloque CREATE TABLE IF NOT EXISTS oceanlink.mantenimiento_evento anterior.
+-- Estados del módulo: Programado, En ejecución, Suspendido, Finalizado.
+-- La finalización exige resultado y registra fechaFin y un evento; no restaura automáticamente incidencias.
