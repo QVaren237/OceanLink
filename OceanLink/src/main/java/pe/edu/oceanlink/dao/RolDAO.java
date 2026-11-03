@@ -9,17 +9,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class RolDAO {
+public class RolDAO extends BaseDAO {
 
-    // Se usa para llenar el combo de roles en el formulario de usuario
     public ArrayList<Rol> obtenerListaRoles() {
         ArrayList<Rol> listaRoles = new ArrayList<>();
         try {
-            String user = "root";
-            String pass = "070501";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT idRol, nombre FROM rol ORDER BY nombre")) {
                 while (rs.next()) {
@@ -29,28 +25,9 @@ public class RolDAO {
                     listaRoles.add(rol);
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return listaRoles;
-    }
-
-    // Cuenta el total de roles del sistema
-    public int contarRoles() {
-        int total = 0;
-        try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM rol")) {
-                if (rs.next()) total = rs.getInt(1);
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return total;
     }
 }
