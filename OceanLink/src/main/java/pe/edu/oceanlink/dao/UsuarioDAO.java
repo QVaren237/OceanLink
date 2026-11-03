@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class UsuarioDAO {
 
-    public void crearUsuario(Usuario u) {
+    public void crearUsuario(Usuario u) throws SQLException, ClassNotFoundException {
         try {
             String user = "root";
             String pass = "070501";
@@ -30,7 +30,7 @@ public class UsuarioDAO {
                 }
             }
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -98,7 +98,7 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public void actualizarUsuario(Usuario u) {
+    public void actualizarUsuario(Usuario u) throws SQLException, ClassNotFoundException {
         try {
             String user = "root";
             String pass = "070501";
@@ -121,11 +121,13 @@ public class UsuarioDAO {
                     pstmt.setString(i++, u.getEstado());
                     pstmt.setInt(i++, u.getIdRol());
                     pstmt.setInt(i, u.getIdUsuario());
-                    pstmt.executeUpdate();
+                    if (pstmt.executeUpdate() != 1) {
+                        throw new SQLException("El usuario ya no existe. Actualiza el listado.");
+                    }
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 

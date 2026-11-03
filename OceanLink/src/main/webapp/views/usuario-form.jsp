@@ -2,16 +2,24 @@
 <%@ page import="pe.edu.oceanlink.bean.Usuario" %>
 <%@ page import="pe.edu.oceanlink.bean.Rol" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%!
+    private String h(String valor) {
+        return valor == null ? "" : valor.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+%>
 <%
     Usuario u = (Usuario) request.getAttribute("usuario");
     ArrayList<Rol> roles = (ArrayList<Rol>) request.getAttribute("roles");
+    boolean esEdicion = request.getAttribute("esEdicion") != null
+            ? Boolean.TRUE.equals(request.getAttribute("esEdicion")) : u != null;
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= u != null ? "Editar" : "Registrar" %> usuario · OceanLink</title>
+<title><%= esEdicion ? "Editar" : "Registrar" %> usuario · OceanLink</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -61,35 +69,38 @@
     <div class="content">
       <div class="page-head">
         <div>
-          <h1 id="pageTitle"><%= u != null ? "Editar usuario" : "Registrar nuevo usuario" %></h1>
-          <div class="psub" id="pageSub"><%= u != null ? "Modifica los datos de la cuenta." : "Añade una nueva cuenta al sistema." %></div>
+          <h1 id="pageTitle"><%= esEdicion ? "Editar usuario" : "Registrar nuevo usuario" %></h1>
+          <div class="psub" id="pageSub"><%= esEdicion ? "Modifica los datos de la cuenta." : "Añade una nueva cuenta al sistema." %></div>
         </div>
         <div class="grow"></div>
       </div>
 
       <div class="card card-pad" style="max-width:720px">
+        <% if (request.getAttribute("errorUsuario") != null) { %>
+          <div class="banner banner-err" role="alert"><%= h((String) request.getAttribute("errorUsuario")) %> Si ingresaste una contraseña, vuelve a escribirla antes de confirmar.</div>
+        <% } %>
         <form id="mainForm" action="<%= request.getContextPath() %>/UsuarioServlet?action=crear" method="post">
 
-          <% if (u != null) { %>
+          <% if (esEdicion) { %>
             <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
           <% } %>
 
           <div class="form-grid" id="formGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="field">
               <label>Nombre (*)</label>
-              <input class="input" name="nombre" id="fNombre" value="<%= u != null ? u.getNombre() : "" %>"><div class="err" id="eNombre" style="display:none;">Este campo es obligatorio.</div>
+              <input class="input" name="nombre" maxlength="50" id="fNombre" value="<%= u != null ? h(u.getNombre()) : "" %>"><div class="err" id="eNombre" style="display:none;">Este campo es obligatorio.</div>
             </div>
             <div class="field">
               <label>Apellido (*)</label>
-              <input class="input" name="apellido" id="fApellido" value="<%= u != null ? u.getApellido() : "" %>"><div class="err" id="eApellido" style="display:none;">Este campo es obligatorio.</div>
+              <input class="input" name="apellido" maxlength="50" id="fApellido" value="<%= u != null ? h(u.getApellido()) : "" %>"><div class="err" id="eApellido" style="display:none;">Este campo es obligatorio.</div>
             </div>
             <div class="field" style="grid-column: span 2;">
               <label>Correo corporativo (*)</label>
-              <input class="input" type="email" name="correo" id="fCorreo" value="<%= u != null ? u.getCorreo() : "" %>"><div class="err" id="eCorreo" style="display:none;">Ingrese un correo válido.</div>
+              <input class="input" type="email" name="correo" maxlength="50" id="fCorreo" value="<%= u != null ? h(u.getCorreo()) : "" %>"><div class="err" id="eCorreo" style="display:none;">Ingrese un correo válido.</div>
             </div>
             <div class="field" style="grid-column: span 2;">
-              <label>Contraseña <%= u != null ? "(dejar en blanco para no cambiarla)" : "(*)" %></label>
-              <input class="input" type="password" name="password" id="fPassword" placeholder="<%= u != null ? "••••••••" : "" %>"><div class="err" id="ePassword" style="display:none;">Este campo es obligatorio.</div>
+              <label>Contraseña <%= esEdicion ? "(dejar en blanco para no cambiarla)" : "(*)" %></label>
+              <input class="input" type="password" name="password" maxlength="256" id="fPassword" placeholder="<%= esEdicion ? "••••••••" : "" %>"><div class="err" id="ePassword" style="display:none;">Este campo es obligatorio.</div>
             </div>
             <div class="field">
               <label>Rol (*)</label>
@@ -97,7 +108,7 @@
                 <% if (roles != null) {
                      for (Rol r : roles) {
                        boolean sel = (u != null && u.getIdRol() == r.getIdRol()); %>
-                  <option value="<%= r.getIdRol() %>" <%= sel ? "selected" : "" %>><%= r.getNombre() %></option>
+                  <option value="<%= r.getIdRol() %>" <%= sel ? "selected" : "" %>><%= h(r.getNombre()) %></option>
                 <%   }
                    } %>
               </select>
@@ -142,7 +153,7 @@
             </div>
             <div class="form-actions">
               <button type="button" class="btn btn-outline" onclick="hideConfirm()">Volver a editar</button>
-              <button type="submit" class="btn btn-primary">Confirmar <%= u != null ? "cambios" : "registro" %></button>
+              <button type="submit" class="btn btn-primary">Confirmar <%= esEdicion ? "cambios" : "registro" %></button>
             </div>
           </div>
         </form>
@@ -153,7 +164,7 @@
 </div>
 
 <script>
-var esEdicion = <%= u != null ? "true" : "false" %>;
+var esEdicion = <%= esEdicion ? "true" : "false" %>;
 
 function showConfirm() {
     var isValid = true;

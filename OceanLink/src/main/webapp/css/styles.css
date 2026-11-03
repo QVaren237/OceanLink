@@ -362,3 +362,18 @@ th.sortable:hover .sarrow{color:var(--teal-dd)}
     .ruta-form-grid { grid-template-columns: 1fr; }
     .ruta-filter { width: 100%; }
 }
+
+/* Corrección de fidelidad al HTML CapacityPlanner/Clientes/service-confirm.html */
+/* Agregar AL FINAL del único src/main/webapp/css/styles.css del proyecto. */
+.confirm-wrap { max-width: 640px; }
+.confirm-wrap .page-head h1 { margin-bottom: 2px; }
+.summary-box { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 4px; }
+.summary-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--line); }
+.summary-row:last-child { border-bottom: none; }
+.summary-row > span { font-size: 11px; color: var(--muted); font-weight: 600; }
+.summary-row > strong { font-size: 12.5px; font-weight: 800; color: var(--ink); text-align: right; }
+.confirm-segment { display: block; font-size: inherit; font-weight: inherit; color: inherit; margin: 2px 0; }
+/* Ícono de ojo de CapacityPlanner/Clientes/index.html */
+.actions { display: flex; align-items: center; gap: 7px; }
+.btn-icon { width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; }
+.btn-icon svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
