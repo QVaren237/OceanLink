@@ -306,6 +306,8 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
                                                        `codigo` VARCHAR(30) NOT NULL,
     `idCliente` INT NOT NULL,
     `idRuta` INT NOT NULL,
+    `idServicio` INT NULL DEFAULT NULL,
+    CONSTRAINT `fk_solicitud_servicio` FOREIGN KEY (`idServicio`) REFERENCES `oceanlink`.`servicio` (`idServicio`),
     `capacidadSolicitada` DECIMAL(12,2) NULL DEFAULT NULL,
     `fechaSolicitud` DATE NULL DEFAULT NULL,
     `fechaLimite` DATE NULL DEFAULT NULL,
@@ -313,7 +315,13 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
     `estado` VARCHAR(30) NULL DEFAULT NULL,
     `observacion` VARCHAR(255) NULL DEFAULT NULL,
     `idUsuario` INT NOT NULL,
+    `comentarioEvaluacion` VARCHAR(255) NULL DEFAULT NULL,
+    `idEvaluador` INT NULL DEFAULT NULL,
+    `fechaEvaluacion` DATETIME NULL DEFAULT NULL,
     PRIMARY KEY (`idSolicitud`),
+    INDEX `idx_solicitud_evaluador` (`idEvaluador`),
+    CONSTRAINT `fk_solicitud_evaluador` FOREIGN KEY (`idEvaluador`)
+      REFERENCES `oceanlink`.`usuario` (`idUsuario`),
     UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
     INDEX `fk_solicitud_cliente` (`idCliente` ASC) VISIBLE,
     INDEX `fk_solicitud_ruta` (`idRuta` ASC) VISIBLE,
@@ -337,7 +345,7 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`reserva_capacidad` (
                                                                `idReserva` INT NOT NULL AUTO_INCREMENT,
-                                                               `idSolicitud` INT NOT NULL,
+                                                               `idSolicitud` INT NULL DEFAULT NULL,
                                                                `idSegmento` INT NOT NULL,
                                                                `idServicio` INT NOT NULL,
                                                                `capacidadReservada` DECIMAL(12,2) NOT NULL,
@@ -410,6 +418,24 @@ INSERT IGNORE INTO rol (idRol, nombre) VALUES
 (3, 'Network Operator'),
 (4, 'Maintenance Coordinator'),
 (5, 'Supervisor');
+
+-- Requerimientos internos de ampliación física; separados de las solicitudes de Network Operator.
+CREATE TABLE IF NOT EXISTS `oceanlink`.`ampliacion_capacidad` (
+    `idAmpliacion` INT NOT NULL AUTO_INCREMENT,
+    `codigo` VARCHAR(30) NOT NULL,
+    `idSegmento` INT NOT NULL,
+    `capacidadActual` DECIMAL(12,2) NOT NULL,
+    `capacidadNueva` DECIMAL(12,2) NOT NULL,
+    `fechaLimite` DATE NOT NULL,
+    `justificacion` VARCHAR(2000) NOT NULL,
+    `estado` VARCHAR(30) NOT NULL DEFAULT 'Registrada',
+    `fechaRegistro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `idUsuario` INT NULL DEFAULT NULL,
+    PRIMARY KEY (`idAmpliacion`),
+    UNIQUE KEY `uk_ampliacion_codigo` (`codigo`),
+    CONSTRAINT `fk_ampliacion_segmento` FOREIGN KEY (`idSegmento`) REFERENCES `oceanlink`.`segmento` (`idSegmento`),
+    CONSTRAINT `fk_ampliacion_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `oceanlink`.`usuario` (`idUsuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 -- Usuarios de prueba. La contraseña es ficticia y no está destinada a autenticación real.
 INSERT IGNORE INTO usuario (idUsuario, nombre, apellido, correo, password, estado, idRol, foto) VALUES
@@ -846,3 +872,25 @@ FROM servicio sv
 WHERE s.estado = 'Fuera de servicio'
   AND sv.estado <> 'Cancelado'
 ORDER BY sv.codigo;
+
+
+-- ACTUALIZACION DE UNA BASE YA EXISTENTE (no borra registros).
+-- CREATE TABLE IF NOT EXISTS no agrega columnas a tablas existentes.
+-- Ejecutar estas instrucciones una sola vez, omitiendo las columnas/clave ya creadas:
+-- ALTER TABLE oceanlink.reserva_capacidad MODIFY COLUMN idSolicitud INT NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.solicitud ADD COLUMN comentarioEvaluacion VARCHAR(255) NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.solicitud ADD COLUMN idEvaluador INT NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.solicitud ADD COLUMN fechaEvaluacion DATETIME NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.solicitud ADD CONSTRAINT fk_solicitud_evaluador
+--   FOREIGN KEY (idEvaluador) REFERENCES oceanlink.usuario(idUsuario);
+-- Reserva directa: idSolicitud=NULL. Reserva vinculada: conserva el id de la solicitud aprobada.
+
+-- Servicio asociado a solicitudes de incremento de capacidad (bases existentes):
+-- ALTER TABLE oceanlink.solicitud ADD COLUMN idServicio INT NULL DEFAULT NULL;
+-- ALTER TABLE oceanlink.solicitud ADD CONSTRAINT fk_solicitud_servicio
+--   FOREIGN KEY (idServicio) REFERENCES oceanlink.servicio(idServicio);
+-- No se asignan servicios automáticamente a solicitudes antiguas: deben revisarse sus datos.
+
+-- Para actualizar una base existente con Alertas de Red, ejecutar únicamente
+-- el bloque CREATE TABLE IF NOT EXISTS oceanlink.ampliacion_capacidad anterior.
+-- Registrar un requerimiento no modifica la capacidad física del segmento.

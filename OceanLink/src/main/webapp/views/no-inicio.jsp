@@ -74,7 +74,7 @@
         <div class="uinfo"><div class="un"><%=h(nombre)%></div><div class="ur">Network Operator</div></div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="<%=ctx%>/NetworkOperatorServlet?action=perfil">Editar perfil</a>
+          <a href="<%=ctx%>/NetworkOperatorServlet?action=perfil">Mi perfil</a>
           <form method="post" action="<%=ctx%>/NetworkOperatorServlet">
             <input type="hidden" name="action" value="cerrarSesion">
             <button type="submit">Cerrar sesión</button>

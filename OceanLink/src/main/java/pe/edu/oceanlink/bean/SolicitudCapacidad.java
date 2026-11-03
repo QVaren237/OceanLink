@@ -4,6 +4,19 @@ package pe.edu.oceanlink.bean;
 import java.sql.Date;
 
 public class SolicitudCapacidad {
+    private Integer idServicio;
+    public Integer getIdServicio(){return idServicio;}
+    public void setIdServicio(Integer valor){idServicio=valor;}
+    private String comentarioEvaluacion;
+    private String nombreEvaluador;
+    private java.sql.Timestamp fechaEvaluacion;
+    public String getComentarioEvaluacion(){return comentarioEvaluacion;}
+    public void setComentarioEvaluacion(String valor){comentarioEvaluacion=valor;}
+    public String getNombreEvaluador(){return nombreEvaluador;}
+    public void setNombreEvaluador(String valor){nombreEvaluador=valor;}
+    public java.sql.Timestamp getFechaEvaluacion(){return fechaEvaluacion;}
+    public void setFechaEvaluacion(java.sql.Timestamp valor){fechaEvaluacion=valor;}
+
 
     private int idSolicitud;
     private String codigo;

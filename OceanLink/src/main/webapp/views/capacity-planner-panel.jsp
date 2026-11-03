@@ -47,7 +47,7 @@
                 <td data-sort="<%= h(servicio.getRazonSocial()) %>"><div class="u-cell"><div class="u-av"><%= h(servicio.getIniciales()) %></div><div><div class="u-name"><%= h(servicio.getRazonSocial()) %></div><div class="u-mail">ID: C<%= servicio.getIdCliente() %></div></div></div></td>
                 <td data-sort="<%= h(servicio.getCodigoServicio()) %>"><strong><%= h(servicio.getCodigoServicio()) %></strong></td>
                 <td data-sort="<%= h(servicio.getEnlace()) %>"><%= h(servicio.getEnlace()) %></td>
-                <td data-sort="<%= h(servicio.getCapacidadContratada()) %>"><strong><%= h(servicio.getCapacidadContratada()) %> Gbps</strong></td>
+                <td data-sort="<%= servicio.getCapacidadContratada() == null ? "-1" : h(servicio.getCapacidadContratada()) %>"><strong><%= servicio.getCapacidadContratada() == null ? "Sin asignar" : h(servicio.getCapacidadContratada().stripTrailingZeros().toPlainString()) + " Gbps" %></strong></td>
                 <td data-sort="<%= h(estadoServicio) %>"><span class="pill <%= claseEstado %>"><span class="dot"></span><%= h(estadoServicio) %></span></td>
             </tr>
         <% } %>

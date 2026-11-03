@@ -15,6 +15,7 @@
 ArrayList<String[]> clientes=(ArrayList<String[]>)request.getAttribute("clientes"),rutas=(ArrayList<String[]>)request.getAttribute("rutas");if(clientes==null)clientes=new ArrayList<>();if(rutas==null)rutas=new ArrayList<>();
 ArrayList<String> motivos=(ArrayList<String>)request.getAttribute("motivos");if(motivos==null)motivos=new ArrayList<>();
 String motivoSeleccionado=request.getParameter("motivo")==null?"":request.getParameter("motivo");
+ArrayList<String[]> servicios=(ArrayList<String[]>)request.getAttribute("servicios");if(servicios==null)servicios=new ArrayList<>();
 boolean otroMotivo="__otro__".equals(motivoSeleccionado);
 
 %>
@@ -27,11 +28,27 @@ boolean otroMotivo="__otro__".equals(motivoSeleccionado);
 <div id="motivoPersonalizadoGrupo" <%=otroMotivo?"":"hidden"%>>
 <label for="motivoPersonalizado" class="hint">Especifica el motivo *</label>
 <input class="input" id="motivoPersonalizado" name="motivoPersonalizado" maxlength="255" placeholder="Escribe el motivo de la solicitud" value="<%=request.getParameter("motivoPersonalizado")==null?"":h(request.getParameter("motivoPersonalizado"))%>" <%=otroMotivo?"required":"disabled"%>>
-</div></div><div class="data-label">Observación</div><div><textarea class="input" name="observacion" maxlength="255" rows="4" placeholder="Explica la necesidad de capacidad adicional..."><%=request.getParameter("observacion")==null?"":h(request.getParameter("observacion"))%></textarea></div></div><div class="data-list"><div class="data-label">Fecha límite</div><div><input class="input" name="fechaLimite" value="<%=request.getParameter("fechaLimite")==null?"":h(request.getParameter("fechaLimite"))%>" aria-label="Fecha límite" type="date" min="<%=java.time.LocalDate.now()%>"></div></div><div class="action-row"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Cancelar</a><button class="btn btn-primary" type="submit">Enviar</button></div></div><div id="noConfirmView" hidden><div class="page-head"><div><h1>Confirmar solicitud</h1><div class="psub">Revisa la información antes de confirmar.</div></div></div><div class="card card-pad" style="max-width:720px"><div class="info-strip"><div class="ii">!</div><div><div class="it">CONFIRMAR OPERACIÓN</div><div class="id">La información se guardará al confirmar.</div></div></div><div id="noConfirmFields"></div><div class="form-actions"><button type="button" class="btn btn-outline" id="noBack">Volver a editar</button><button type="button" class="btn btn-primary" id="noSave">Confirmar</button></div></div></div></form><script>
+</div></div><div class="data-label" id="servicioSolicitudEtiqueta" hidden>Servicio existente *</div><div id="servicioSolicitudGrupo" hidden>
+<select class="input" aria-label="Servicio existente" id="servicioSolicitud" name="idServicio" disabled><option value="">Selecciona un servicio</option>
+<% for(String[] sv:servicios){ %><option value="<%=h(sv[0])%>" data-cliente="<%=h(sv[2])%>" data-ruta="<%=h(sv[3])%>" <%=sv[0].equals(request.getParameter("idServicio"))?"selected":""%>><%=h(sv[1])%></option><% } %>
+</select><div class="hint" id="servicioSolicitudAyuda">Selecciona un servicio existente para incrementar su capacidad.</div></div><div class="data-label">Observación</div><div><textarea class="input" name="observacion" maxlength="255" rows="4" placeholder="Explica la necesidad de capacidad adicional..."><%=request.getParameter("observacion")==null?"":h(request.getParameter("observacion"))%></textarea></div></div><div class="data-list"><div class="data-label">Fecha límite</div><div><input class="input" name="fechaLimite" value="<%=request.getParameter("fechaLimite")==null?"":h(request.getParameter("fechaLimite"))%>" aria-label="Fecha límite" type="date" min="<%=java.time.LocalDate.now()%>"></div></div><div class="action-row"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=solicitudes">Cancelar</a><button class="btn btn-primary" type="submit">Enviar</button></div></div><div id="noConfirmView" hidden><div class="page-head"><div><h1>Confirmar solicitud</h1><div class="psub">Revisa la información antes de confirmar.</div></div></div><div class="card card-pad" style="max-width:720px"><div class="info-strip"><div class="ii">!</div><div><div class="it">CONFIRMAR OPERACIÓN</div><div class="id">La información se guardará al confirmar.</div></div></div><div id="noConfirmFields"></div><div class="form-actions"><button type="button" class="btn btn-outline" id="noBack">Volver a editar</button><button type="button" class="btn btn-primary" id="noSave">Confirmar</button></div></div></div></form><script>
 (function(){const form=document.querySelector('[data-confirm-form]');if(!form)return;let confirmed=false;
 const original=document.getElementById('noFormView'),review=document.getElementById('noConfirmView'),fields=document.getElementById('noConfirmFields');
 const motivo=document.getElementById('motivoSolicitud'),personalizado=document.getElementById('motivoPersonalizado'),grupo=document.getElementById('motivoPersonalizadoGrupo');
-function cambiarMotivo(){const otro=motivo.value==='__otro__';grupo.hidden=!otro;personalizado.disabled=!otro;personalizado.required=otro;personalizado.setCustomValidity('');}
+function cambiarMotivo(){const otro=motivo.value==='__otro__';grupo.hidden=!otro;personalizado.disabled=!otro;personalizado.required=otro;personalizado.setCustomValidity('');actualizarServicios();}
+const cliente=form.querySelector('[name="idCliente"]'),ruta=form.querySelector('[name="idRuta"]'),servicio=document.getElementById('servicioSolicitud');
+function actualizarServicios(){
+ const valor=(motivo.value==='__otro__'?personalizado.value:motivo.value).trim().toLocaleLowerCase('es');
+ const incremento=valor==='incremento de capacidad'||valor==='incremento por capacidad';
+ document.getElementById('servicioSolicitudEtiqueta').hidden=!incremento;document.getElementById('servicioSolicitudGrupo').hidden=!incremento;
+ servicio.disabled=!incremento;servicio.required=incremento;
+ let disponibles=0;Array.from(servicio.options).forEach(o=>{if(!o.value)return;const compatible=o.dataset.cliente===cliente.value&&o.dataset.ruta===ruta.value;o.hidden=!compatible;o.disabled=!compatible;if(compatible)disponibles++;});
+ if(servicio.selectedOptions[0]&&servicio.selectedOptions[0].disabled)servicio.value='';
+ if(!incremento)servicio.value='';
+ document.getElementById('servicioSolicitudAyuda').textContent=!cliente.value||!ruta.value?'Selecciona primero un cliente y una ruta.':disponibles?'Selecciona el servicio cuya capacidad deseas incrementar.':'Este cliente no tiene servicios compatibles en la ruta elegida. Registra el servicio o revisa el cliente y la ruta.';
+ servicio.setCustomValidity(incremento&&cliente.value&&ruta.value&&!disponibles?'No existe un servicio compatible para solicitar el incremento.':'');
+}
+cliente.addEventListener('change',actualizarServicios);ruta.addEventListener('change',actualizarServicios);personalizado.addEventListener('input',actualizarServicios);
 motivo.addEventListener('change',cambiarMotivo);personalizado.addEventListener('input',()=>personalizado.setCustomValidity(personalizado.value.trim()?'':'Especifica el motivo.'));cambiarMotivo();
 form.addEventListener('submit',function(e){if(confirmed)return;e.preventDefault();if(!form.reportValidity())return;
  const checks=Array.from(form.querySelectorAll('input[name="segmentos"]'));if(checks.length&&!checks.some(c=>c.checked)){const error=document.getElementById('noSegmentError');error.hidden=false;return;}

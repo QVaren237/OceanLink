@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
 </head>
 <body>
-<div class="shell rutas-shell">
+<div class="shell rutas-shell<%= ("capacidad".equals(seccionPlanner)||"solicitudes".equals(seccionPlanner))?" capacidad-shell":"alertas".equals(seccionPlanner)?" alertas-shell":"historico".equals(seccionPlanner)?" historico-shell":"" %>">
     <aside class="side">
         <div class="brand brand-side"><img class="brand-img" src="<%= request.getContextPath() %>/assets/logo.png" alt="OceanLink"></div>
         <nav class="nav-sec" aria-label="Módulos">
@@ -54,10 +54,10 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h8a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h8"/></svg>
                 <span>Rutas</span>
             </a>
-            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/capacidad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15a9 9 0 0 1 18 0M12 15l4-6"/></svg><span>Capacidad</span></a>
-            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/solicitudes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8"/></svg><span>Solicitudes</span></a>
-            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/alertas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20zM12 9v5M12 17v1"/></svg><span>Alertas de Red</span></a>
-            <a class="nav-item" href="<%= request.getContextPath() %>/capacity-planner/historico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg><span>Histórico</span></a>
+            <a class="nav-item <%= "capacidad".equals(seccionPlanner)?"active":"" %>" <%= "capacidad".equals(seccionPlanner)?"aria-current=\"page\"":"" %> href="<%= request.getContextPath() %>/capacity-planner/capacidad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15a9 9 0 0 1 18 0M12 15l4-6"/></svg><span>Capacidad</span></a>
+            <a class="nav-item <%= "solicitudes".equals(seccionPlanner)?"active":"" %>" href="<%= request.getContextPath() %>/capacity-planner/solicitudes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8"/></svg><span>Solicitudes</span></a>
+            <a class="nav-item <%= "alertas".equals(seccionPlanner)?"active":"" %>" <%= "alertas".equals(seccionPlanner)?"aria-current=\"page\"":"" %> href="<%= request.getContextPath() %>/capacity-planner/alertas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20zM12 9v5M12 17v1"/></svg><span>Alertas de Red</span></a>
+            <a class="nav-item <%= "historico".equals(seccionPlanner)?"active":"" %>" <%= "historico".equals(seccionPlanner)?"aria-current=\"page\"":"" %> href="<%= request.getContextPath() %>/capacity-planner/historico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg><span>Histórico</span></a>
         </nav>
         <div class="side-foot"><div class="role-badge"><div class="rl">Rol activo</div><div class="rn"><span class="dot"></span>Capacity Planner</div></div></div>
     </aside>
