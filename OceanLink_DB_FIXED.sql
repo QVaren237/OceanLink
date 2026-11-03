@@ -12,366 +12,379 @@ USE `oceanlink` ;
 -- Table `oceanlink`.`cliente`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`cliente` (
-  `idCliente` INT NOT NULL AUTO_INCREMENT,
-  `razonSocial` VARCHAR(100) NOT NULL,
-  `ruc` CHAR(11) NOT NULL,
-  `telefono` VARCHAR(20) NULL DEFAULT NULL,
-  `correo` VARCHAR(100) NULL DEFAULT NULL,
-  `direccion` VARCHAR(200) NULL DEFAULT NULL,
-  `contacto` VARCHAR(100) NULL DEFAULT NULL,
-  `estado` VARCHAR(20) NULL DEFAULT NULL,
-  PRIMARY KEY (`idCliente`),
-  UNIQUE INDEX `ruc` (`ruc` ASC) VISIBLE)
-ENGINE = InnoDB -- Este apartado indica el motor de almacenamiento que usará la table, que permitirá con claves foráneas. Es recomendable eliminar este apartado
-DEFAULT CHARACTER SET = utf8mb4 -- Permitirá almancenar tildes, la letra ñ, etc
-COLLATE = utf8mb4_spanish_ci; -- permitirá comprar con palabras mayusculas y minusculas (textos en español)
+                                                     `idCliente` INT NOT NULL AUTO_INCREMENT,
+                                                     `razonSocial` VARCHAR(100) NOT NULL,
+    `ruc` CHAR(11) NOT NULL,
+    `telefono` VARCHAR(20) NULL DEFAULT NULL,
+    `correo` VARCHAR(100) NULL DEFAULT NULL,
+    `direccion` VARCHAR(200) NULL DEFAULT NULL,
+    `contacto` VARCHAR(100) NULL DEFAULT NULL,
+    `estado` VARCHAR(20) NULL DEFAULT NULL,
+    PRIMARY KEY (`idCliente`),
+    UNIQUE INDEX `ruc` (`ruc` ASC) VISIBLE)
+    ENGINE = InnoDB -- Este apartado indica el motor de almacenamiento que usará la table, que permitirá con claves foráneas. Es recomendable eliminar este apartado
+    DEFAULT CHARACTER SET = utf8mb4 -- Permitirá almancenar tildes, la letra ñ, etc
+    COLLATE = utf8mb4_spanish_ci; -- permitirá comprar con palabras mayusculas y minusculas (textos en español)
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`landing_station`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`landing_station` (
-  `idLandingStation` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `nombre` VARCHAR(50) NOT NULL,
-  `ubicacion` VARCHAR(150) NOT NULL,
-  `estado` VARCHAR(30) NOT NULL,
-  `descripcion` VARCHAR(255) NULL,
-  PRIMARY KEY (`idLandingStation`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+                                                             `idLandingStation` INT NOT NULL AUTO_INCREMENT,
+                                                             `codigo` VARCHAR(30) NOT NULL,
+    `nombre` VARCHAR(50) NOT NULL,
+    `ubicacion` VARCHAR(150) NOT NULL,
+    `estado` VARCHAR(30) NOT NULL,
+    `descripcion` VARCHAR(255) NULL,
+    PRIMARY KEY (`idLandingStation`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE)
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`segmento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`segmento` (
-  `idSegmento` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `idEstacionOrigen` INT NOT NULL,
-  `idEstacionDestino` INT NOT NULL,
-  `capacidadTotal` DECIMAL(12,2) NULL DEFAULT NULL,
-  `capacidadUtilizada` DECIMAL(12,2) NULL DEFAULT NULL,
-  `capacidadReservada` DECIMAL(12,2) NULL DEFAULT NULL,
-  `longitudKm` DECIMAL(10,2) NULL DEFAULT NULL,
-  `estado` VARCHAR(30) NULL DEFAULT NULL,
-  `descripcion` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`idSegmento`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_segmento_origen` (`idEstacionOrigen` ASC) VISIBLE,
-  INDEX `fk_segmento_destino` (`idEstacionDestino` ASC) VISIBLE,
-  CONSTRAINT `fk_segmento_destino`
+                                                      `idSegmento` INT NOT NULL AUTO_INCREMENT,
+                                                      `codigo` VARCHAR(30) NOT NULL,
+    `idEstacionOrigen` INT NOT NULL,
+    `idEstacionDestino` INT NOT NULL,
+    `capacidadTotal` DECIMAL(12,2) NULL DEFAULT NULL,
+    `capacidadUtilizada` DECIMAL(12,2) NULL DEFAULT NULL,
+    `capacidadReservada` DECIMAL(12,2) NULL DEFAULT NULL,
+    `longitudKm` DECIMAL(10,2) NULL DEFAULT NULL,
+    `estado` VARCHAR(30) NULL DEFAULT NULL,
+    `descripcion` VARCHAR(255) NULL DEFAULT NULL,
+    PRIMARY KEY (`idSegmento`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_segmento_origen` (`idEstacionOrigen` ASC) VISIBLE,
+    INDEX `fk_segmento_destino` (`idEstacionDestino` ASC) VISIBLE,
+    CONSTRAINT `fk_segmento_destino`
     FOREIGN KEY (`idEstacionDestino`)
     REFERENCES `oceanlink`.`landing_station` (`idLandingStation`),
-  CONSTRAINT `fk_segmento_origen`
+    CONSTRAINT `fk_segmento_origen`
     FOREIGN KEY (`idEstacionOrigen`)
     REFERENCES `oceanlink`.`landing_station` (`idLandingStation`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`historial_capacidad`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`historial_capacidad` (
-  `idHistorial` INT NOT NULL AUTO_INCREMENT,
-  `idSegmento` INT NOT NULL,
-  `fechaRegistro` DATETIME NULL DEFAULT NULL,
-  `capacidadTotal` DECIMAL(12,2) NULL DEFAULT NULL,
-  `capacidadUtilizada` DECIMAL(12,2) NULL DEFAULT NULL,
-  `capacidadReservada` DECIMAL(12,2) NULL DEFAULT NULL,
-  `capacidadDisponible` DECIMAL(12,2) NULL DEFAULT NULL,
-  `porcentajeUtilizacion` DECIMAL(5,2) NULL DEFAULT NULL,
-  PRIMARY KEY (`idHistorial`),
-  INDEX `fk_hist_segmento` (`idSegmento` ASC) VISIBLE,
-  CONSTRAINT `fk_hist_segmento`
+                                                                 `idHistorial` INT NOT NULL AUTO_INCREMENT,
+                                                                 `idSegmento` INT NOT NULL,
+                                                                 `fechaRegistro` DATETIME NULL DEFAULT NULL,
+                                                                 `capacidadTotal` DECIMAL(12,2) NULL DEFAULT NULL,
+    `capacidadUtilizada` DECIMAL(12,2) NULL DEFAULT NULL,
+    `capacidadReservada` DECIMAL(12,2) NULL DEFAULT NULL,
+    `capacidadDisponible` DECIMAL(12,2) NULL DEFAULT NULL,
+    `porcentajeUtilizacion` DECIMAL(5,2) NULL DEFAULT NULL,
+    PRIMARY KEY (`idHistorial`),
+    INDEX `fk_hist_segmento` (`idSegmento` ASC) VISIBLE,
+    CONSTRAINT `fk_hist_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`rol`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`rol` (
-  `idRol` INT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`idRol`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+                                                 `idRol` INT NOT NULL AUTO_INCREMENT,
+                                                 `nombre` VARCHAR(30) NOT NULL,
+    PRIMARY KEY (`idRol`))
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`usuario`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`usuario` (
-  `idUsuario` INT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(50) NOT NULL,
-  `apellido` VARCHAR(50) NOT NULL,
-  `correo` VARCHAR(50) NOT NULL,
-  `password` VARCHAR(256) NOT NULL,
-  `estado` VARCHAR(20) NULL DEFAULT NULL,
-  `idRol` INT NOT NULL,
-  `foto` LONGBLOB NULL, 
-  PRIMARY KEY (`idUsuario`),
-  UNIQUE INDEX `correo` (`correo` ASC) VISIBLE,
-  INDEX `fk_usuario_rol` (`idRol` ASC) VISIBLE,
-  CONSTRAINT `fk_usuario_rol`
+                                                     `idUsuario` INT NOT NULL AUTO_INCREMENT,
+                                                     `nombre` VARCHAR(50) NOT NULL,
+    `apellido` VARCHAR(50) NOT NULL,
+    `correo` VARCHAR(50) NOT NULL,
+    `password` VARCHAR(256) NOT NULL,
+    `estado` VARCHAR(20) NULL DEFAULT NULL,
+    `idRol` INT NOT NULL,
+    `foto` LONGBLOB NULL,
+    PRIMARY KEY (`idUsuario`),
+    UNIQUE INDEX `correo` (`correo` ASC) VISIBLE,
+    INDEX `fk_usuario_rol` (`idRol` ASC) VISIBLE,
+    CONSTRAINT `fk_usuario_rol`
     FOREIGN KEY (`idRol`)
     REFERENCES `oceanlink`.`rol` (`idRol`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`incidencia`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia` (
-  `idIncidencia` INT NOT NULL,
-  `codigo` VARCHAR(30) NOT NULL,
-  `titulo` VARCHAR(150) NOT NULL,
-  `descripcion` TEXT NULL DEFAULT NULL,
-  `severidad` VARCHAR(20) NULL DEFAULT NULL,
-  `estado` VARCHAR(40) NULL DEFAULT NULL,
-  `fechaDeteccion` DATETIME NULL DEFAULT NULL,
-  `fechaCierre` DATETIME NULL DEFAULT NULL,
-  `idUsuario` INT NOT NULL,
-  PRIMARY KEY (`idIncidencia`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_incidencia_usuario` (`idUsuario` ASC) VISIBLE,
-  CONSTRAINT `fk_incidencia_usuario`
+                                                        `idIncidencia` INT NOT NULL,
+                                                        `codigo` VARCHAR(30) NOT NULL,
+    `titulo` VARCHAR(150) NOT NULL,
+    `descripcion` TEXT NULL DEFAULT NULL,
+    `severidad` VARCHAR(20) NULL DEFAULT NULL,
+    `estado` VARCHAR(40) NULL DEFAULT NULL,
+    `fechaDeteccion` DATETIME NULL DEFAULT NULL,
+    `fechaCierre` DATETIME NULL DEFAULT NULL,
+    `idUsuario` INT NOT NULL,
+    PRIMARY KEY (`idIncidencia`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_incidencia_usuario` (`idUsuario` ASC) VISIBLE,
+    CONSTRAINT `fk_incidencia_usuario`
     FOREIGN KEY (`idUsuario`)
     REFERENCES `oceanlink`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
+
+-- Eventos de seguimiento de las incidencias de Network Operator.
+CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_evento` (
+                                                               `idEvento` INT NOT NULL AUTO_INCREMENT,
+                                                               `idIncidencia` INT NOT NULL,
+                                                               `tipo` VARCHAR(30) NOT NULL,
+    `detalle` TEXT NOT NULL,
+    `fechaRegistro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`idEvento`),
+    INDEX `idx_evento_incidencia` (`idIncidencia`),
+    CONSTRAINT `fk_evento_incidencia` FOREIGN KEY (`idIncidencia`)
+    REFERENCES `oceanlink`.`incidencia` (`idIncidencia`)
+    ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`incidencia_segmento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_segmento` (
-  `idIncidencia` INT NOT NULL,
-  `idSegmento` INT NOT NULL,
-  PRIMARY KEY (`idIncidencia`, `idSegmento`),
-  INDEX `fk_is_segmento` (`idSegmento` ASC) VISIBLE,
-  CONSTRAINT `fk_is_incidencia`
+                                                                 `idIncidencia` INT NOT NULL,
+                                                                 `idSegmento` INT NOT NULL,
+                                                                 PRIMARY KEY (`idIncidencia`, `idSegmento`),
+    INDEX `fk_is_segmento` (`idSegmento` ASC) VISIBLE,
+    CONSTRAINT `fk_is_incidencia`
     FOREIGN KEY (`idIncidencia`)
     REFERENCES `oceanlink`.`incidencia` (`idIncidencia`),
-  CONSTRAINT `fk_is_segmento`
+    CONSTRAINT `fk_is_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`mantenimiento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento` (
-  `idMantenimiento` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `tipo` VARCHAR(20) NULL DEFAULT NULL,
-  `idIncidencia` INT NULL DEFAULT NULL,
-  `idSegmento` INT NULL DEFAULT NULL,
-  `idLandingStation` INT NULL DEFAULT NULL,
-  `fechaInicio` DATETIME NULL DEFAULT NULL,
-  `duracionEstimada` DECIMAL(5,2) NULL DEFAULT NULL,
-  `estado` VARCHAR(30) NULL DEFAULT NULL,
-  `actividades` TEXT NULL DEFAULT NULL,
-  `resultado` TEXT NULL DEFAULT NULL,
-  `idUsuario` INT NOT NULL,
-  PRIMARY KEY (`idMantenimiento`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_mant_incidencia` (`idIncidencia` ASC) VISIBLE,
-  INDEX `fk_mant_segmento` (`idSegmento` ASC) VISIBLE,
-  INDEX `fk_mant_landing` (`idLandingStation` ASC) VISIBLE,
-  INDEX `fk_mant_usuario` (`idUsuario` ASC) VISIBLE,
-  CONSTRAINT `fk_mant_incidencia`
+                                                           `idMantenimiento` INT NOT NULL AUTO_INCREMENT,
+                                                           `codigo` VARCHAR(30) NOT NULL,
+    `tipo` VARCHAR(20) NULL DEFAULT NULL,
+    `idIncidencia` INT NULL DEFAULT NULL,
+    `idSegmento` INT NULL DEFAULT NULL,
+    `idLandingStation` INT NULL DEFAULT NULL,
+    `fechaInicio` DATETIME NULL DEFAULT NULL,
+    `duracionEstimada` DECIMAL(5,2) NULL DEFAULT NULL,
+    `estado` VARCHAR(30) NULL DEFAULT NULL,
+    `actividades` TEXT NULL DEFAULT NULL,
+    `resultado` TEXT NULL DEFAULT NULL,
+    `idUsuario` INT NOT NULL,
+    PRIMARY KEY (`idMantenimiento`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_mant_incidencia` (`idIncidencia` ASC) VISIBLE,
+    INDEX `fk_mant_segmento` (`idSegmento` ASC) VISIBLE,
+    INDEX `fk_mant_landing` (`idLandingStation` ASC) VISIBLE,
+    INDEX `fk_mant_usuario` (`idUsuario` ASC) VISIBLE,
+    CONSTRAINT `fk_mant_incidencia`
     FOREIGN KEY (`idIncidencia`)
     REFERENCES `oceanlink`.`incidencia` (`idIncidencia`),
-  CONSTRAINT `fk_mant_landing`
+    CONSTRAINT `fk_mant_landing`
     FOREIGN KEY (`idLandingStation`)
     REFERENCES `oceanlink`.`landing_station` (`idLandingStation`),
-  CONSTRAINT `fk_mant_segmento`
+    CONSTRAINT `fk_mant_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`),
-  CONSTRAINT `fk_mant_usuario`
+    CONSTRAINT `fk_mant_usuario`
     FOREIGN KEY (`idUsuario`)
     REFERENCES `oceanlink`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`mantenimiento_segmento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_segmento` (
-  `idMantenimiento` INT NOT NULL,
-  `idSegmento` INT NOT NULL,
-  PRIMARY KEY (`idMantenimiento`, `idSegmento`),
-  INDEX `fk_ms_segmento` (`idSegmento` ASC) VISIBLE,
-  CONSTRAINT `fk_ms_mantenimiento`
+                                                                    `idMantenimiento` INT NOT NULL,
+                                                                    `idSegmento` INT NOT NULL,
+                                                                    PRIMARY KEY (`idMantenimiento`, `idSegmento`),
+    INDEX `fk_ms_segmento` (`idSegmento` ASC) VISIBLE,
+    CONSTRAINT `fk_ms_mantenimiento`
     FOREIGN KEY (`idMantenimiento`)
     REFERENCES `oceanlink`.`mantenimiento` (`idMantenimiento`),
-  CONSTRAINT `fk_ms_segmento`
+    CONSTRAINT `fk_ms_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`ruta`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta` (
-  `idRuta` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `nombre` VARCHAR(100) NOT NULL,
-  `idEstacionOrigen` INT NOT NULL,
-  `idEstacionDestino` INT NOT NULL,
-  `estado` VARCHAR(30) NULL DEFAULT NULL,
-  `descripcion` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`idRuta`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_ruta_origen` (`idEstacionOrigen` ASC) VISIBLE,
-  INDEX `fk_ruta_destino` (`idEstacionDestino` ASC) VISIBLE,
-  CONSTRAINT `fk_ruta_destino`
+                                                  `idRuta` INT NOT NULL AUTO_INCREMENT,
+                                                  `codigo` VARCHAR(30) NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `idEstacionOrigen` INT NOT NULL,
+    `idEstacionDestino` INT NOT NULL,
+    `estado` VARCHAR(30) NULL DEFAULT NULL,
+    `descripcion` VARCHAR(255) NULL DEFAULT NULL,
+    PRIMARY KEY (`idRuta`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_ruta_origen` (`idEstacionOrigen` ASC) VISIBLE,
+    INDEX `fk_ruta_destino` (`idEstacionDestino` ASC) VISIBLE,
+    CONSTRAINT `fk_ruta_destino`
     FOREIGN KEY (`idEstacionDestino`)
     REFERENCES `oceanlink`.`landing_station` (`idLandingStation`),
-  CONSTRAINT `fk_ruta_origen`
+    CONSTRAINT `fk_ruta_origen`
     FOREIGN KEY (`idEstacionOrigen`)
     REFERENCES `oceanlink`.`landing_station` (`idLandingStation`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`servicio`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
-  `idServicio` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `idCliente` INT NOT NULL,
-  `idRuta` INT NOT NULL,
-  `origen` VARCHAR(100) NOT NULL,
-  `destino` VARCHAR(100) NOT NULL,
-  `capacidadContratada` DECIMAL(12,2) NULL,
-  `fechaActivacion` DATE NOT NULL,
-  `estado` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`idServicio`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_servicio_cliente` (`idCliente` ASC) VISIBLE,
-  INDEX `fk_servicio_ruta` (`idRuta` ASC) VISIBLE,
-  CONSTRAINT `fk_servicio_cliente`
+                                                      `idServicio` INT NOT NULL AUTO_INCREMENT,
+                                                      `codigo` VARCHAR(30) NOT NULL,
+    `idCliente` INT NOT NULL,
+    `idRuta` INT NOT NULL,
+    `origen` VARCHAR(100) NOT NULL,
+    `destino` VARCHAR(100) NOT NULL,
+    `capacidadContratada` DECIMAL(12,2) NULL,
+    `fechaActivacion` DATE NOT NULL,
+    `estado` VARCHAR(30) NOT NULL,
+    PRIMARY KEY (`idServicio`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_servicio_cliente` (`idCliente` ASC) VISIBLE,
+    INDEX `fk_servicio_ruta` (`idRuta` ASC) VISIBLE,
+    CONSTRAINT `fk_servicio_cliente`
     FOREIGN KEY (`idCliente`)
     REFERENCES `oceanlink`.`cliente` (`idCliente`),
-  CONSTRAINT `fk_servicio_ruta`
+    CONSTRAINT `fk_servicio_ruta`
     FOREIGN KEY (`idRuta`)
     REFERENCES `oceanlink`.`ruta` (`idRuta`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`solicitud`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
-  `idSolicitud` INT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `idCliente` INT NOT NULL,
-  `idRuta` INT NOT NULL,
-  `capacidadSolicitada` DECIMAL(12,2) NULL DEFAULT NULL,
-  `fechaSolicitud` DATE NULL DEFAULT NULL,
-  `fechaLimite` DATE NULL DEFAULT NULL,
-  `motivo` VARCHAR(255) NULL DEFAULT NULL,
-  `estado` VARCHAR(30) NULL DEFAULT NULL,
-  `observacion` VARCHAR(255) NULL DEFAULT NULL,
-  `idUsuario` INT NOT NULL,
-  PRIMARY KEY (`idSolicitud`),
-  UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
-  INDEX `fk_solicitud_cliente` (`idCliente` ASC) VISIBLE,
-  INDEX `fk_solicitud_ruta` (`idRuta` ASC) VISIBLE,
-  INDEX `fk_solicitud_usuario` (`idUsuario` ASC) VISIBLE,
-  CONSTRAINT `fk_solicitud_cliente`
+                                                       `idSolicitud` INT NOT NULL AUTO_INCREMENT,
+                                                       `codigo` VARCHAR(30) NOT NULL,
+    `idCliente` INT NOT NULL,
+    `idRuta` INT NOT NULL,
+    `capacidadSolicitada` DECIMAL(12,2) NULL DEFAULT NULL,
+    `fechaSolicitud` DATE NULL DEFAULT NULL,
+    `fechaLimite` DATE NULL DEFAULT NULL,
+    `motivo` VARCHAR(255) NULL DEFAULT NULL,
+    `estado` VARCHAR(30) NULL DEFAULT NULL,
+    `observacion` VARCHAR(255) NULL DEFAULT NULL,
+    `idUsuario` INT NOT NULL,
+    PRIMARY KEY (`idSolicitud`),
+    UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
+    INDEX `fk_solicitud_cliente` (`idCliente` ASC) VISIBLE,
+    INDEX `fk_solicitud_ruta` (`idRuta` ASC) VISIBLE,
+    INDEX `fk_solicitud_usuario` (`idUsuario` ASC) VISIBLE,
+    CONSTRAINT `fk_solicitud_cliente`
     FOREIGN KEY (`idCliente`)
     REFERENCES `oceanlink`.`cliente` (`idCliente`),
-  CONSTRAINT `fk_solicitud_ruta`
+    CONSTRAINT `fk_solicitud_ruta`
     FOREIGN KEY (`idRuta`)
     REFERENCES `oceanlink`.`ruta` (`idRuta`),
-  CONSTRAINT `fk_solicitud_usuario`
+    CONSTRAINT `fk_solicitud_usuario`
     FOREIGN KEY (`idUsuario`)
     REFERENCES `oceanlink`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`reserva_capacidad`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`reserva_capacidad` (
-  `idReserva` INT NOT NULL AUTO_INCREMENT,
-  `idSolicitud` INT NOT NULL,
-  `idSegmento` INT NOT NULL,
-  `idServicio` INT NOT NULL,
-  `capacidadReservada` DECIMAL(12,2) NOT NULL,
-  `fechaReserva` DATE NULL DEFAULT NULL,
-  `estado` VARCHAR(30) NULL DEFAULT NULL,
-  `idUsuario` INT NOT NULL,
-  PRIMARY KEY (`idReserva`),
-  INDEX `fk_reserva_solicitud` (`idSolicitud` ASC) VISIBLE,
-  INDEX `fk_reserva_segmento` (`idSegmento` ASC) VISIBLE,
-  INDEX `fk_reserva_servicio` (`idServicio` ASC) VISIBLE,
-  INDEX `fk_reserva_usuario` (`idUsuario` ASC) VISIBLE,
-  CONSTRAINT `fk_reserva_segmento`
+                                                               `idReserva` INT NOT NULL AUTO_INCREMENT,
+                                                               `idSolicitud` INT NOT NULL,
+                                                               `idSegmento` INT NOT NULL,
+                                                               `idServicio` INT NOT NULL,
+                                                               `capacidadReservada` DECIMAL(12,2) NOT NULL,
+    `fechaReserva` DATE NULL DEFAULT NULL,
+    `estado` VARCHAR(30) NULL DEFAULT NULL,
+    `idUsuario` INT NOT NULL,
+    PRIMARY KEY (`idReserva`),
+    INDEX `fk_reserva_solicitud` (`idSolicitud` ASC) VISIBLE,
+    INDEX `fk_reserva_segmento` (`idSegmento` ASC) VISIBLE,
+    INDEX `fk_reserva_servicio` (`idServicio` ASC) VISIBLE,
+    INDEX `fk_reserva_usuario` (`idUsuario` ASC) VISIBLE,
+    CONSTRAINT `fk_reserva_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`),
-  CONSTRAINT `fk_reserva_servicio`
+    CONSTRAINT `fk_reserva_servicio`
     FOREIGN KEY (`idServicio`)
     REFERENCES `oceanlink`.`servicio` (`idServicio`),
-  CONSTRAINT `fk_reserva_solicitud`
+    CONSTRAINT `fk_reserva_solicitud`
     FOREIGN KEY (`idSolicitud`)
     REFERENCES `oceanlink`.`solicitud` (`idSolicitud`),
-  CONSTRAINT `fk_reserva_usuario`
+    CONSTRAINT `fk_reserva_usuario`
     FOREIGN KEY (`idUsuario`)
     REFERENCES `oceanlink`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 -- -----------------------------------------------------
 -- Table `oceanlink`.`ruta_segmento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta_segmento` (
-  `idRuta` INT NOT NULL,
-  `idSegmento` INT NOT NULL,
-  `orden` INT NULL DEFAULT NULL,
-  `capacidadRuta` DECIMAL(12,2) NULL DEFAULT NULL,
-  PRIMARY KEY (`idRuta`, `idSegmento`),
-  INDEX `fk_rs_segmento` (`idSegmento` ASC) VISIBLE,
-  CONSTRAINT `fk_rs_ruta`
+                                                           `idRuta` INT NOT NULL,
+                                                           `idSegmento` INT NOT NULL,
+                                                           `orden` INT NULL DEFAULT NULL,
+                                                           `capacidadRuta` DECIMAL(12,2) NULL DEFAULT NULL,
+    PRIMARY KEY (`idRuta`, `idSegmento`),
+    INDEX `fk_rs_segmento` (`idSegmento` ASC) VISIBLE,
+    CONSTRAINT `fk_rs_ruta`
     FOREIGN KEY (`idRuta`)
     REFERENCES `oceanlink`.`ruta` (`idRuta`),
-  CONSTRAINT `fk_rs_segmento`
+    CONSTRAINT `fk_rs_segmento`
     FOREIGN KEY (`idSegmento`)
     REFERENCES `oceanlink`.`segmento` (`idSegmento`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_spanish_ci;
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
@@ -568,10 +581,10 @@ SELECT
     (s.capacidadTotal - s.capacidadUtilizada - s.capacidadReservada) AS capacidadDisponible,
     s.estado
 FROM segmento s
-INNER JOIN landing_station eo
-    ON s.idEstacionOrigen = eo.idLandingStation
-INNER JOIN landing_station ed
-    ON s.idEstacionDestino = ed.idLandingStation
+         INNER JOIN landing_station eo
+                    ON s.idEstacionOrigen = eo.idLandingStation
+         INNER JOIN landing_station ed
+                    ON s.idEstacionDestino = ed.idLandingStation
 ORDER BY s.codigo;
 
 -- 4. Capacidad disponible y porcentaje de utilización por segmento
@@ -596,10 +609,10 @@ SELECT
     r.estado,
     r.descripcion
 FROM ruta r
-INNER JOIN landing_station eo
-    ON r.idEstacionOrigen = eo.idLandingStation
-INNER JOIN landing_station ed
-    ON r.idEstacionDestino = ed.idLandingStation
+         INNER JOIN landing_station eo
+                    ON r.idEstacionOrigen = eo.idLandingStation
+         INNER JOIN landing_station ed
+                    ON r.idEstacionDestino = ed.idLandingStation
 ORDER BY r.codigo;
 
 -- 6. Ver los segmentos que componen cada ruta, en orden
@@ -614,10 +627,10 @@ SELECT
     s.estado AS estado_segmento,
     rs.capacidadRuta
 FROM ruta_segmento rs
-INNER JOIN ruta r
-    ON rs.idRuta = r.idRuta
-INNER JOIN segmento s
-    ON rs.idSegmento = s.idSegmento
+         INNER JOIN ruta r
+                    ON rs.idRuta = r.idRuta
+         INNER JOIN segmento s
+                    ON rs.idSegmento = s.idSegmento
 ORDER BY r.idRuta, rs.orden;
 
 -- 7. Listar servicios junto con el cliente y la ruta
@@ -632,10 +645,10 @@ SELECT
     sv.fechaActivacion,
     sv.estado
 FROM servicio sv
-INNER JOIN cliente c
-    ON sv.idCliente = c.idCliente
-INNER JOIN ruta r
-    ON sv.idRuta = r.idRuta
+         INNER JOIN cliente c
+                    ON sv.idCliente = c.idCliente
+         INNER JOIN ruta r
+                    ON sv.idRuta = r.idRuta
 ORDER BY sv.idServicio DESC;
 
 -- 8. Capacidad contratada por cliente
@@ -645,9 +658,9 @@ SELECT
     COUNT(sv.idServicio) AS cantidadServicios,
     SUM(sv.capacidadContratada) AS capacidadContratada
 FROM cliente c
-LEFT JOIN servicio sv
-    ON c.idCliente = sv.idCliente
-    AND sv.estado <> 'Cancelado'
+         LEFT JOIN servicio sv
+                   ON c.idCliente = sv.idCliente
+                       AND sv.estado <> 'Cancelado'
 GROUP BY c.idCliente, c.razonSocial
 ORDER BY capacidadContratada DESC;
 
@@ -665,12 +678,12 @@ SELECT
     so.observacion,
     CONCAT(u.nombre, ' ', u.apellido) AS usuarioResponsable
 FROM solicitud so
-INNER JOIN cliente c
-    ON so.idCliente = c.idCliente
-INNER JOIN ruta r
-    ON so.idRuta = r.idRuta
-LEFT JOIN usuario u
-    ON so.idUsuario = u.idUsuario
+         INNER JOIN cliente c
+                    ON so.idCliente = c.idCliente
+         INNER JOIN ruta r
+                    ON so.idRuta = r.idRuta
+         LEFT JOIN usuario u
+                   ON so.idUsuario = u.idUsuario
 ORDER BY so.fechaSolicitud DESC;
 
 -- 10. Ver reservas de capacidad asociadas a solicitudes y segmentos
@@ -684,14 +697,14 @@ SELECT
     rc.estado,
     CONCAT(u.nombre, ' ', u.apellido) AS usuarioResponsable
 FROM reserva_capacidad rc
-LEFT JOIN solicitud so
-    ON rc.idSolicitud = so.idSolicitud
-LEFT JOIN servicio sv
-    ON rc.idServicio = sv.idServicio
-INNER JOIN segmento s
-    ON rc.idSegmento = s.idSegmento
-LEFT JOIN usuario u
-    ON rc.idUsuario = u.idUsuario
+         LEFT JOIN solicitud so
+                   ON rc.idSolicitud = so.idSolicitud
+         LEFT JOIN servicio sv
+                   ON rc.idServicio = sv.idServicio
+         INNER JOIN segmento s
+                    ON rc.idSegmento = s.idSegmento
+         LEFT JOIN usuario u
+                   ON rc.idUsuario = u.idUsuario
 ORDER BY rc.fechaReserva DESC;
 
 -- 11. Listar incidencias con el usuario que la registró
@@ -706,8 +719,8 @@ SELECT
     i.fechaCierre,
     CONCAT(u.nombre, ' ', u.apellido) AS registrado_por
 FROM incidencia i
-LEFT JOIN usuario u
-    ON i.idUsuario = u.idUsuario
+         LEFT JOIN usuario u
+                   ON i.idUsuario = u.idUsuario
 ORDER BY i.fechaDeteccion DESC;
 
 -- 12. Segmentos relacionados con cada incidencia
@@ -719,10 +732,10 @@ SELECT
     s.codigo AS codigo_segmento,
     s.estado AS estado_segmento
 FROM incidencia_segmento isg
-INNER JOIN incidencia i
-    ON isg.idIncidencia = i.idIncidencia
-INNER JOIN segmento s
-    ON isg.idSegmento = s.idSegmento
+         INNER JOIN incidencia i
+                    ON isg.idIncidencia = i.idIncidencia
+         INNER JOIN segmento s
+                    ON isg.idSegmento = s.idSegmento
 ORDER BY i.idIncidencia, s.codigo;
 
 -- 13. Listar mantenimientos con información de incidencia, segmento,
@@ -741,14 +754,14 @@ SELECT
     m.resultado,
     CONCAT(u.nombre, ' ', u.apellido) AS responsable
 FROM mantenimiento m
-LEFT JOIN incidencia i
-    ON m.idIncidencia = i.idIncidencia
-LEFT JOIN segmento s
-    ON m.idSegmento = s.idSegmento
-LEFT JOIN landing_station ls
-    ON m.idLandingStation = ls.idLandingStation
-LEFT JOIN usuario u
-    ON m.idUsuario = u.idUsuario
+         LEFT JOIN incidencia i
+                   ON m.idIncidencia = i.idIncidencia
+         LEFT JOIN segmento s
+                   ON m.idSegmento = s.idSegmento
+         LEFT JOIN landing_station ls
+                   ON m.idLandingStation = ls.idLandingStation
+         LEFT JOIN usuario u
+                   ON m.idUsuario = u.idUsuario
 ORDER BY m.fechaInicio DESC;
 
 -- 14. Segmentos asociados a cada mantenimiento
@@ -760,10 +773,10 @@ SELECT
     s.codigo AS codigo_segmento,
     s.estado AS estado_segmento
 FROM mantenimiento_segmento msg
-INNER JOIN mantenimiento m
-    ON msg.idMantenimiento = m.idMantenimiento
-INNER JOIN segmento s
-    ON msg.idSegmento = s.idSegmento
+         INNER JOIN mantenimiento m
+                    ON msg.idMantenimiento = m.idMantenimiento
+         INNER JOIN segmento s
+                    ON msg.idSegmento = s.idSegmento
 ORDER BY m.fechaInicio DESC, s.codigo;
 
 -- 15. Datos resumidos para el dashboard: capacidad total,
@@ -810,8 +823,8 @@ SELECT
     h.capacidadDisponible,
     h.porcentajeUtilizacion
 FROM historial_capacidad h
-INNER JOIN segmento s
-    ON h.idSegmento = s.idSegmento
+         INNER JOIN segmento s
+                    ON h.idSegmento = s.idSegmento
 ORDER BY s.codigo, h.fechaRegistro DESC;
 
 -- 20. Servicios que utilizan rutas con al menos un segmento fuera de servicio
@@ -822,14 +835,14 @@ SELECT DISTINCT
     r.nombre AS ruta,
     sv.estado AS estado_servicio
 FROM servicio sv
-INNER JOIN cliente c
-    ON sv.idCliente = c.idCliente
-INNER JOIN ruta r
-    ON sv.idRuta = r.idRuta
-INNER JOIN ruta_segmento rs
-    ON r.idRuta = rs.idRuta
-INNER JOIN segmento s
-    ON rs.idSegmento = s.idSegmento
+         INNER JOIN cliente c
+                    ON sv.idCliente = c.idCliente
+         INNER JOIN ruta r
+                    ON sv.idRuta = r.idRuta
+         INNER JOIN ruta_segmento rs
+                    ON r.idRuta = rs.idRuta
+         INNER JOIN segmento s
+                    ON rs.idSegmento = s.idSegmento
 WHERE s.estado = 'Fuera de servicio'
   AND sv.estado <> 'Cancelado'
 ORDER BY sv.codigo;
