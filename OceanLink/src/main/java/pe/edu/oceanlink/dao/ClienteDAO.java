@@ -3,21 +3,17 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.Cliente;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ClienteDAO {
+public class ClienteDAO extends BaseDAO {
 
     public void crearTrabajo(Cliente c) {
         try {
-            String user = "root";
-            String pass = "070501";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "INSERT INTO cliente (razonSocial, ruc, telefono, correo, direccion, contacto, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, c.getRazonSocial());
@@ -30,19 +26,16 @@ public class ClienteDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public ArrayList<Cliente> obtenerListaTrabajos() {  //en las ppts se exige que en cada metodo se debe escribir la contraseña
+    public ArrayList<Cliente> obtenerListaTrabajos() {
         ArrayList<Cliente> listaTrabajos = new ArrayList<>();
         try {
-            String user = "root";
-            String pass = "070501";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(url, user, pass);
+
+            Connection conn = getConnection();
             java.sql.Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM cliente");
             
@@ -58,7 +51,7 @@ public class ClienteDAO {
                 cliente.setEstado(rs.getString(8));
                 listaTrabajos.add(cliente);
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return listaTrabajos;
@@ -67,11 +60,8 @@ public class ClienteDAO {
     public Cliente obtenerTrabajo(String idCliente) {
         Cliente cliente = null;
         try {
-            String user = "root";
-            String pass = "070501";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "SELECT * FROM cliente WHERE idCliente = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setInt(1, Integer.parseInt(idCliente));
@@ -89,7 +79,7 @@ public class ClienteDAO {
                     }
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return cliente;
@@ -97,11 +87,8 @@ public class ClienteDAO {
 
     public void actualizarTrabajo(Cliente c) {
         try {
-            String user = "root";
-            String pass = "070501";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "UPDATE cliente SET razonSocial = ?, ruc = ?, telefono = ?, correo = ?, direccion = ?, contacto = ?, estado = ? WHERE idCliente = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, c.getRazonSocial());
@@ -115,17 +102,15 @@ public class ClienteDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void cambiarEstado(String id, String nuevoEstado) {
-        String url = "jdbc:mysql://localhost:3306/oceanlink";
-        String user = "root";
-        String pass = "070501";
+
         String sql = "UPDATE cliente SET estado = ? WHERE idCliente = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nuevoEstado);
             pstmt.setInt(2, Integer.parseInt(id));

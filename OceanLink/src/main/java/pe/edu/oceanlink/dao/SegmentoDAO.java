@@ -3,22 +3,18 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.Segmento;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class SegmentoDAO {
+public class SegmentoDAO extends BaseDAO {
 
     public void crearSegmento(Segmento s) {
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "INSERT INTO segmento (codigo, idEstacionOrigen, idEstacionDestino, capacidadTotal, capacidadUtilizada, capacidadReservada, longitudKm, estado, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, s.getCodigo());
@@ -33,7 +29,7 @@ public class SegmentoDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -41,11 +37,8 @@ public class SegmentoDAO {
     public ArrayList<Segmento> obtenerListaSegmentos() {
         ArrayList<Segmento> lista = new ArrayList<>();
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(url, user, pass);
+
+            Connection conn = getConnection();
             Statement stmt = conn.createStatement();
             // Dos JOIN a landing_station: uno para la estación de origen y otro para la de destino
             String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
@@ -59,7 +52,7 @@ public class SegmentoDAO {
             while (rs.next()) {
                 lista.add(mapear(rs));
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return lista;
@@ -68,11 +61,8 @@ public class SegmentoDAO {
     public Segmento obtenerSegmento(String id) {
         Segmento s = null;
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
                              "s.capacidadTotal, s.capacidadUtilizada, s.capacidadReservada, s.longitudKm, s.estado, s.descripcion, " +
                              "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
@@ -88,7 +78,7 @@ public class SegmentoDAO {
                     }
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return s;
@@ -96,11 +86,8 @@ public class SegmentoDAO {
 
     public void actualizarSegmento(Segmento s) {
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "UPDATE segmento SET codigo = ?, idEstacionOrigen = ?, idEstacionDestino = ?, capacidadTotal = ?, capacidadUtilizada = ?, capacidadReservada = ?, longitudKm = ?, estado = ?, descripcion = ? WHERE idSegmento = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, s.getCodigo());
@@ -116,17 +103,17 @@ public class SegmentoDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void cambiarEstado(String id, String nuevoEstado) {
-        String url = "jdbc:mysql://localhost:3306/oceanlink";
-        String user = "root";
-        String pass = "root";
+
+
+
         String sql = "UPDATE segmento SET estado = ? WHERE idSegmento = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nuevoEstado);
             pstmt.setInt(2, Integer.parseInt(id));

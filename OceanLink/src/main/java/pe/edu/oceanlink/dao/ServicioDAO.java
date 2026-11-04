@@ -3,7 +3,6 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.Servicio;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,17 +10,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 /** DAO de servicios, con el estilo JDBC utilizado en LandingStationDAO. */
-public class ServicioDAO {
+public class ServicioDAO extends BaseDAO {
 
     // READ: listar los servicios contratados por un cliente.
     public ArrayList<Servicio> obtenerServiciosPorCliente(int idCliente)
             throws SQLException, ClassNotFoundException {
         ArrayList<Servicio> lista = new ArrayList<>();
-        String user = "root";
-        String pass = "070501"; // Cambiar por la contraseña local de MySQL
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+        try (Connection conn = getConnection()) {
             String sql = "SELECT s.*, c.razonSocial AS razonSocialCliente, r.nombre AS nombreRuta " +
                     "FROM servicio s INNER JOIN cliente c ON s.idCliente = c.idCliente " +
                     "INNER JOIN ruta r ON s.idRuta = r.idRuta " +
@@ -43,11 +39,8 @@ public class ServicioDAO {
     // READ: obtener un servicio por su ID.
     public Servicio obtenerServicio(int idServicio) throws SQLException, ClassNotFoundException {
         Servicio servicio = null;
-        String user = "root";
-        String pass = "070501"; // Cambiar por la contraseña local de MySQL
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+        try (Connection conn = getConnection()) {
             String sql = "SELECT s.*, c.razonSocial AS razonSocialCliente, r.nombre AS nombreRuta " +
                     "FROM servicio s INNER JOIN cliente c ON s.idCliente = c.idCliente " +
                     "INNER JOIN ruta r ON s.idRuta = r.idRuta WHERE s.idServicio = ?";
@@ -66,11 +59,8 @@ public class ServicioDAO {
 
     // CREATE: registrar servicio y devolver el ID autogenerado.
     public int crearServicio(Servicio servicio) throws SQLException, ClassNotFoundException {
-        String user = "root";
-        String pass = "070501"; // Cambiar por la contraseña local de MySQL
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+        try (Connection conn = getConnection()) {
             String sql = "INSERT INTO servicio " +
                     "(codigo, idCliente, idRuta, origen, destino, capacidadContratada, fechaActivacion, estado) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -102,11 +92,8 @@ public class ServicioDAO {
         if (!("Activo".equals(estado) || "Suspendido".equals(estado) || "Cancelado".equals(estado))) {
             throw new IllegalArgumentException("Estado inválido");
         }
-        String user = "root";
-        String pass = "070501"; // Cambiar por la contraseña local de MySQL
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+        try (Connection conn = getConnection()) {
             String sql = "UPDATE servicio SET estado = ? WHERE idServicio = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, estado);

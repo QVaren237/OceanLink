@@ -10,16 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class RutaDAO {
-    // Mismo acceso JDBC de las clases 6.5, 7.2 y 7.3. Ajustar a MySQL local.
-    protected Connection abrirConexion() throws SQLException, ClassNotFoundException {
-        String user = "root";
-        String pass = "070501";
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(url, user, pass);
-    }
-
+public class RutaDAO extends BaseDAO {
+    // La conexión JDBC se hereda de BaseDAO (clase 8.1).
     private static final String CONSULTA_RUTA =
             "SELECT r.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, " +
             "(SELECT COUNT(*) FROM ruta_segmento rs WHERE rs.idRuta = r.idRuta) AS cantidadSegmentos, " +

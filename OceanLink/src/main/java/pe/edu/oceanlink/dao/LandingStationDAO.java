@@ -3,22 +3,18 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.LandingStation;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class LandingStationDAO {
+public class LandingStationDAO extends BaseDAO {
 
     public void crearLandingStation(LandingStation ls) {
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "INSERT INTO landing_station (codigo, nombre, ubicacion, estado, descripcion) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, ls.getCodigo());
@@ -29,7 +25,7 @@ public class LandingStationDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -37,11 +33,8 @@ public class LandingStationDAO {
     public ArrayList<LandingStation> obtenerListaLandingStations() {
         ArrayList<LandingStation> lista = new ArrayList<>();
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(url, user, pass);
+
+            Connection conn = getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM landing_station ORDER BY idLandingStation");
             while (rs.next()) {
@@ -54,7 +47,7 @@ public class LandingStationDAO {
                 ls.setDescripcion(rs.getString(6));
                 lista.add(ls);
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return lista;
@@ -63,11 +56,8 @@ public class LandingStationDAO {
     public LandingStation obtenerLandingStation(String id) {
         LandingStation ls = null;
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "SELECT * FROM landing_station WHERE idLandingStation = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setInt(1, Integer.parseInt(id));
@@ -83,7 +73,7 @@ public class LandingStationDAO {
                     }
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return ls;
@@ -91,11 +81,8 @@ public class LandingStationDAO {
 
     public void actualizarLandingStation(LandingStation ls) {
         try {
-            String user = "root";
-            String pass = "root";
-            String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            try (Connection conn = getConnection()) {
                 String sql = "UPDATE landing_station SET codigo = ?, nombre = ?, ubicacion = ?, estado = ?, descripcion = ? WHERE idLandingStation = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, ls.getCodigo());
@@ -107,17 +94,17 @@ public class LandingStationDAO {
                     pstmt.executeUpdate();
                 }
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void cambiarEstado(String id, String nuevoEstado) {
-        String url = "jdbc:mysql://localhost:3306/oceanlink";
-        String user = "root";
-        String pass = "root";
+
+
+
         String sql = "UPDATE landing_station SET estado = ? WHERE idLandingStation = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nuevoEstado);
             pstmt.setInt(2, Integer.parseInt(id));
