@@ -3,7 +3,6 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.Cliente;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +31,7 @@ public class ClienteDAO extends BaseDAO {
         }
     }
 
-    public ArrayList<Cliente> obtenerListaTrabajos() {  //en las ppts se exige que en cada metodo se debe escribir la contraseña
+    public ArrayList<Cliente> obtenerListaTrabajos() {
         ArrayList<Cliente> listaTrabajos = new ArrayList<>();
         try {
 

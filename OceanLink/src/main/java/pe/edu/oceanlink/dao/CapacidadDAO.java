@@ -12,20 +12,8 @@ import java.sql.*;
 import java.util.ArrayList;
 
 /** JDBC de consulta para las vistas de Capacidad de Capacity Planner. */
-public class CapacidadDAO {
-    // Conexión JDBC directa, con el mismo patrón de UsuarioDAO.
-    protected Connection abrirConexion() throws SQLException {
-        String user = "root";
-        String pass = "070501";
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("No se encontró el controlador JDBC de MySQL.", e);
-        }
-        return DriverManager.getConnection(url, user, pass);
-    }
-
+public class CapacidadDAO extends BaseDAO {
+    // La conexión JDBC se hereda de BaseDAO (clase 8.1).
     private static final String ENLACES = "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, "
             + "lo.ubicacion AS ubicacionOrigen, ld.ubicacion AS ubicacionDestino FROM segmento s "
             + "JOIN landing_station lo ON lo.idLandingStation=s.idEstacionOrigen "

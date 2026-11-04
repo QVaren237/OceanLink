@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css?v=capacity-menu-20261103">
 </head>
 <body>
 <div class="shell rutas-shell<%= ("capacidad".equals(seccionPlanner)||"solicitudes".equals(seccionPlanner))?" capacidad-shell":"alertas".equals(seccionPlanner)?" alertas-shell":"historico".equals(seccionPlanner)?" historico-shell":"" %>">

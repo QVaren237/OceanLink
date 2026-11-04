@@ -352,6 +352,12 @@ public class NetworkOperatorServlet extends HttpServlet {
             if ("registrarRestauracion".equals(action)) {
 
                 int id = parseId(request.getParameter("id"));
+                cargarDetalle(request,id);
+                if(!Boolean.TRUE.equals(request.getAttribute("restauracionHabilitada"))){
+                    response.setStatus(400);
+                    request.setAttribute("error","La incidencia debe estar abierta y sus mantenimientos correctivos finalizados con resultado registrado antes de verificar la restauración.");
+                    forward(request,response,"/views/no-incidencia-restauracion.jsp");return;
+                }
                 String resultado = request.getParameter("resultado");
                 String detalle = trim(
                         request.getParameter("observaciones"));
@@ -479,6 +485,8 @@ public class NetworkOperatorServlet extends HttpServlet {
                     request.getContextPath()
                             + "/NetworkOperatorServlet?action=panel");
 
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,e.getMessage());
         } catch (Exception e) {
             throw new ServletException(
                     "No se pudo guardar la operación. "
@@ -486,7 +494,11 @@ public class NetworkOperatorServlet extends HttpServlet {
         }
     }
 
-    private void cargarDetalle(HttpServletRequest request, int id) {
+    private void cargarDetalle(HttpServletRequest request, int id) throws java.sql.SQLException {
+        Incidencia detalleRestauracion = incidenciaDAO.obtener(id);
+        boolean abiertaRestauracion = detalleRestauracion != null
+                && !java.util.Arrays.asList("Cerrada", "Servicio restaurado").contains(detalleRestauracion.getEstado());
+        request.setAttribute("restauracionHabilitada", abiertaRestauracion && incidenciaDAO.puedeRestaurar(id));
         request.setAttribute("incidencia", incidenciaDAO.obtener(id));
         request.setAttribute(
                 "eventos", eventoDAO.listarPorIncidencia(id));

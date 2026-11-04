@@ -41,7 +41,7 @@ public class MaintenanceCoordinatorServlet extends HttpServlet {
                     vista="mc-mantenimiento-detalle.jsp";r.setAttribute("tituloMC",m.getCodigo());r.setAttribute("eventosMC",dao.bitacora(m.getIdMantenimiento()));r.setAttribute("serviciosMC",dao.serviciosAfectados(m.getIdMantenimiento()));token(r,"actividad",m.getIdMantenimiento());
                     Object mensaje=r.getSession().getAttribute("mcMensaje");r.getSession().removeAttribute("mcMensaje");if(mensaje!=null)r.setAttribute("mensajeMC",mensaje);
                 }else if("confirmar".equals(accion)){
-                    Object b=r.getSession().getAttribute("mcBorrador");
+                    Object b=r.getSession().getAttribute("mcBorrador."+m.getIdMantenimiento());
                     if(!(b instanceof Map)||!String.valueOf(m.getIdMantenimiento()).equals(((Map<?,?>)b).get("id"))){redirigir(r,s,"?action=estado&id="+m.getIdMantenimiento());return;}
                     r.setAttribute("borradorMC",b);vista="mc-mantenimiento-estado-confirmar.jsp";r.setAttribute("tituloMC","Confirmar Cambio de Estado");r.setAttribute("centrarMC",true);
                 }else{
@@ -49,11 +49,12 @@ public class MaintenanceCoordinatorServlet extends HttpServlet {
                     if("finalizar".equals(accion)&&!"En ejecución".equals(m.getEstado()))throw new IllegalArgumentException("Solo se puede finalizar un mantenimiento en ejecución.");
                     vista="estado".equals(accion)?"mc-mantenimiento-estado.jsp":"mc-mantenimiento-finalizar.jsp";
                     r.setAttribute("tituloMC","estado".equals(accion)?"Modificar Estado de Mantenimiento":"Registrar Finalización");r.setAttribute("estadosMC",MantenimientoDAO.estadosPermitidos(m.getEstado()));
-                    Object borrador=r.getSession().getAttribute("mcBorrador");if(borrador instanceof Map&&String.valueOf(m.getIdMantenimiento()).equals(((Map<?,?>)borrador).get("id")))r.setAttribute("borradorMC",borrador);
+                    Object borrador=r.getSession().getAttribute("mcBorrador."+m.getIdMantenimiento());if(borrador instanceof Map&&String.valueOf(m.getIdMantenimiento()).equals(((Map<?,?>)borrador).get("id")))r.setAttribute("borradorMC",borrador);
                     token(r,"estado".equals(accion)?"preparar":"finalizar",m.getIdMantenimiento());
                 }
             }else if("exito".equals(accion)){
-                Object resultado=r.getSession().getAttribute("mcExito");r.getSession().removeAttribute("mcExito");if(resultado==null){redirigir(r,s,"");return;}r.setAttribute("exitoMC",resultado);r.setAttribute("tituloMC","Estado Modificado Correctamente");r.setAttribute("centrarMC",true);vista="mc-mantenimiento-estado-exito.jsp";
+                if(r.getParameter("id")==null){redirigir(r,s,"");return;}
+                int idExito=id(r.getParameter("id"));Object resultado=r.getSession().getAttribute("mcExito."+idExito);r.getSession().removeAttribute("mcExito."+idExito);if(resultado==null){redirigir(r,s,"");return;}r.setAttribute("exitoMC",resultado);r.setAttribute("tituloMC","Estado Modificado Correctamente");r.setAttribute("centrarMC",true);vista="mc-mantenimiento-estado-exito.jsp";
             }else if("perfil".equals(accion)){
                 vista="mc-perfil.jsp";r.setAttribute("tituloMC","Mi perfil");
             }else if("sesionCerrada".equals(accion)){
@@ -85,17 +86,25 @@ public class MaintenanceCoordinatorServlet extends HttpServlet {
                 if(!MantenimientoDAO.estadosPermitidos(m.getEstado()).contains(nuevo))throw new IllegalArgumentException("Selecciona un nuevo estado permitido.");
                 if(motivo==null||motivo.isBlank()||motivo.trim().length()>2000)throw new IllegalArgumentException("La justificación es obligatoria y admite hasta 2000 caracteres.");
                 int responsable=actor(r);dao.validarResponsable(responsable);consumir(r,"preparar",id);
-                Map<String,String> b=new HashMap<>();b.put("id",String.valueOf(id));b.put("anterior",m.getEstado());b.put("nuevoEstado",nuevo);b.put("justificacion",motivo.trim());b.put("idResponsable",String.valueOf(responsable));b.put("token",UUID.randomUUID().toString());r.getSession().setAttribute("mcBorrador",b);redirigir(r,s,"?action=confirmar&id="+id);return;
+                Map<String,String> b=new HashMap<>();b.put("id",String.valueOf(id));b.put("codigo",m.getCodigo());b.put("anterior",m.getEstado());b.put("nuevoEstado",nuevo);b.put("justificacion",motivo.trim());b.put("idResponsable",String.valueOf(responsable));b.put("token",UUID.randomUUID().toString());r.getSession().setAttribute("mcBorrador."+id,b);redirigir(r,s,"?action=confirmar&id="+id);return;
             }
             if("confirmar".equals(accion)){
                 volver="estado";Map<?,?> b;
                 synchronized(r.getSession()){
-                    Object valor=r.getSession().getAttribute("mcBorrador");if(!(valor instanceof Map))throw new IllegalArgumentException("La confirmación venció o ya se registró.");b=(Map<?,?>)valor;
-                    if(!String.valueOf(id).equals(b.get("id"))||!Objects.equals(r.getParameter("token"),b.get("token")))throw new IllegalArgumentException("Confirmación no válida.");r.getSession().removeAttribute("mcBorrador");
+                    Object valor=r.getSession().getAttribute("mcBorrador."+id);if(!(valor instanceof Map))throw new IllegalArgumentException("La confirmación venció o ya se registró.");b=(Map<?,?>)valor;
+                    if(!String.valueOf(id).equals(b.get("id"))||!Objects.equals(r.getParameter("token"),b.get("token")))throw new IllegalArgumentException("Confirmación no válida.");r.getSession().removeAttribute("mcBorrador."+id);
                 }
                 Object actual=r.getSession().getAttribute("usuarioSesion");int usuario=actual instanceof Usuario?((Usuario)actual).getIdUsuario():Integer.parseInt(b.get("idResponsable").toString());
-                dao.cambiarEstado(id,b.get("anterior").toString(),b.get("nuevoEstado").toString(),b.get("justificacion").toString(),usuario);
-                Mantenimiento m=dao.obtener(id);Map<String,String> exito=new HashMap<>();exito.put("id",String.valueOf(id));exito.put("codigo",m.getCodigo());exito.put("estado",m.getEstado());r.getSession().setAttribute("mcExito",exito);redirigir(r,s,"?action=exito");return;
+                try{
+                    dao.cambiarEstado(id,b.get("anterior").toString(),b.get("nuevoEstado").toString(),b.get("justificacion").toString(),usuario);
+                }catch(SQLException|IllegalArgumentException e){
+                    synchronized(r.getSession()){
+                        if(r.getSession().getAttribute("mcBorrador."+id)==null)r.getSession().setAttribute("mcBorrador."+id,b);
+                    }
+                    throw e;
+                }
+                Map<String,String> exito=new HashMap<>();exito.put("id",String.valueOf(id));exito.put("codigo",b.get("codigo").toString());exito.put("estado",b.get("nuevoEstado").toString());
+                r.getSession().setAttribute("mcExito."+id,exito);redirigir(r,s,"?action=exito&id="+id);return;
             }
             if("finalizar".equals(accion)){
                 volver="finalizar";int usuario=actor(r);consumir(r,"finalizar",id);dao.finalizar(id,r.getParameter("resultado"),usuario);r.getSession().setAttribute("mcMensaje","Mantenimiento finalizado. El resultado quedó registrado en la bitácora.");redirigir(r,s,"?action=detalle&id="+id);return;

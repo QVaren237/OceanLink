@@ -5,10 +5,7 @@ import pe.edu.oceanlink.bean.SolicitudCapacidad;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class SolicitudCapacidadDAO {
-    protected Connection abrirConexion() throws SQLException {return Conexion.getConnection();}
-
-
+public class SolicitudCapacidadDAO extends BaseDAO {
     public static boolean requiereServicio(String motivo) {
         return motivo != null && ("Incremento de capacidad".equalsIgnoreCase(motivo.trim())
                 || "Incremento por capacidad".equalsIgnoreCase(motivo.trim()));

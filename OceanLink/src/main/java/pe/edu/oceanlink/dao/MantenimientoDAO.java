@@ -6,20 +6,7 @@ import java.util.*;
 import java.math.BigDecimal;
 
 /** JDBC y PreparedStatement, siguiendo el patrón DAO de las clases 7.2 y 7.3. */
-public class MantenimientoDAO {
-    protected Connection abrirConexion() throws SQLException {
-        String user = "root";
-        String pass = "070501";
-        String url = "jdbc:mysql://127.0.0.1:3306/oceanlink?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8";
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("No se encontró el controlador JDBC de MySQL.", e);
-        }
-        return DriverManager.getConnection(url, user, pass);
-    }
-
-
+public class MantenimientoDAO extends BaseDAO {
     private static final String CONSULTA="SELECT m.*,COALESCE(NULLIF(m.titulo,''),NULLIF(LEFT(m.actividades,150),''),m.codigo) AS tituloVista,"
         +"COALESCE(s.codigo,ls.codigo) AS infraestructuraCodigo,CASE WHEN m.idSegmento IS NOT NULL THEN CONCAT(lo.nombre,' ↔ ',ld.nombre) ELSE CONCAT('Landing Station ',ls.nombre) END AS infraestructuraNombre,"
         +"i.codigo AS incidenciaCodigo,CONCAT(u.nombre,' ',u.apellido) AS responsable FROM mantenimiento m "

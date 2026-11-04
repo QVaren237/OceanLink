@@ -12,7 +12,7 @@ boolean historialMC="historial".equals(request.getAttribute("seccionMC")); %>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%=h(request.getAttribute("tituloMC"))%> · OceanLink</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=maintenance-20261103">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=maintenance-menu-20261103">
 </head>
 <body>
 <div class="shell mc-shell">

@@ -5,7 +5,7 @@ import pe.edu.oceanlink.bean.ObservacionIncidencia;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class ObservacionIncidenciaDAO {
+public class ObservacionIncidenciaDAO extends BaseDAO {
 
     public void registrar(int idIncidencia, String tipo,
                           String detalle) throws SQLException {
@@ -14,7 +14,7 @@ public class ObservacionIncidenciaDAO {
                 "(idIncidencia, tipo, detalle, fechaRegistro) " +
                 "VALUES (?, ?, ?, NOW())";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, idIncidencia);
@@ -32,7 +32,7 @@ public class ObservacionIncidenciaDAO {
                 "JOIN incidencia i ON e.idIncidencia=i.idIncidencia " +
                 "ORDER BY e.fechaRegistro DESC";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -58,7 +58,7 @@ public class ObservacionIncidenciaDAO {
                 "WHERE e.idIncidencia=? " +
                 "ORDER BY e.fechaRegistro DESC";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);

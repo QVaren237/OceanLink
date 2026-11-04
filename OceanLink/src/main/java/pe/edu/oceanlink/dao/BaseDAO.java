@@ -12,7 +12,7 @@ public abstract class BaseDAO {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            throw new SQLException("No se encontró el controlador JDBC de MySQL.", ex);
         }
 
         String user = "root";
@@ -20,5 +20,9 @@ public abstract class BaseDAO {
         String url = "jdbc:mysql://localhost:3306/oceanlink?serverTimezone=America/Lima";
 
         return DriverManager.getConnection(url, user, pass);
+    }
+    // Conserva el punto de conexión usado por los módulos y sus pruebas.
+    protected Connection abrirConexion() throws SQLException {
+        return getConnection();
     }
 }

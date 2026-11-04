@@ -66,6 +66,8 @@ public class MantenimientoMysqlCheck {
     rechaza(()->dao.finalizar(id," ",4),"Resultado obligatorio");
     IncidenciaDAO incidencias=new IncidenciaDAO(){@Override protected Connection abrirConexion()throws SQLException{return dao.abrirConexion();}};
     rechaza(()->incidencias.actualizarEstado(1,"Servicio restaurado","Intento prematuro"),"Guardia de backend en NO");
+    rechaza(()->incidencias.actualizarEstado(1,"Cerrada","Saltar mantenimiento"),"No cerrar sin restauracion");
+    rechaza(()->incidencias.actualizarEstado(1,"Estado inventado","Parametro manipulado"),"Estado de incidencia validado en backend");
     dao.finalizar(id,"Equipo reparado y probado",4);m=dao.obtener(id);ok(m.isFinalizado()&&m.getFechaFin()!=null,"Finalizacion con fecha real");ok("Equipo reparado y probado".equals(m.getResultado()),"Resultado almacenado");
     ok("En análisis".equals(valor("SELECT estado FROM incidencia WHERE idIncidencia=1")),"Finalizar no restaura automaticamente");
     ok(dao.puedeRestaurar(1),"Restauracion habilitada");
@@ -77,6 +79,30 @@ public class MantenimientoMysqlCheck {
     sql("INSERT INTO incidencia_segmento(idIncidencia,idSegmento) VALUES(1,2)");ok(!dao.puedeRestaurar(1),"Debe repararse toda la infraestructura");
     int segundo=dao.crear(nuevo("Correctivo",1,2,null),4);dao.cambiarEstado(segundo,"Programado","En ejecución","Inicio",4);dao.finalizar(segundo,"Segundo segmento reparado",4);ok(dao.puedeRestaurar(1),"Todos los segmentos cubiertos");
     incidencias.actualizarEstado(1,"Servicio restaurado","Verificado por NO");ok("Servicio restaurado".equals(valor("SELECT estado FROM incidencia WHERE idIncidencia=1")),"NO restaura despues de finalizar");
+
+    incidencias.actualizarEstado(1,"Cerrada","Verificacion completada");
+    ok("Cerrada".equals(valor("SELECT estado FROM incidencia WHERE idIncidencia=1")),"Cierre despues de restaurar");
+    ok(valor("SELECT fechaCierre FROM incidencia WHERE idIncidencia=1")!=null,"Fecha de cierre registrada");
+    rechaza(()->incidencias.actualizarEstado(1,"En análisis","Reabrir cerrada"),"Cerrada es terminal");
+    UsuarioDAO perfiles=new UsuarioDAO(){@Override protected Connection abrirConexion()throws SQLException{return dao.abrirConexion();}};
+    pe.edu.oceanlink.bean.Usuario perfil=new pe.edu.oceanlink.bean.Usuario();perfil.setIdUsuario(3);perfil.setNombre("Operador Actualizado");perfil.setApellido("Prueba");perfil.setCorreo("no@test.local");perfil.setPassword("");
+    rechaza(()->perfiles.actualizarPerfil(perfil,"incorrecta",null,false),"Comprobar contraseña actual");
+    ok("Operador".equals(valor("SELECT nombre FROM usuario WHERE idUsuario=3")),"Perfil no cambia con contraseña incorrecta");
+    perfiles.actualizarPerfil(perfil,"x",null,false);
+    ok("Operador Actualizado".equals(valor("SELECT nombre FROM usuario WHERE idUsuario=3")),"Datos del perfil guardados");
+    ok("x".equals(valor("SELECT password FROM usuario WHERE idUsuario=3")),"Conservar contraseña si no se cambia");
+    java.io.ByteArrayOutputStream imagen=new java.io.ByteArrayOutputStream();javax.imageio.ImageIO.write(new java.awt.image.BufferedImage(1,1,java.awt.image.BufferedImage.TYPE_INT_RGB),"png",imagen);byte[] png=imagen.toByteArray();
+    perfiles.actualizarPerfil(perfil,"x",png,false);ok(java.util.Arrays.equals(png,perfiles.obtenerFoto(3)),"Guardar y obtener foto PNG");
+    perfiles.actualizarPerfil(perfil,"x",null,false);ok(java.util.Arrays.equals(png,perfiles.obtenerFoto(3)),"Conservar foto al modificar datos");
+    rechaza(()->perfiles.actualizarPerfil(perfil,"x",new byte[]{1,2,3},false),"Rechazar archivo que no es imagen");
+    perfil.setCorreo("mc@test.local");perfil.setNombre("No debe guardarse");
+    try{perfiles.actualizarPerfil(perfil,"x",null,false);throw new AssertionError("Correo duplicado");}catch(SQLException e){ok(e.getErrorCode()==1062,"Correo duplicado reportado");}
+    ok("Operador Actualizado".equals(valor("SELECT nombre FROM usuario WHERE idUsuario=3")),"Rollback completo al duplicar correo");
+    perfil.setCorreo("no@test.local");perfil.setNombre("Operador Actualizado");perfil.setPassword("claveNuevaPrueba");
+    perfiles.actualizarPerfil(perfil,"x",null,true);ok(perfiles.obtenerFoto(3)==null,"Quitar foto");
+    ok("claveNuevaPrueba".equals(valor("SELECT password FROM usuario WHERE idUsuario=3")),"Cambiar contraseña del usuario de prueba");
+    ok("3".equals(valor("SELECT idRol FROM usuario WHERE idUsuario=3"))&&"Activo".equals(valor("SELECT estado FROM usuario WHERE idUsuario=3")),"Perfil conserva rol y estado");
+    rechaza(()->perfiles.actualizarPerfil(perfil,"x",null,false),"Contraseña anterior ya no autoriza cambios");
     int estacion=dao.crear(nuevo("Preventivo",null,null,2),4);ok("2".equals(valor("SELECT COUNT(*) FROM mantenimiento_segmento WHERE idMantenimiento="+estacion)),"Derivar segmentos de estacion");ok(dao.serviciosAfectados(estacion).size()==1,"No duplicar servicio en estacion");
     System.out.println(checks+" comprobaciones de Maintenance Coordinator correctas.");
    }finally{if(!db.matches("oceanlink_mc_check_[0-9]+"))throw new Exception("Nombre de prueba no valido");st.executeUpdate("DROP DATABASE `"+db+"`");System.out.println("Base temporal eliminada; sin datos de prueba en oceanlink.");}

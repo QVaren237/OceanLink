@@ -4,10 +4,10 @@ import pe.edu.oceanlink.bean.Segmento;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class SegmentoConsultaDAO {
+public class SegmentoConsultaDAO extends BaseDAO {
 
     public int contarLandingStations() {
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM landing_station");
              ResultSet rs = ps.executeQuery()) {
             rs.next();
@@ -30,7 +30,7 @@ public class SegmentoConsultaDAO {
                 "WHERE (s.codigo LIKE ? OR lo.nombre LIKE ? OR ld.nombre LIKE ?) " +
                 "AND (?='' OR s.estado=?) ORDER BY s.idSegmento";
 
-        try (Connection conn = Conexion.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             String filtro = "%" +

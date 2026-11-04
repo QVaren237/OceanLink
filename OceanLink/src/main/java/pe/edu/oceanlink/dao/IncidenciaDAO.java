@@ -5,10 +5,7 @@ import pe.edu.oceanlink.bean.Incidencia;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class IncidenciaDAO {
-    protected Connection abrirConexion() throws SQLException {return Conexion.getConnection();}
-
-
+public class IncidenciaDAO extends BaseDAO {
     public ArrayList<Incidencia> listar(String busqueda, String estado) {
         ArrayList<Incidencia> lista = new ArrayList<>();
 
@@ -142,13 +139,19 @@ public class IncidenciaDAO {
     public void actualizarEstado(int id, String nuevoEstado,
                                  String observacion) throws SQLException {
 
+        if(!java.util.Arrays.asList("Detectada","En análisis","Reparación programada","En reparación","Servicio restaurado","Cerrada").contains(nuevoEstado))
+            throw new IllegalArgumentException("Selecciona un estado de incidencia válido.");
         try (Connection conn = abrirConexion()) {
             conn.setAutoCommit(false);
 
             try {
-                try(PreparedStatement bloqueo=conn.prepareStatement("SELECT idIncidencia FROM incidencia WHERE idIncidencia=? FOR UPDATE")){
-                    bloqueo.setInt(1,id);try(ResultSet fila=bloqueo.executeQuery()){if(!fila.next())throw new IllegalArgumentException("La incidencia no existe.");}
+                String estadoActual;
+                try(PreparedStatement bloqueo=conn.prepareStatement("SELECT estado FROM incidencia WHERE idIncidencia=? FOR UPDATE")){
+                    bloqueo.setInt(1,id);try(ResultSet fila=bloqueo.executeQuery()){if(!fila.next())throw new IllegalArgumentException("La incidencia no existe.");estadoActual=fila.getString(1);}
                 }
+                if("Cerrada".equals(estadoActual))throw new IllegalArgumentException("La incidencia ya está cerrada y no admite cambios de estado.");
+                if("Cerrada".equals(nuevoEstado)&&!"Servicio restaurado".equals(estadoActual))
+                    throw new IllegalArgumentException("Primero registra la restauración del servicio antes de cerrar la incidencia.");
                 if("Servicio restaurado".equals(nuevoEstado)&&!MantenimientoDAO.puedeRestaurar(conn,id))
                     throw new IllegalArgumentException("Primero deben finalizarse los mantenimientos correctivos, con resultado registrado, para todos los segmentos de la incidencia.");
                 String sql = "UPDATE incidencia SET estado=?, " +
