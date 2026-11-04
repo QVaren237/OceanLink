@@ -3,11 +3,9 @@
 <%!
  private String h(Object v) { return v==null?"—":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
  private String pill(String v) {
-   if (v==null) return "pill-neutral";
-   if (Arrays.asList("Crítica","Detectada","Fuera de servicio","Rechazada").contains(v)) return "pill-crit";
-   if (Arrays.asList("Operativo","Servicio restaurado","Aprobada","Baja").contains(v)) return "pill-ok";
-   if (Arrays.asList("Media","En mantenimiento").contains(v)) return "pill-info";
-   return "Cerrada".equals(v)?"pill-neutral":"pill-warn";
+   if ("Rechazada".equals(v)) return "pill-crit";
+   if (Arrays.asList("Aprobada","Reservada","Activa","Provisionada").contains(v)) return "pill-ok";
+   return "pill-warn";
  }
 %>
 <% String ctx=request.getContextPath(); %>
