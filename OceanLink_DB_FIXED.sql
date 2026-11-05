@@ -458,12 +458,12 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`ampliacion_capacidad` (
 
 -- Usuarios de prueba. La contraseña es ficticia y no está destinada a autenticación real.
 INSERT IGNORE INTO usuario (idUsuario, nombre, apellido, correo, password, estado, idRol, foto) VALUES
-(1, 'Lucía', 'Ramos', 'lucia.ramos@oceanlink.test', 'demo_hash_admin', 'Activo', 1, NULL),
-(2, 'Mateo', 'Vargas', 'mateo.vargas@oceanlink.test', 'demo_hash_capacity', 'Activo', 2, NULL),
-(3, 'Camila', 'Torres', 'camila.torres@oceanlink.test', 'demo_hash_operator', 'Activo', 3, NULL),
-(4, 'Diego', 'Salazar', 'diego.salazar@oceanlink.test', 'demo_hash_mantenimiento', 'Activo', 4, NULL),
-(5, 'Valeria', 'Paredes', 'valeria.paredes@oceanlink.test', 'demo_hash_supervisor', 'Activo', 5, NULL),
-(6, 'Andrés', 'León', 'andres.leon@oceanlink.test', 'demo_hash_operator2', 'Activo', 3, NULL);
+(1, 'Adrian', 'Angles', 'adrian.angles@oceanlink.test', SHA2('admin123',256), 'Activo', 1, NULL),
+(2, 'Gerson', 'Vargas', 'gerson.vargas@oceanlink.test', SHA2('capacity123',256), 'Activo', 2, NULL),
+(3, 'Ariana', 'Casanova', 'ariana.casanova@oceanlink.test', SHA2('operator123',256), 'Activo', 3, NULL),
+(4, 'Gerson', 'García', 'gerson.garcia@oceanlink.test', SHA2('mant123',256), 'Activo', 4, NULL),
+(5, 'Miguel', 'Arce', 'miguel.arce@oceanlink.test', SHA2('super123',256), 'Activo', 5, NULL),
+(6, 'Andrés', 'León', 'andres.leon@oceanlink.test', SHA2('operator123',256), 'Activo', 3, NULL);
 
 -- Clientes empresariales ficticios
 INSERT IGNORE INTO cliente (idCliente, razonSocial, ruc, telefono, correo, direccion, contacto, estado) VALUES
@@ -921,3 +921,18 @@ ORDER BY sv.codigo;
 -- Ejecutar también el bloque CREATE TABLE IF NOT EXISTS oceanlink.mantenimiento_evento anterior.
 -- Estados del módulo: Programado, En ejecución, Suspendido, Finalizado.
 -- La finalización exige resultado y registra fechaFin y un evento; no restaura automáticamente incidencias.
+
+
+-- ============================================================
+-- LOGIN (Clase 9): usuarios reales del equipo + contraseñas hasheadas (SHA-256).
+-- Estos UPDATE garantizan nombre/correo/contraseña aunque la tabla usuario ya existiera
+-- (porque el INSERT IGNORE de arriba no sobrescribe filas ya creadas).
+-- SHA2(x,256) de MySQL = Seguridad.sha256(x) de Java.
+-- ============================================================
+USE oceanlink;
+UPDATE usuario SET nombre='Adrian', apellido='Angles',   correo='adrian.angles@oceanlink.test',   password=SHA2('admin123',256)    WHERE idUsuario=1; -- Administrador
+UPDATE usuario SET nombre='Gerson', apellido='Vargas',   correo='gerson.vargas@oceanlink.test',   password=SHA2('capacity123',256) WHERE idUsuario=2; -- Capacity Planner
+UPDATE usuario SET nombre='Ariana', apellido='Casanova', correo='ariana.casanova@oceanlink.test', password=SHA2('operator123',256) WHERE idUsuario=3; -- Network Operator
+UPDATE usuario SET nombre='Gerson', apellido='García',   correo='gerson.garcia@oceanlink.test',   password=SHA2('mant123',256)     WHERE idUsuario=4; -- Maintenance Coordinator
+UPDATE usuario SET nombre='Miguel', apellido='Arce',     correo='miguel.arce@oceanlink.test',     password=SHA2('super123',256)    WHERE idUsuario=5; -- Supervisor
+UPDATE usuario SET password=SHA2('operator123',256) WHERE idUsuario=6; -- Network Operator (Andrés León)

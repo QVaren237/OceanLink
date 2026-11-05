@@ -19,7 +19,7 @@ public class UsuarioDAO extends BaseDAO {
                     pstmt.setString(1, u.getNombre());
                     pstmt.setString(2, u.getApellido());
                     pstmt.setString(3, u.getCorreo());
-                    pstmt.setString(4, u.getPassword());
+                    pstmt.setString(4, pe.edu.oceanlink.util.Seguridad.sha256(u.getPassword()));
                     pstmt.setString(5, u.getEstado());
                     pstmt.setInt(6, u.getIdRol());
                     pstmt.executeUpdate();
@@ -103,7 +103,7 @@ public class UsuarioDAO extends BaseDAO {
                     pstmt.setString(i++, u.getApellido());
                     pstmt.setString(i++, u.getCorreo());
                     if (cambiaPassword) {
-                        pstmt.setString(i++, u.getPassword());
+                        pstmt.setString(i++, pe.edu.oceanlink.util.Seguridad.sha256(u.getPassword()));
                     }
                     pstmt.setString(i++, u.getEstado());
                     pstmt.setInt(i++, u.getIdRol());
@@ -226,13 +226,13 @@ public class UsuarioDAO extends BaseDAO {
                     ps.setInt(1,usuario.getIdUsuario());try(ResultSet rs=ps.executeQuery()){
                         if(!rs.next()||!"Activo".equals(rs.getString("estado")))throw new IllegalArgumentException("El usuario no existe o está inactivo.");
                         // Se conserva el formato de contraseñas que utiliza el CRUD actual.
-                        if(!java.util.Objects.equals(claveActual,rs.getString("password")))throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+                        if(!java.util.Objects.equals(pe.edu.oceanlink.util.Seguridad.sha256(claveActual),rs.getString("password")))throw new IllegalArgumentException("La contraseña actual es incorrecta.");
                     }
                 }
                 String sql="UPDATE usuario SET nombre=?,apellido=?,correo=?"+(!nueva.isEmpty()?",password=?":"")+(quitarFoto?",foto=NULL":foto!=null?",foto=?":"")+" WHERE idUsuario=?";
                 try(PreparedStatement ps=conn.prepareStatement(sql)){
                     int indice=1;ps.setString(indice++,nombre);ps.setString(indice++,apellido);ps.setString(indice++,correo);
-                    if(!nueva.isEmpty())ps.setString(indice++,nueva);if(!quitarFoto&&foto!=null)ps.setBytes(indice++,foto);ps.setInt(indice,usuario.getIdUsuario());
+                    if(!nueva.isEmpty())ps.setString(indice++,pe.edu.oceanlink.util.Seguridad.sha256(nueva));if(!quitarFoto&&foto!=null)ps.setBytes(indice++,foto);ps.setInt(indice,usuario.getIdUsuario());
                     if(ps.executeUpdate()!=1)throw new SQLException("No se pudo actualizar el usuario.");
                 }
                 conn.commit();
