@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
 </head>
 <body>
-<div class="auth"><div class="auth-card">
+<div class="auth"><div class="auth-card" style="border:2px solid #14b8a6">
   <div class="brand brand-auth"><img class="brand-img" src="${pageContext.request.contextPath}/assets/logo.png" alt="Ocean Link Logistics"></div>
   <h1>Iniciar sesión</h1>
   <p class="sub">Ingresa con tu cuenta para acceder a los módulos de tu rol.</p>

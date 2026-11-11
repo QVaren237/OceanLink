@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
 </head>
 <body>
-<div class="auth"><div class="auth-card">
+<div class="auth"><div class="auth-card" style="border:2px solid #14b8a6">
   <div class="brand brand-auth"><img class="brand-img" src="${pageContext.request.contextPath}/assets/logo.png" alt="OceanLink"></div>
   <div class="center-icon">&#10003;</div>
   <h1>Sesión cerrada</h1>

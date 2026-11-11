@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.dao.LoginDAO;
 import pe.edu.oceanlink.bean.Usuario;
 import pe.edu.oceanlink.util.SesionContador;
+import pe.edu.oceanlink.util.SesionRegistro;
 
 import java.io.IOException;
 
@@ -20,7 +21,9 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario != null && usuario.getIdUsuario() > 0) {
+        // Solo se da por iniciada si la sesión sigue vigente en el registro del servidor
+        if (usuario != null && usuario.getIdUsuario() > 0
+                && SesionRegistro.esValida(usuario.getCorreo(), session.getId())) {
             redirigirPorRol(usuario, request, response);
             return;
         }
@@ -34,9 +37,14 @@ public class LoginServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String accion = request.getParameter("accion");
 
+        // Cerrar sesión: es GLOBAL (se cierra en todos los navegadores del usuario)
         if ("logout".equals(accion)) {
             HttpSession s = request.getSession(false);
-            if (s != null) s.invalidate();
+            if (s != null) {
+                Usuario u = (Usuario) s.getAttribute("usuario");
+                if (u != null) SesionRegistro.cerrarUsuario(u.getCorreo());
+                s.invalidate();
+            }
             response.sendRedirect(request.getContextPath() + "/LoginServlet");
             return;
         }
@@ -51,9 +59,10 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
-        // Cuenta inactiva: no se le permite ingresar
+        // Cuenta inactiva: no se le permite ingresar (mensaje solo para inactivos)
         if (!"Activo".equals(usuario.getEstado())) {
-            request.setAttribute("error", "Tu cuenta está inactiva. Contacta al administrador.");
+            request.setAttribute("error",
+                    "Tu cuenta está inactiva.<br>Contacta al administrador (adrian.angles@oceanlink.test).");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
@@ -67,6 +76,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("usuarioSesion", usuario);
         session.setAttribute("responsableSesion", usuario);
         session.setMaxInactiveInterval(600); // 10 minutos
+        SesionRegistro.registrar(usuario.getCorreo(), session.getId()); // registra esta sesión
         redirigirPorRol(usuario, request, response);
     }
 
