@@ -19,7 +19,7 @@
     // Perfil de la maqueta mientras el equipo integra el inicio de sesión.
     String nombrePlanner = perfilPlanner == null ? "Gerson García" :
             ((perfilPlanner.getNombre() == null ? "" : perfilPlanner.getNombre()) + " " +
-             (perfilPlanner.getApellido() == null ? "" : perfilPlanner.getApellido())).trim();
+                    (perfilPlanner.getApellido() == null ? "" : perfilPlanner.getApellido())).trim();
     String inicialesPlanner = "";
     for (String partePlanner : nombrePlanner.split("\\s+")) {
         if (!partePlanner.isEmpty() && inicialesPlanner.length() < 2) inicialesPlanner += partePlanner.substring(0, 1).toUpperCase(java.util.Locale.ROOT);
@@ -71,8 +71,19 @@
                 <div class="uinfo"><div class="un"><%= h(pe.edu.oceanlink.util.Vista.nombre(session)) %></div><div class="ur">Capacity Planner</div></div>
                 <span class="ucaret" aria-hidden="true">▾</span>
                 <div class="usermenu">
-                    <a href="<%= request.getContextPath() %>/capacity-planner/panel?action=perfil">Mi perfil</a>
-                    <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
+
+                    <a href="<%= request.getContextPath() %>/PerfilServlet">
+                        Editar perfil
+                    </a>
+
+                    <form method="post"
+                          action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
+
+                        <input type="hidden" name="action" value="cerrarSesion">
+
+                        <button type="submit">Cerrar sesión</button>
+                    </form>
+
                 </div>
             </div>
             <% } %>

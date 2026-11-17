@@ -60,10 +60,18 @@
       </a>
 
     </nav>
+
     <div class="side-foot">
-      <div class="role-badge"><div class="rl">Rol activo</div><div class="rn"><span class="dot"></span>Network Operator</div></div>
+      <div class="role-badge">
+        <div class="rl">Rol activo</div>
+        <div class="rn">
+          <span class="dot"></span>
+          Network Operator
+        </div>
+      </div>
     </div>
   </aside>
+
 
   <div class="main">
     <div class="topbar">
@@ -73,9 +81,15 @@
         <div class="avatar"><%=h(iniciales)%></div>
         <div class="uinfo"><div class="un"><%=h(nombre)%></div><div class="ur">Network Operator</div></div>
         <span class="ucaret">▾</span>
+
+
         <div class="usermenu">
-          <a href="<%=ctx%>/NetworkOperatorServlet?action=perfil">Mi perfil</a>
-          <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
+          <a href="<%= request.getContextPath() %>/PerfilServlet">
+            Editar perfil
+          </a>
+
+          <form method="post"
+                action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
             <input type="hidden" name="action" value="cerrarSesion">
             <button type="submit">Cerrar sesión</button>
           </form>
@@ -83,4 +97,5 @@
       </div>
     </div>
 
-<div class="content">
+    <div class="content">
+

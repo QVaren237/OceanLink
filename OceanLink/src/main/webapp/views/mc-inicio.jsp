@@ -2,9 +2,9 @@
 <%@ page import="pe.edu.oceanlink.bean.Usuario" %>
 <%! private String h(Object v){return v==null?"":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
 <% Object cuentaMC=session.getAttribute("usuarioSesion");Usuario usuarioMC=cuentaMC instanceof Usuario?(Usuario)cuentaMC:null;
-String nombreMC=usuarioMC==null?"Maintenance Coordinator":usuarioMC.getNombre()+" "+usuarioMC.getApellido();String inicialesMC="MC";
-if(usuarioMC!=null){inicialesMC="";for(String p:nombreMC.split("\\s+"))if(!p.isEmpty()&&inicialesMC.length()<2)inicialesMC+=p.substring(0,1).toUpperCase(java.util.Locale.ROOT);}
-boolean historialMC="historial".equals(request.getAttribute("seccionMC")); %>
+  String nombreMC=usuarioMC==null?"Maintenance Coordinator":usuarioMC.getNombre()+" "+usuarioMC.getApellido();String inicialesMC="MC";
+  if(usuarioMC!=null){inicialesMC="";for(String p:nombreMC.split("\\s+"))if(!p.isEmpty()&&inicialesMC.length()<2)inicialesMC+=p.substring(0,1).toUpperCase(java.util.Locale.ROOT);}
+  boolean historialMC="historial".equals(request.getAttribute("seccionMC")); %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,21 +36,32 @@ boolean historialMC="historial".equals(request.getAttribute("seccionMC")); %>
     <div class="topbar">
       <div class="crumb">OceanLink / Maintenance Coordinator</div>
       <div class="grow"></div>
-      
+
       <!-- Menú de usuario desplegable agregado -->
       <% if(!Boolean.TRUE.equals(request.getAttribute("ocultarPerfilMC"))){ %><div class="userpill" tabindex="0">
-        <div class="avatar"><%=h(pe.edu.oceanlink.util.Vista.iniciales(session))%></div>
-        <div class="uinfo">
-            <div class="un"><%=h(pe.edu.oceanlink.util.Vista.nombre(session))%></div>
-            <div class="ur">Maintenance Coord.</div>
-        </div>
-        <span class="ucaret">▾</span>
-        <div class="usermenu">
-            <a href="<%=request.getContextPath()%>/maintenance-coordinator/mantenimientos?action=perfil">Mi perfil</a>
-            <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
-        </div>
-      </div><% } %>
-      
+      <div class="avatar"><%=h(pe.edu.oceanlink.util.Vista.iniciales(session))%></div>
+      <div class="uinfo">
+        <div class="un"><%=h(pe.edu.oceanlink.util.Vista.nombre(session))%></div>
+        <div class="ur">Maintenance Coord.</div>
+      </div>
+      <span class="ucaret">▾</span>
+      <div class="usermenu">
+
+        <a href="<%= request.getContextPath() %>/PerfilServlet">
+          Editar perfil
+        </a>
+
+        <form method="post"
+              action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
+
+          <input type="hidden" name="action" value="cerrarSesion">
+
+          <button type="submit">Cerrar sesión</button>
+        </form>
+
+      </div>
+    </div><% } %>
+
     </div>
 
     <div class="content <%=Boolean.TRUE.equals(request.getAttribute("centrarMC"))?"mc-centrado":""%>">

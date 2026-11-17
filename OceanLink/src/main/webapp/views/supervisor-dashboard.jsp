@@ -1,29 +1,29 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="pe.edu.oceanlink.bean.SupervisorResumen,pe.edu.oceanlink.bean.SupervisorTramo,java.util.ArrayList" %>
 <%!
-    private String esc(String value) {
-        if (value == null) return "—";
-        return value.replace("&", "&amp;").replace("<", "&lt;")
-                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
-    }
+  private String esc(String value) {
+    if (value == null) return "—";
+    return value.replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+  }
 %>
 <%
-    SupervisorResumen resumen = (SupervisorResumen) request.getAttribute("resumen");
-    @SuppressWarnings("unchecked")
-    ArrayList<SupervisorTramo> tramos = (ArrayList<SupervisorTramo>) request.getAttribute("tramos");
-    if (resumen == null || tramos == null) {
-        response.sendRedirect(request.getContextPath() + "/supervisor/panel");
-        return;
-    }
+  SupervisorResumen resumen = (SupervisorResumen) request.getAttribute("resumen");
+  @SuppressWarnings("unchecked")
+  ArrayList<SupervisorTramo> tramos = (ArrayList<SupervisorTramo>) request.getAttribute("tramos");
+  if (resumen == null || tramos == null) {
+    response.sendRedirect(request.getContextPath() + "/supervisor/panel");
+    return;
+  }
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard · OceanLink</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/supervisor.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · OceanLink</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/supervisor.css">
 </head>
 <body>
 <div class="shell">
@@ -59,7 +59,7 @@
         <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
-        <div class="usermenu"><a href="#">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
+        <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
     </div>
     <div class="content">
@@ -69,7 +69,7 @@
           <div class="psub">Monitoreo global del uso de la fibra e incidentes en tiempo real.</div>
         </div>
       </div>
-      
+
       <!-- KPIs con colores de alerta según utilización -->
       <div class="kpis">
         <div class="kpi">
@@ -93,7 +93,7 @@
           <div class="kl">Tramos saturados</div>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-head">
           <h3>Tramos con Alta Utilización</h3>
@@ -101,35 +101,35 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Segmento</th>
-                <th>Origen</th>
-                <th>Destino</th>
-                <th>Capacidad Total</th>
-                <th>Capacidad Disponible</th>
-                <th>Estado</th>
-              </tr>
+            <tr>
+              <th>Segmento</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Capacidad Total</th>
+              <th>Capacidad Disponible</th>
+              <th>Estado</th>
+            </tr>
             </thead>
             <tbody>
             <% if (tramos.isEmpty()) { %>
-              <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted)">No hay tramos con utilización igual o superior al 80 %.</td></tr>
+            <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted)">No hay tramos con utilización igual o superior al 80 %.</td></tr>
             <% } else { for (SupervisorTramo tramo : tramos) {
-                 java.math.BigDecimal total = tramo.getCapacidadTotal();
-                 java.math.BigDecimal disponible = tramo.getCapacidadDisponible();
-                 java.math.BigDecimal porcentaje = tramo.getPorcentajeUtilizacion();
-                 boolean critico = porcentaje != null && porcentaje.compareTo(new java.math.BigDecimal("95")) >= 0;
-                 java.math.BigDecimal restante = (total != null && total.signum() > 0 && disponible != null)
-                     ? disponible.multiply(new java.math.BigDecimal("100")).divide(total, 2, java.math.RoundingMode.HALF_UP)
-                     : java.math.BigDecimal.ZERO;
+              java.math.BigDecimal total = tramo.getCapacidadTotal();
+              java.math.BigDecimal disponible = tramo.getCapacidadDisponible();
+              java.math.BigDecimal porcentaje = tramo.getPorcentajeUtilizacion();
+              boolean critico = porcentaje != null && porcentaje.compareTo(new java.math.BigDecimal("95")) >= 0;
+              java.math.BigDecimal restante = (total != null && total.signum() > 0 && disponible != null)
+                      ? disponible.multiply(new java.math.BigDecimal("100")).divide(total, 2, java.math.RoundingMode.HALF_UP)
+                      : java.math.BigDecimal.ZERO;
             %>
-              <tr>
-                <td><strong><%= esc(tramo.getCodigo()) %></strong></td>
-                <td><%= esc(tramo.getOrigen()) %></td>
-                <td><%= esc(tramo.getDestino()) %></td>
-                <td><%= total == null ? "—" : total.toPlainString() + " Gbps" %></td>
-                <td><strong style="color:var(<%= critico ? "--danger" : "--warn" %>)"><%= disponible == null ? "—" : disponible.toPlainString() + " Gbps (" + restante.toPlainString() + "%)" %></strong></td>
-                <td><span class="pill <%= critico ? "pill-crit" : "pill-warn" %>"><span class="dot"></span><%= esc(tramo.getEstado()) %></span></td>
-              </tr>
+            <tr>
+              <td><strong><%= esc(tramo.getCodigo()) %></strong></td>
+              <td><%= esc(tramo.getOrigen()) %></td>
+              <td><%= esc(tramo.getDestino()) %></td>
+              <td><%= total == null ? "—" : total.toPlainString() + " Gbps" %></td>
+              <td><strong style="color:var(<%= critico ? "--danger" : "--warn" %>)"><%= disponible == null ? "—" : disponible.toPlainString() + " Gbps (" + restante.toPlainString() + "%)" %></strong></td>
+              <td><span class="pill <%= critico ? "pill-crit" : "pill-warn" %>"><span class="dot"></span><%= esc(tramo.getEstado()) %></span></td>
+            </tr>
             <% } } %>
             </tbody>
           </table>
