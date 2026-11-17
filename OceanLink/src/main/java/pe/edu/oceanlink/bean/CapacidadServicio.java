@@ -1,7 +1,7 @@
 package pe.edu.oceanlink.bean;
 
 import java.math.BigDecimal;
-
+ // vamos con la clases
 public class CapacidadServicio {
     private int idServicio;
     private int idCliente;

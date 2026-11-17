@@ -7,6 +7,14 @@
 
     <display-name>OceanLink</display-name>
 
-    <!-- Forzar codificaciÃ³n UTF-8 para caracteres especiales (Ã±, tildes) -->
+    <!-- Seguridad de la cookie de sesión:
+         - http-only: el JavaScript del navegador NO puede leer el JSESSIONID (evita robo por XSS)
+         - tracking-mode COOKIE: el id de sesión nunca viaja en la URL -->
+    <session-config>
+        <cookie-config>
+            <http-only>true</http-only>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
 
 </web-app>

@@ -75,15 +75,15 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0">
-            <div class="avatar">GG</div>
+            <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
             <div class="uinfo">
-                <div class="un">Capacity Planner</div>
+                <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
                 <div class="ur">Capacity Planner</div>
             </div>
             <span class="ucaret">▾</span>
             <div class="usermenu">
                 <a href="#">Editar perfil</a>
-                <a href="#">Cerrar sesión</a>
+                <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
             </div>
         </div>
       </div>

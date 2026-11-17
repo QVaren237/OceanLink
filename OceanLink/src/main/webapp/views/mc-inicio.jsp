@@ -39,15 +39,15 @@ boolean historialMC="historial".equals(request.getAttribute("seccionMC")); %>
       
       <!-- Menú de usuario desplegable agregado -->
       <% if(!Boolean.TRUE.equals(request.getAttribute("ocultarPerfilMC"))){ %><div class="userpill" tabindex="0">
-        <div class="avatar"><%=h(inicialesMC)%></div>
+        <div class="avatar"><%=h(pe.edu.oceanlink.util.Vista.iniciales(session))%></div>
         <div class="uinfo">
-            <div class="un"><%=h(nombreMC)%></div>
+            <div class="un"><%=h(pe.edu.oceanlink.util.Vista.nombre(session))%></div>
             <div class="ur">Maintenance Coord.</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
             <a href="<%=request.getContextPath()%>/maintenance-coordinator/mantenimientos?action=perfil">Mi perfil</a>
-            <form method="post" action="<%=request.getContextPath()%>/maintenance-coordinator/mantenimientos"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
+            <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
         </div>
       </div><% } %>
       

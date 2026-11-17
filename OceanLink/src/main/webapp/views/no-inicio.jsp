@@ -75,7 +75,7 @@
         <span class="ucaret">▾</span>
         <div class="usermenu">
           <a href="<%=ctx%>/NetworkOperatorServlet?action=perfil">Mi perfil</a>
-          <form method="post" action="<%=ctx%>/NetworkOperatorServlet">
+          <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
             <input type="hidden" name="action" value="cerrarSesion">
             <button type="submit">Cerrar sesión</button>
           </form>

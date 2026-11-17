@@ -41,15 +41,15 @@
       <div class="crumb">OceanLink / Administrador</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar">AA</div>
+        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo">
-          <div class="un">Adrian Angles</div>
+          <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
           <div class="ur">Administrador</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
           <a href="#">Editar perfil</a>
-          <a href="#">Cerrar sesión</a>
+          <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
         </div>
       </div>
     </div>
