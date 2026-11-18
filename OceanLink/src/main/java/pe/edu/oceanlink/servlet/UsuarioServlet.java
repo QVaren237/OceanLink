@@ -1,5 +1,7 @@
 package pe.edu.oceanlink.servlet;
 
+import pe.edu.oceanlink.service.EmailService;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +15,8 @@ import pe.edu.oceanlink.bean.Usuario;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.sql.SQLException;
+
+
 
 @WebServlet(name = "UsuarioServlet", value = "/UsuarioServlet")
 public class UsuarioServlet extends HttpServlet {
@@ -88,11 +92,37 @@ public class UsuarioServlet extends HttpServlet {
                     if (edicion) usuarioGuardar.setIdUsuario(idPositivo(idUsuario));
                     usuarioGuardar.setIdRol(idPositivo(idRol));
                     validarUsuario(usuarioGuardar, edicion);
+
                     if (edicion) {
                         usuarioDao.actualizarUsuario(usuarioGuardar);
                     } else {
+                        // Primero se registra el usuario en la base de datos.
                         usuarioDao.crearUsuario(usuarioGuardar);
+
+                        // Después se envía el correo de bienvenida.
+                        try {
+                            String asunto = "¡Bienvenido a OceanLink!";
+
+                            String contenido =
+                                    "<h2>¡Hola, " + usuarioGuardar.getNombre() + "!</h2>"
+                                            + "<p>Tu cuenta en OceanLink ha sido creada correctamente.</p>"
+                                            + "<p>Ya puedes ingresar al sistema con tus credenciales.</p>"
+                                            + "<p>¡Bienvenido a nuestro equipo!</p>";
+
+                            EmailService.enviarCorreo(
+                                    usuarioGuardar.getCorreo(),
+                                    asunto,
+                                    contenido
+                            );
+
+                            log("Correo de bienvenida enviado a " + usuarioGuardar.getCorreo());
+
+                        } catch (Exception e) {
+                            // Si falla el correo, el usuario ya registrado se conserva.
+                            log("No se pudo enviar el correo de bienvenida", e);
+                        }
                     }
+
                 } catch (IllegalArgumentException e) {
                     mostrarError(request, response, usuarioGuardar, e.getMessage());
                     return;

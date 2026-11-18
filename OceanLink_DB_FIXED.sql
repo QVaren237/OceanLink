@@ -936,3 +936,25 @@ UPDATE usuario SET nombre='Ariana', apellido='Casanova', correo='ariana.casanova
 UPDATE usuario SET nombre='Gerson', apellido='García',   correo='gerson.garcia@oceanlink.test',   password=SHA2('mant123',256)     WHERE idUsuario=4; -- Maintenance Coordinator
 UPDATE usuario SET nombre='Miguel', apellido='Arce',     correo='miguel.arce@oceanlink.test',     password=SHA2('super123',256)    WHERE idUsuario=5; -- Supervisor
 UPDATE usuario SET password=SHA2('operator123',256) WHERE idUsuario=6; -- Network Operator (Andrés León)
+
+
+
+CREATE TABLE IF NOT EXISTS recuperacion_password (
+    idRecuperacion INT NOT NULL AUTO_INCREMENT, 
+    idUsuario INT NOT NULL, 
+    tokenHash CHAR(64) NOT NULL,
+    fechaExpiracion DATETIME NOT NULL,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    fechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (idRecuperacion),
+    UNIQUE KEY uk_tokenHash (tokenHash),
+    INDEX idx_recuperacion_usuario (idUsuario),
+
+    CONSTRAINT fk_recuperacion_usuario
+        FOREIGN KEY (idUsuario)
+        REFERENCES usuario(idUsuario)
+        ON DELETE CASCADE
+);
+
+
