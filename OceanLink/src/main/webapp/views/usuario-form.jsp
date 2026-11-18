@@ -3,19 +3,19 @@
 <%@ page import="pe.edu.oceanlink.bean.Rol" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    Usuario u = (Usuario) request.getAttribute("usuario");
-    ArrayList<Rol> roles = (ArrayList<Rol>) request.getAttribute("roles");
+  Usuario u = (Usuario) request.getAttribute("usuario");
+  ArrayList<Rol> roles = (ArrayList<Rol>) request.getAttribute("roles");
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= u != null ? "Editar" : "Registrar" %> usuario · OceanLink</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= u != null ? "Editar" : "Registrar" %> usuario · OceanLink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
 </head>
 <body>
 <div class="shell">
@@ -71,7 +71,7 @@
         <form id="mainForm" action="<%= request.getContextPath() %>/UsuarioServlet?action=crear" method="post">
 
           <% if (u != null) { %>
-            <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
+          <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
           <% } %>
 
           <div class="form-grid" id="formGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
@@ -84,22 +84,37 @@
               <input class="input" name="apellido" id="fApellido" value="<%= u != null ? u.getApellido() : "" %>"><div class="err" id="eApellido" style="display:none;">Este campo es obligatorio.</div>
             </div>
             <div class="field" style="grid-column: span 2;">
-              <label>Correo corporativo (*)</label>
-              <input class="input" type="email" name="correo" id="fCorreo" value="<%= u != null ? u.getCorreo() : "" %>"><div class="err" id="eCorreo" style="display:none;">Ingrese un correo válido.</div>
-            </div>
-            <div class="field" style="grid-column: span 2;">
-              <label>Contraseña <%= u != null ? "(dejar en blanco para no cambiarla)" : "(*)" %></label>
-              <input class="input" type="password" name="password" id="fPassword" placeholder="<%= u != null ? "••••••••" : "" %>"><div class="err" id="ePassword" style="display:none;">Este campo es obligatorio.</div>
-            </div>
-            <div class="field">
+              <div class="field" style="grid-column: span 2;">
+                <label>Correo corporativo (*)</label>
+                <input class="input"
+                       type="email"
+                       name="correo"
+                       id="fCorreo"
+                       maxlength="50"
+                       required
+                       value="<%= u != null ? u.getCorreo() : "" %>">
+
+                <div class="err" id="eCorreo" style="display:none;">
+                  Ingrese un correo válido. Ejemplo: usuario@dominio.com
+                </div>
+              </div>
+
+              <div class="field" style="grid-column: span 2;">
+                <label>Contraseña <%= u != null ? "(dejar en blanco para no cambiarla)" : "(*)" %></label>
+                <input class="input" type="password" name="password" id="fPassword"
+                       placeholder="<%= u != null ? "••••••••" : "" %>">
+                <div class="err" id="ePassword" style="display:none;">
+                  Este campo es obligatorio.
+                </div>
+              </div>
               <label>Rol (*)</label>
               <select class="input" name="idRol" required>
                 <% if (roles != null) {
-                     for (Rol r : roles) {
-                       boolean sel = (u != null && u.getIdRol() == r.getIdRol()); %>
-                  <option value="<%= r.getIdRol() %>" <%= sel ? "selected" : "" %>><%= r.getNombre() %></option>
+                  for (Rol r : roles) {
+                    boolean sel = (u != null && u.getIdRol() == r.getIdRol()); %>
+                <option value="<%= r.getIdRol() %>" <%= sel ? "selected" : "" %>><%= r.getNombre() %></option>
                 <%   }
-                   } %>
+                } %>
               </select>
             </div>
             <div class="field">
@@ -153,22 +168,22 @@
 </div>
 
 <script>
-var esEdicion = <%= u != null ? "true" : "false" %>;
+  var esEdicion = <%= u != null ? "true" : "false" %>;
 
-function showConfirm() {
+  function showConfirm() {
     var isValid = true;
 
     function checkField(id, errId, condition) {
-        var el = document.getElementById(id);
-        var err = document.getElementById(errId);
-        if (condition) {
-            el.classList.add("bad");
-            err.style.display = "block";
-            isValid = false;
-        } else {
-            el.classList.remove("bad");
-            err.style.display = "none";
-        }
+      var el = document.getElementById(id);
+      var err = document.getElementById(errId);
+      if (condition) {
+        el.classList.add("bad");
+        err.style.display = "block";
+        isValid = false;
+      } else {
+        el.classList.remove("bad");
+        err.style.display = "none";
+      }
     }
 
     var valNombre = document.getElementById("fNombre").value.trim();
@@ -178,27 +193,30 @@ function showConfirm() {
     checkField("fApellido", "eApellido", valApellido === "");
 
     var valCorreo = document.getElementById("fCorreo").value.trim();
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    checkField("fCorreo", "eCorreo", !emailRegex.test(valCorreo));
+
+    var emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+    checkField("fCorreo", "eCorreo",
+            valCorreo.length > 50 || !emailRegex.test(valCorreo));
 
     // La contraseña solo es obligatoria al registrar un usuario nuevo
     var valPassword = document.getElementById("fPassword").value;
     checkField("fPassword", "ePassword", !esEdicion && valPassword === "");
 
     if (!isValid) {
-        var banner = document.getElementById("errorBanner");
-        if(banner) {
-            banner.style.display = "block";
-        } else {
-            var fg = document.getElementById("formGrid");
-            var b = document.createElement("div");
-            b.id = "errorBanner";
-            b.className = "banner banner-err";
-            b.style = "grid-column: span 2; margin-bottom: 16px;";
-            b.innerText = "No se pudo guardar. Revisa los campos marcados.";
-            fg.insertBefore(b, fg.firstChild);
-        }
-        return;
+      var banner = document.getElementById("errorBanner");
+      if(banner) {
+        banner.style.display = "block";
+      } else {
+        var fg = document.getElementById("formGrid");
+        var b = document.createElement("div");
+        b.id = "errorBanner";
+        b.className = "banner banner-err";
+        b.style = "grid-column: span 2; margin-bottom: 16px;";
+        b.innerText = "No se pudo guardar. Revisa los campos marcados.";
+        fg.insertBefore(b, fg.firstChild);
+      }
+      return;
     }
 
     document.getElementById("formGrid").style.display = "none";
@@ -222,9 +240,9 @@ function showConfirm() {
     document.getElementById("pageSub").innerText = esEdicion ? "Revisa los datos del usuario antes de guardarlos." : "Revisa la información antes de confirmar el registro.";
 
     document.getElementById("confirmView").style.display = "block";
-}
+  }
 
-function hideConfirm() {
+  function hideConfirm() {
     document.getElementById("confirmView").style.display = "none";
     document.getElementById("formGrid").style.display = "grid";
     document.getElementById("formActions").style.display = "flex";
@@ -232,7 +250,7 @@ function hideConfirm() {
 
     document.getElementById("pageTitle").innerText = esEdicion ? "Editar usuario" : "Registrar nuevo usuario";
     document.getElementById("pageSub").innerText = esEdicion ? "Modifica los datos de la cuenta." : "Añade una nueva cuenta al sistema.";
-}
+  }
 </script>
 </body>
 </html>

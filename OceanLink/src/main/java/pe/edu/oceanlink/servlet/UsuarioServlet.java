@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
+import pe.edu.oceanlink.util.Validacion;
 
 
 @WebServlet(name = "UsuarioServlet", value = "/UsuarioServlet")
@@ -169,10 +170,13 @@ public class UsuarioServlet extends HttpServlet {
                 || usuario.getApellido().isEmpty() || usuario.getApellido().length() > 50) {
             throw new IllegalArgumentException("Nombre y apellido son obligatorios y admiten hasta 50 caracteres cada uno.");
         }
-        if (usuario.getCorreo().length() > 50
-                || !usuario.getCorreo().matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
-            throw new IllegalArgumentException("Ingresa un correo válido de hasta 50 caracteres.");
+
+        if (!Validacion.esCorreoValido(usuario.getCorreo())) {
+            throw new IllegalArgumentException(
+                    "Ingresa un correo válido. Ejemplo: usuario@dominio.com"
+            );
         }
+
         String clave = usuario.getPassword();
         if ((!edicion && (clave == null || clave.isBlank())) || (clave != null && clave.length() > 256)) {
             throw new IllegalArgumentException("La contraseña es obligatoria al registrar y admite hasta 256 caracteres.");
