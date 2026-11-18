@@ -86,4 +86,16 @@ public class RecuperacionPasswordService {
                 nuevaPassword
         );
     }
+    // Verifica si el enlace de recuperación sigue siendo válido.
+    public boolean tokenValido(String token) throws Exception {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
+
+        String tokenHash = Seguridad.sha256(token);
+
+        return recuperacionDAO.obtenerUsuarioPorTokenValido(tokenHash) != null;
+    }
+
+
 }

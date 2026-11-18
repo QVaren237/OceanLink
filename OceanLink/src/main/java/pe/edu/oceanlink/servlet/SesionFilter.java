@@ -43,12 +43,19 @@ public class SesionFilter implements Filter {
         // Rutas públicas: login, recursos y páginas de "sesión cerrada"
         boolean publica =
                 path.equals("/") ||
-                path.equals("/index.jsp") ||
-                path.equals("/login.jsp") ||
-                path.equals("/LoginServlet") ||
-                path.endsWith("sesion-cerrada.jsp") ||
-                path.startsWith("/css/") ||
-                path.startsWith("/assets/");
+                        path.equals("/index.jsp") ||
+                        path.equals("/login.jsp") ||
+                        path.equals("/LoginServlet") ||
+
+                        // Recuperación de contraseña: rutas públicas
+                        path.equals("/RecuperarPasswordServlet") ||
+                        path.equals("/RestablecerPasswordServlet") ||
+                        path.equals("/recuperar-password.jsp") ||
+                        path.equals("/restablecer-password.jsp") ||
+
+                        path.endsWith("sesion-cerrada.jsp") ||
+                        path.startsWith("/css/") ||
+                        path.startsWith("/assets/");
 
         if (publica) {
             chain.doFilter(req, res);
