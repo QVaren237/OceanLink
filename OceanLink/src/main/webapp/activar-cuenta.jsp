@@ -29,7 +29,7 @@
 
         <a class="btn btn-primary"
            style="width:100%;justify-content:center"
-           href="${pageContext.request.contextPath}/LoginServlet">
+           href="${pageContext.request.contextPath}/login.jsp">
             Ir a iniciar sesión
         </a>
 

@@ -119,7 +119,7 @@ public class UsuarioServlet extends HttpServlet {
 
                             String contenido =
                                     "<h2>¡Hola, " + usuarioGuardar.getNombre() + "!</h2>"
-                                            + "<p>Tu cuenta en OceanLink ha sido creada.</p>"
+                                            + "<p>Tu cuenta en OceanLink ha sido creada. </p>"
                                             + "<p>Para establecer tu contraseña y activar tu cuenta, "
                                             + "haz clic en el siguiente enlace:</p>"
                                             + "<p><a href='" + enlace + "' "
