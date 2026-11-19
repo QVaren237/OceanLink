@@ -958,3 +958,29 @@ CREATE TABLE IF NOT EXISTS recuperacion_password (
 );
 
 
+USE oceanlink;
+
+-- 1. Identificar si la cuenta ya fue activada.
+-- Las cuentas existentes quedan activadas para no bloquearlas.
+ALTER TABLE usuario
+ADD COLUMN cuentaActivada BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- 2. Crear tabla para gestionar los enlaces de activación.
+CREATE TABLE IF NOT EXISTS activacion_cuenta (
+    idActivacion INT NOT NULL AUTO_INCREMENT,
+    idUsuario INT NOT NULL,
+    tokenHash CHAR(64) NOT NULL,
+    fechaExpiracion DATETIME NOT NULL,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    fechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (idActivacion),
+    UNIQUE KEY uk_activacion_token (tokenHash),
+    INDEX idx_activacion_usuario (idUsuario),
+
+    CONSTRAINT fk_activacion_usuario
+        FOREIGN KEY (idUsuario)
+        REFERENCES usuario(idUsuario)
+        ON DELETE CASCADE
+);
+

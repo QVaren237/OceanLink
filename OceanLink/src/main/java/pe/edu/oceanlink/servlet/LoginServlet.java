@@ -59,6 +59,14 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
+        // Cuenta pendiente de activación
+        if (!usuario.isCuentaActivada()) {
+            request.setAttribute("error",
+                    "Tu cuenta todavía no está activada. Revisa tu correo electrónico y utiliza el enlace de activación.");
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
+
         // Cuenta inactiva: no se le permite ingresar (mensaje solo para inactivos)
         if (!"Activo".equals(usuario.getEstado())) {
             request.setAttribute("error",

@@ -9,6 +9,7 @@ public class Usuario {
     private String estado;
     private int idRol;
     private String nombreRol; // se llena con el JOIN para mostrarlo en la lista
+    private boolean cuentaActivada;
 
     public Usuario() {}
 
@@ -39,4 +40,14 @@ public class Usuario {
 
     public String getNombreRol() { return nombreRol; }
     public void setNombreRol(String nombreRol) { this.nombreRol = nombreRol; }
+
+    public boolean isCuentaActivada() {
+        return cuentaActivada;
+    }
+
+    public void setCuentaActivada(boolean cuentaActivada) {
+        this.cuentaActivada = cuentaActivada;
+    }
+
+
 }

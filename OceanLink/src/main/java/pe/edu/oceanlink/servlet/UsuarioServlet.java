@@ -96,19 +96,38 @@ public class UsuarioServlet extends HttpServlet {
 
                     if (edicion) {
                         usuarioDao.actualizarUsuario(usuarioGuardar);
-                    } else {
-                        // Primero se registra el usuario en la base de datos.
-                        usuarioDao.crearUsuario(usuarioGuardar);
 
-                        // Después se envía el correo de bienvenida.
+                    } else {
+                        // Se crea el usuario como pendiente de activación.
+                        String token = usuarioDao.crearUsuarioPendiente(usuarioGuardar);
+
+                        // Se construye el enlace para activar la cuenta.
+                        String urlBase = request.getScheme() + "://" + request.getServerName();
+                        int puerto = request.getServerPort();
+
+                        if (!((request.getScheme().equals("http") && puerto == 80)
+                                || (request.getScheme().equals("https") && puerto == 443))) {
+                            urlBase += ":" + puerto;
+                        }
+
+                        String enlace = urlBase + request.getContextPath()
+                                + "/activar-cuenta?token=" + token;
+
+                        // Se envía el correo de activación.
                         try {
-                            String asunto = "¡Bienvenido a OceanLink!";
+                            String asunto = "Activa tu cuenta de OceanLink";
 
                             String contenido =
                                     "<h2>¡Hola, " + usuarioGuardar.getNombre() + "!</h2>"
-                                            + "<p>Tu cuenta en OceanLink ha sido creada correctamente.</p>"
-                                            + "<p>Ya puedes ingresar al sistema con tus credenciales.</p>"
-                                            + "<p>¡Bienvenido a nuestro equipo!</p>";
+                                            + "<p>Tu cuenta en OceanLink ha sido creada.</p>"
+                                            + "<p>Para establecer tu contraseña y activar tu cuenta, "
+                                            + "haz clic en el siguiente enlace:</p>"
+                                            + "<p><a href='" + enlace + "' "
+                                            + "style='background-color:#087f8c;color:white;"
+                                            + "padding:12px 20px;text-decoration:none;"
+                                            + "border-radius:6px;'>Activar mi cuenta</a></p>"
+                                            + "<p>Este enlace vence en 24 horas y solo puede utilizarse una vez.</p>"
+                                            + "<p>¡Bienvenido a OceanLink!</p>";
 
                             EmailService.enviarCorreo(
                                     usuarioGuardar.getCorreo(),
@@ -116,13 +135,13 @@ public class UsuarioServlet extends HttpServlet {
                                     contenido
                             );
 
-                            log("Correo de bienvenida enviado a " + usuarioGuardar.getCorreo());
+                            log("Correo de activación enviado a " + usuarioGuardar.getCorreo());
 
                         } catch (Exception e) {
-                            // Si falla el correo, el usuario ya registrado se conserva.
-                            log("No se pudo enviar el correo de bienvenida", e);
+                            log("No se pudo enviar el correo de activación", e);
                         }
                     }
+
 
                 } catch (IllegalArgumentException e) {
                     mostrarError(request, response, usuarioGuardar, e.getMessage());
@@ -178,8 +197,8 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         String clave = usuario.getPassword();
-        if ((!edicion && (clave == null || clave.isBlank())) || (clave != null && clave.length() > 256)) {
-            throw new IllegalArgumentException("La contraseña es obligatoria al registrar y admite hasta 256 caracteres.");
+        if (clave != null && clave.length() > 256) {
+            throw new IllegalArgumentException("La contraseña admite hasta 256 caracteres.");
         }
         if (!"Activo".equals(usuario.getEstado()) && !"Inactivo".equals(usuario.getEstado())) {
             throw new IllegalArgumentException("Selecciona un estado válido: Activo o Inactivo.");

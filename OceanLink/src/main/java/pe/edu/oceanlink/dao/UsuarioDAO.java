@@ -8,9 +8,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Base64;
+
 public class UsuarioDAO extends BaseDAO {
 
     public void crearUsuario(Usuario u) throws SQLException, ClassNotFoundException {
+
+
         try {
 
             try (Connection conn = getConnection()) {
@@ -29,6 +36,177 @@ public class UsuarioDAO extends BaseDAO {
             throw e;
         }
     }
+
+    public String crearUsuarioPendiente(Usuario u)
+            throws SQLException, ClassNotFoundException {
+
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+
+        String token = Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(bytes);
+
+        byte[] claveTemporal = new byte[32];
+        new SecureRandom().nextBytes(claveTemporal);
+
+        String passwordTemporal = Base64.getEncoder()
+                .encodeToString(claveTemporal);
+
+        String passwordHash = pe.edu.oceanlink.util.Seguridad.sha256(passwordTemporal);
+        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
+
+        LocalDateTime expiracion = LocalDateTime.now().plusHours(24);
+
+        String sqlUsuario = "INSERT INTO usuario " +
+                "(nombre, apellido, correo, password, estado, idRol, cuentaActivada) " +
+                "VALUES (?, ?, ?, ?, ?, ?, FALSE)";
+
+        String sqlActivacion = "INSERT INTO activacion_cuenta " +
+                "(idUsuario, tokenHash, fechaExpiracion) VALUES (?, ?, ?)";
+
+        try (Connection conn = getConnection()) {
+
+            conn.setAutoCommit(false);
+
+            try {
+                int idGenerado;
+
+                try (PreparedStatement ps = conn.prepareStatement(
+                        sqlUsuario,
+                        java.sql.Statement.RETURN_GENERATED_KEYS)) {
+
+                    ps.setString(1, u.getNombre());
+                    ps.setString(2, u.getApellido());
+                    ps.setString(3, u.getCorreo());
+                    ps.setString(4, passwordHash);
+                    ps.setString(5, u.getEstado());
+                    ps.setInt(6, u.getIdRol());
+
+                    ps.executeUpdate();
+
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (!rs.next()) {
+                            throw new SQLException("No se pudo obtener el ID del usuario.");
+                        }
+                        idGenerado = rs.getInt(1);
+                    }
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(sqlActivacion)) {
+
+                    ps.setInt(1, idGenerado);
+                    ps.setString(2, tokenHash);
+                    ps.setTimestamp(3, Timestamp.valueOf(expiracion));
+
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+
+        return token;
+    }
+
+
+    // Comprueba si el enlace de activación existe, no fue utilizado y no venció.
+    public boolean tokenActivacionValido(String token)
+            throws SQLException, ClassNotFoundException {
+
+        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
+
+        String sql = "SELECT idActivacion FROM activacion_cuenta "
+                + "WHERE tokenHash = ? AND usado = FALSE "
+                + "AND fechaExpiracion > NOW()";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tokenHash);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    // Activa la cuenta, guarda la contraseña y marca el enlace como utilizado.
+    public boolean activarCuenta(String token, String nuevaPassword)
+            throws SQLException, ClassNotFoundException {
+
+        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
+        String passwordHash = pe.edu.oceanlink.util.Seguridad.sha256(nuevaPassword);
+
+        String sqlBuscar = "SELECT idActivacion, idUsuario FROM activacion_cuenta "
+                + "WHERE tokenHash = ? AND usado = FALSE "
+                + "AND fechaExpiracion > NOW() FOR UPDATE";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                int idActivacion;
+                int idUsuario;
+
+                try (PreparedStatement ps = conn.prepareStatement(sqlBuscar)) {
+                    ps.setString(1, tokenHash);
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            return false;
+                        }
+
+                        idActivacion = rs.getInt("idActivacion");
+                        idUsuario = rs.getInt("idUsuario");
+                    }
+                }
+
+                String sqlUsuario = "UPDATE usuario SET password = ?, "
+                        + "cuentaActivada = TRUE WHERE idUsuario = ?";
+
+                try (PreparedStatement ps = conn.prepareStatement(sqlUsuario)) {
+                    ps.setString(1, passwordHash);
+                    ps.setInt(2, idUsuario);
+
+                    if (ps.executeUpdate() != 1) {
+                        throw new SQLException("No se pudo activar el usuario.");
+                    }
+                }
+
+                String sqlToken = "UPDATE activacion_cuenta SET usado = TRUE "
+                        + "WHERE idActivacion = ?";
+
+                try (PreparedStatement ps = conn.prepareStatement(sqlToken)) {
+                    ps.setInt(1, idActivacion);
+
+                    if (ps.executeUpdate() != 1) {
+                        throw new SQLException("No se pudo marcar el enlace como utilizado.");
+                    }
+                }
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+
 
     public ArrayList<Usuario> obtenerListaUsuarios() {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
