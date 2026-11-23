@@ -27,30 +27,9 @@
 </head>
 <body>
 <div class="shell">
-  <aside class="side">
-    <div class="brand brand-side"><img class="brand-img" src="<%= request.getContextPath() %>/assets/logo.png" alt="Ocean Link Logistics"></div>
-    <nav class="nav-sec">
-      <div class="nav-label">Módulos</div>
-      <a class="nav-item active" href="<%= request.getContextPath() %>/supervisor/panel">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        <span>Panel</span>
-      </a>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/incidencias">
-        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>Fallas y Mantenimientos</span>
-      </a>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/reportes">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span>Reportes Históricos</span>
-      </a>
-    </nav>
-    <div class="side-foot">
-      <div class="role-badge">
-        <div class="rl">Rol activo</div>
-        <div class="rn"><span class="dot"></span>Supervisor</div>
-      </div>
-    </div>
-  </aside>
+  <jsp:include page="/views/supervisor-sidebar.jsp">
+    <jsp:param name="moduloSupervisor" value="panel" />
+  </jsp:include>
   <div class="main">
     <div class="topbar">
       <div class="crumb">OceanLink / Supervisor</div>
@@ -73,8 +52,14 @@
       <!-- KPIs con colores de alerta según utilización -->
       <div class="kpis">
         <div class="kpi">
-          <span class="kbadge <%= resumen.getUtilizacionPromedio().compareTo(new java.math.BigDecimal("80")) >= 0 ? "warn" : "" %>"><%= resumen.getUtilizacionPromedio() %>%</span>
-          <div class="kv"><%= resumen.getUtilizacionPromedio().compareTo(new java.math.BigDecimal("80")) >= 0 ? "Uso Alto" : "Uso Normal" %></div>
+          <%
+            java.math.BigDecimal promedio = resumen.getUtilizacionPromedio();
+            boolean usoAlto = promedio != null && promedio.compareTo(new java.math.BigDecimal("80")) >= 0;
+          %>
+          <% if (promedio != null) { %>
+          <span class="kbadge <%= usoAlto ? "warn" : "" %>"><%= promedio %>%</span>
+          <% } %>
+          <div class="kv"><%= promedio == null ? "Sin datos" : usoAlto ? "Uso Alto" : "Uso Normal" %></div>
           <div class="kl">Utilización prom. de red</div>
         </div>
         <div class="kpi">
@@ -89,8 +74,8 @@
         </div>
         <div class="kpi">
           <span class="kbadge crit">> 95%</span>
-          <div class="kv"><%= resumen.getTramosSaturados() %></div>
-          <div class="kl">Tramos saturados</div>
+          <div class="kv"><%= resumen.getTramosCriticos() %></div>
+          <div class="kl">Tramos críticos</div>
         </div>
       </div>
 
@@ -107,17 +92,18 @@
               <th>Destino</th>
               <th>Capacidad Total</th>
               <th>Capacidad Disponible</th>
+              <th>Utilización</th>
               <th>Estado</th>
             </tr>
             </thead>
             <tbody>
             <% if (tramos.isEmpty()) { %>
-            <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted)">No hay tramos con utilización igual o superior al 80 %.</td></tr>
+            <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">No hay tramos con utilización igual o superior al 80 %.</td></tr>
             <% } else { for (SupervisorTramo tramo : tramos) {
               java.math.BigDecimal total = tramo.getCapacidadTotal();
               java.math.BigDecimal disponible = tramo.getCapacidadDisponible();
               java.math.BigDecimal porcentaje = tramo.getPorcentajeUtilizacion();
-              boolean critico = porcentaje != null && porcentaje.compareTo(new java.math.BigDecimal("95")) >= 0;
+              boolean critico = tramo.isCritico();
               java.math.BigDecimal restante = (total != null && total.signum() > 0 && disponible != null)
                       ? disponible.multiply(new java.math.BigDecimal("100")).divide(total, 2, java.math.RoundingMode.HALF_UP)
                       : java.math.BigDecimal.ZERO;
@@ -128,7 +114,8 @@
               <td><%= esc(tramo.getDestino()) %></td>
               <td><%= total == null ? "—" : total.toPlainString() + " Gbps" %></td>
               <td><strong style="color:var(<%= critico ? "--danger" : "--warn" %>)"><%= disponible == null ? "—" : disponible.toPlainString() + " Gbps (" + restante.toPlainString() + "%)" %></strong></td>
-              <td><span class="pill <%= critico ? "pill-crit" : "pill-warn" %>"><span class="dot"></span><%= esc(tramo.getEstado()) %></span></td>
+              <td><span class="pill <%= critico ? "pill-crit" : "pill-warn" %>"><span class="dot"></span><%= porcentaje.toPlainString() %> % · <%= critico ? "Crítico" : "Alto" %></span></td>
+              <td><%= esc(tramo.getEstado()) %></td>
             </tr>
             <% } } %>
             </tbody>

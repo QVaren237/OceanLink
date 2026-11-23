@@ -17,7 +17,7 @@
             <div class="page-head">
                 <div>
                     <h1>Planificar Ampliación de Capacidad (Upgrade)</h1>
-                    <div class="psub">Inicia el requerimiento técnico para incrementar la capacidad física del segmento saturado.</div>
+                    <div class="psub">Inicia el requerimiento técnico para incrementar la capacidad física del segmento crítico.</div>
                 </div>
             </div>
 

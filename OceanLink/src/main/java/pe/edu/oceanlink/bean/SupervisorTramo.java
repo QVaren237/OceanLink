@@ -10,6 +10,7 @@ public class SupervisorTramo {
     private BigDecimal capacidadTotal;
     private BigDecimal capacidadDisponible;
     private BigDecimal porcentajeUtilizacion;
+    private boolean critico;
 
     public String getCodigo() { return codigo; }
     public void setCodigo(String valor) { this.codigo = valor; }
@@ -23,6 +24,9 @@ public class SupervisorTramo {
     public void setCapacidadTotal(BigDecimal valor) { this.capacidadTotal = valor; }
     public BigDecimal getCapacidadDisponible() { return capacidadDisponible; }
     public void setCapacidadDisponible(BigDecimal valor) { this.capacidadDisponible = valor; }
+    public boolean isCritico() { return critico; }
+    public void setCritico(boolean valor) { critico = valor; }
+
     public BigDecimal getPorcentajeUtilizacion() { return porcentajeUtilizacion; }
     public void setPorcentajeUtilizacion(BigDecimal valor) { this.porcentajeUtilizacion = valor; }
 }

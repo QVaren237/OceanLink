@@ -15,17 +15,16 @@ public class SegmentoDAO extends BaseDAO {
         try {
 
             try (Connection conn = getConnection()) {
-                String sql = "INSERT INTO segmento (codigo, idEstacionOrigen, idEstacionDestino, capacidadTotal, capacidadUtilizada, capacidadReservada, longitudKm, estado, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO segmento (codigo, idEstacionOrigen, idEstacionDestino, capacidadTotal, capacidadUtilizada, capacidadReservada, longitudKm, estado, descripcion) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, s.getCodigo());
                     pstmt.setInt(2, s.getIdEstacionOrigen());
                     pstmt.setInt(3, s.getIdEstacionDestino());
                     pstmt.setDouble(4, s.getCapacidadTotal());
                     pstmt.setDouble(5, s.getCapacidadUtilizada());
-                    pstmt.setDouble(6, s.getCapacidadReservada());
-                    pstmt.setDouble(7, s.getLongitudKm());
-                    pstmt.setString(8, s.getEstado());
-                    pstmt.setString(9, s.getDescripcion());
+                    pstmt.setDouble(6, s.getLongitudKm());
+                    pstmt.setString(7, s.getEstado());
+                    pstmt.setString(8, s.getDescripcion());
                     pstmt.executeUpdate();
                 }
             }
@@ -42,7 +41,7 @@ public class SegmentoDAO extends BaseDAO {
             Statement stmt = conn.createStatement();
             // Dos JOIN a landing_station: uno para la estación de origen y otro para la de destino
             String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
-                         "s.capacidadTotal, s.capacidadUtilizada, s.capacidadReservada, s.longitudKm, s.estado, s.descripcion, " +
+                         "s.capacidadTotal, s.capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
                          "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                          "FROM segmento s " +
                          "INNER JOIN landing_station lo ON s.idEstacionOrigen = lo.idLandingStation " +
@@ -64,7 +63,7 @@ public class SegmentoDAO extends BaseDAO {
 
             try (Connection conn = getConnection()) {
                 String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
-                             "s.capacidadTotal, s.capacidadUtilizada, s.capacidadReservada, s.longitudKm, s.estado, s.descripcion, " +
+                             "s.capacidadTotal, s.capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
                              "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                              "FROM segmento s " +
                              "INNER JOIN landing_station lo ON s.idEstacionOrigen = lo.idLandingStation " +
@@ -88,18 +87,17 @@ public class SegmentoDAO extends BaseDAO {
         try {
 
             try (Connection conn = getConnection()) {
-                String sql = "UPDATE segmento SET codigo = ?, idEstacionOrigen = ?, idEstacionDestino = ?, capacidadTotal = ?, capacidadUtilizada = ?, capacidadReservada = ?, longitudKm = ?, estado = ?, descripcion = ? WHERE idSegmento = ?";
+                String sql = "UPDATE segmento SET codigo = ?, idEstacionOrigen = ?, idEstacionDestino = ?, capacidadTotal = ?, longitudKm = ?, estado = ?, descripcion = ? WHERE idSegmento = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, s.getCodigo());
                     pstmt.setInt(2, s.getIdEstacionOrigen());
                     pstmt.setInt(3, s.getIdEstacionDestino());
                     pstmt.setDouble(4, s.getCapacidadTotal());
-                    pstmt.setDouble(5, s.getCapacidadUtilizada());
-                    pstmt.setDouble(6, s.getCapacidadReservada());
-                    pstmt.setDouble(7, s.getLongitudKm());
-                    pstmt.setString(8, s.getEstado());
-                    pstmt.setString(9, s.getDescripcion());
-                    pstmt.setInt(10, s.getIdSegmento());
+                    // Una edicion de datos del tramo no sobrescribe el uso registrado por el Planner.
+                    pstmt.setDouble(5, s.getLongitudKm());
+                    pstmt.setString(6, s.getEstado());
+                    pstmt.setString(7, s.getDescripcion());
+                    pstmt.setInt(8, s.getIdSegmento());
                     pstmt.executeUpdate();
                 }
             }
@@ -132,7 +130,6 @@ public class SegmentoDAO extends BaseDAO {
         s.setIdEstacionDestino(rs.getInt("idEstacionDestino"));
         s.setCapacidadTotal(rs.getDouble("capacidadTotal"));
         s.setCapacidadUtilizada(rs.getDouble("capacidadUtilizada"));
-        s.setCapacidadReservada(rs.getDouble("capacidadReservada"));
         s.setLongitudKm(rs.getDouble("longitudKm"));
         s.setEstado(rs.getString("estado"));
         s.setDescripcion(rs.getString("descripcion"));

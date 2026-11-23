@@ -30,7 +30,7 @@ public class CapacidadDAO extends BaseDAO {
 
     public ArrayList<HistoricoCapacidad> consultarHistorico(int idSegmento,java.sql.Date desde,java.sql.Date hasta) throws SQLException {
         ArrayList<HistoricoCapacidad> periodos=new ArrayList<>();
-        String sql="SELECT fechaRegistro,capacidadTotal,capacidadUtilizada,capacidadReservada FROM historial_capacidad "
+        String sql="SELECT fechaRegistro,capacidadTotal,capacidadUtilizada FROM historial_capacidad "
                 +"WHERE idSegmento=? AND fechaRegistro>=? AND fechaRegistro<? ORDER BY fechaRegistro,idHistorial";
         try(Connection conn=abrirConexion();PreparedStatement ps=conn.prepareStatement(sql)){
             ps.setInt(1,idSegmento);ps.setDate(2,desde);ps.setDate(3,hasta);
@@ -41,7 +41,7 @@ public class CapacidadDAO extends BaseDAO {
                     if(periodos.isEmpty()||!mes.equals(periodos.get(periodos.size()-1).getPeriodo())){
                         periodo=new HistoricoCapacidad();periodo.setPeriodo(mes);periodos.add(periodo);
                     }else periodo=periodos.get(periodos.size()-1);
-                    periodo.agregarMuestra(rs.getBigDecimal("capacidadTotal"),rs.getBigDecimal("capacidadUtilizada"),rs.getBigDecimal("capacidadReservada"));
+                    periodo.agregarMuestra(rs.getBigDecimal("capacidadTotal"),rs.getBigDecimal("capacidadUtilizada"));
                 }
             }
         }
@@ -127,7 +127,7 @@ public class CapacidadDAO extends BaseDAO {
         enlace.setUbicacionOrigen(rs.getString("ubicacionOrigen"));enlace.setUbicacionDestino(rs.getString("ubicacionDestino"));
         enlace.setEstado(rs.getString("estado"));enlace.setDescripcion(rs.getString("descripcion"));
         enlace.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));enlace.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
-        enlace.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));enlace.setLongitudKm(rs.getBigDecimal("longitudKm"));
+        enlace.setLongitudKm(rs.getBigDecimal("longitudKm"));
         return enlace;
     }
 
@@ -252,7 +252,7 @@ public class CapacidadDAO extends BaseDAO {
                 for(int id:seleccion){
                     CapacidadEnlace enlace=bloquearSegmento(conn,id);
                     validarDisponible(enlace,cantidad);
-                    try(PreparedStatement ps=conn.prepareStatement("UPDATE segmento SET capacidadReservada=capacidadReservada+? WHERE idSegmento=? AND capacidadTotal-capacidadUtilizada-capacidadReservada>=?")){
+                    try(PreparedStatement ps=conn.prepareStatement("UPDATE segmento SET capacidadUtilizada=capacidadUtilizada+? WHERE idSegmento=? AND capacidadTotal-capacidadUtilizada>=?")){
                         ps.setBigDecimal(1,cantidad);ps.setInt(2,id);ps.setBigDecimal(3,cantidad);
                         if(ps.executeUpdate()!=1)throw new IllegalArgumentException("La disponibilidad cambió. Actualiza el formulario.");
                     }
@@ -325,7 +325,11 @@ public class CapacidadDAO extends BaseDAO {
             ps.setInt(1,id);try(ResultSet rs=ps.executeQuery()){
                 if(!rs.next())throw new IllegalArgumentException("El segmento no existe.");
                 CapacidadEnlace e=new CapacidadEnlace();e.setIdSegmento(id);e.setCodigo(rs.getString("codigo"));e.setEstado(rs.getString("estado"));
-                e.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));e.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));e.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));return e;
+                e.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));e.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
+                BigDecimal reservaAnterior=rs.getBigDecimal("capacidadReservada");
+                if(reservaAnterior!=null && reservaAnterior.signum()!=0)
+                    throw new IllegalArgumentException("Consolida primero la capacidad reservada anterior de "+e.getCodigo()+".");
+                return e;
             }}
     }
     private void validarDisponible(CapacidadEnlace e,BigDecimal cantidad){
@@ -334,9 +338,9 @@ public class CapacidadDAO extends BaseDAO {
             throw new IllegalArgumentException("Capacidad insuficiente en "+e.getCodigo()+". Actualiza la cantidad o el segmento.");
     }
     private void registrarHistorial(Connection conn,int id) throws SQLException {
-        String sql="INSERT INTO historial_capacidad(idSegmento,fechaRegistro,capacidadTotal,capacidadUtilizada,capacidadReservada,capacidadDisponible,porcentajeUtilizacion) "
-                +"SELECT idSegmento,NOW(),capacidadTotal,capacidadUtilizada,capacidadReservada,capacidadTotal-capacidadUtilizada-capacidadReservada,"
-                +"(capacidadUtilizada+capacidadReservada)*100/NULLIF(capacidadTotal,0) FROM segmento WHERE idSegmento=?";
+        String sql="INSERT INTO historial_capacidad(idSegmento,fechaRegistro,capacidadTotal,capacidadUtilizada,capacidadDisponible,porcentajeUtilizacion) "
+                +"SELECT idSegmento,NOW(),capacidadTotal,capacidadUtilizada,capacidadTotal-capacidadUtilizada,"
+                +"capacidadUtilizada*100/NULLIF(capacidadTotal,0) FROM segmento WHERE idSegmento=?";
         try(PreparedStatement ps=conn.prepareStatement(sql)){ps.setInt(1,id);ps.executeUpdate();}
     }
     private SolicitudCapacidad mapearSolicitud(ResultSet rs) throws SQLException {

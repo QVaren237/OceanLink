@@ -54,10 +54,9 @@
                                 <th class="sortable" data-col="1">Identificador<span class="sarrow">⇅</span></th>
                                 <th class="sortable" data-col="2">Capacidad Total<span class="sarrow">⇅</span></th>
                                 <th class="sortable" data-col="3">Capacidad Utilizada<span class="sarrow">⇅</span></th>
-                                <th class="sortable" data-col="4">Capacidad Reservada<span class="sarrow">⇅</span></th>
-                                <th class="sortable" data-col="5">Capacidad Disponible<span class="sarrow">⇅</span></th>
+                                <th class="sortable" data-col="4">Capacidad Disponible<span class="sarrow">⇅</span></th>
+                                <th class="sortable" data-col="5">Utilización<span class="sarrow">⇅</span></th>
                                 <th class="sortable" data-col="6">Estado<span class="sarrow">⇅</span></th>
-                                <th class="sortable" data-col="7">Utilización<span class="sarrow">⇅</span></th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -68,10 +67,9 @@
  <td data-sort="<%=h(enlace.getCodigo())%>"><%=h(enlace.getCodigo())%></td>
  <td data-sort="<%=h(enlace.getCapacidadTotal())%>"><%=capacidad(enlace.getCapacidadTotal())%></td>
  <td data-sort="<%=h(enlace.getCapacidadUtilizada())%>"><%=capacidad(enlace.getCapacidadUtilizada())%></td>
- <td data-sort="<%=h(enlace.getCapacidadReservada())%>"><%=capacidad(enlace.getCapacidadReservada())%></td>
  <td data-sort="<%=h(enlace.getCapacidadDisponible())%>"><strong><%=capacidad(enlace.getCapacidadDisponible())%></strong></td>
+ <td data-sort="<%=h(enlace.getPorcentajeUtilizacion())%>" class="capacidad-text-<%=enlace.getClaseUtilizacion()%>" title="Capacidad utilizada respecto de la capacidad total: <%=h(enlace.getNivelUtilizacion())%>"><%=porcentaje(enlace.getPorcentajeUtilizacion())%></td>
  <td data-sort="<%=h(enlace.getEstado())%>"><span class="pill <%=estadoClase(enlace.getEstado())%>"><span class="dot"></span><%=enlace.getEstado()==null?"Sin datos":h(enlace.getEstado())%></span></td>
- <td data-sort="<%=h(enlace.getPorcentajeUtilizacion())%>" class="capacidad-text-<%=enlace.getClaseUtilizacion()%>" title="Utilizada más reservada respecto de la capacidad total: <%=h(enlace.getNivelUtilizacion())%>"><%=porcentaje(enlace.getPorcentajeUtilizacion())%></td>
  <td><div class="actions">
   <a class="btn btn-outline btn-icon" href="<%=ctx%>/capacity-planner/capacidad?action=detalle&amp;id=<%=enlace.getIdSegmento()%>" title="Ver detalles del enlace" aria-label="Ver detalle de <%=h(enlace.getCodigo())%>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
   <a class="btn btn-outline btn-icon" href="<%=ctx%>/capacity-planner/capacidad?action=reserva&amp;id=<%=enlace.getIdSegmento()%>" title="Reservar capacidad" aria-label="Reservar capacidad en <%=h(enlace.getCodigo())%>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></a>

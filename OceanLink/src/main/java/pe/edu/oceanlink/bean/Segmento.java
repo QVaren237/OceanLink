@@ -9,7 +9,6 @@ public class Segmento {
     private int idEstacionDestino;
     private double capacidadTotal;
     private double capacidadUtilizada;
-    private double capacidadReservada;
     private double longitudKm;
     private String estado;
     private String descripcion;
@@ -67,14 +66,6 @@ public class Segmento {
         this.capacidadUtilizada = capacidadUtilizada;
     }
 
-    public double getCapacidadReservada() {
-        return capacidadReservada;
-    }
-
-    public void setCapacidadReservada(double capacidadReservada) {
-        this.capacidadReservada = capacidadReservada;
-    }
-
     public double getLongitudKm() {
         return longitudKm;
     }
@@ -116,6 +107,6 @@ public class Segmento {
     }
 
     public double getCapacidadDisponible() {
-        return capacidadTotal - capacidadUtilizada - capacidadReservada;
+        return capacidadTotal - capacidadUtilizada;
     }
 }

@@ -15,7 +15,6 @@ public class CapacidadEnlace {
     private String descripcion;
     private BigDecimal capacidadTotal;
     private BigDecimal capacidadUtilizada;
-    private BigDecimal capacidadReservada;
     private BigDecimal longitudKm;
     public int getIdSegmento() { return idSegmento; }
     public void setIdSegmento(int valor) { idSegmento = valor; }
@@ -37,8 +36,6 @@ public class CapacidadEnlace {
     public void setCapacidadTotal(BigDecimal valor) { capacidadTotal = valor; }
     public BigDecimal getCapacidadUtilizada() { return capacidadUtilizada; }
     public void setCapacidadUtilizada(BigDecimal valor) { capacidadUtilizada = valor; }
-    public BigDecimal getCapacidadReservada() { return capacidadReservada; }
-    public void setCapacidadReservada(BigDecimal valor) { capacidadReservada = valor; }
     public BigDecimal getLongitudKm() { return longitudKm; }
     public void setLongitudKm(BigDecimal valor) { longitudKm = valor; }
 
@@ -53,14 +50,13 @@ public class CapacidadEnlace {
                 .compareTo(capacidadTotal.multiply(BigDecimal.valueOf(95)))>0;
     }
     public BigDecimal getCapacidadAsignada() {
-        return capacidadUtilizada == null || capacidadReservada == null ? null
-                : capacidadUtilizada.add(capacidadReservada);
+        return capacidadUtilizada;
     }
     public BigDecimal getCapacidadDisponible() {
         return capacidadTotal == null || getCapacidadAsignada() == null ? null
                 : capacidadTotal.subtract(getCapacidadAsignada());
     }
-    // La maqueta representa la ocupación utilizada + reservada respecto de la capacidad física.
+    // La capacidad asignada queda utilizada al confirmar la reserva.
     public BigDecimal getPorcentajeUtilizacion() {
         return capacidadTotal == null || capacidadTotal.signum() <= 0 || getCapacidadAsignada() == null
                 ? null : getCapacidadAsignada().multiply(BigDecimal.valueOf(100))

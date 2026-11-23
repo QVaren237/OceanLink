@@ -482,14 +482,14 @@ INSERT IGNORE INTO landing_station (idLandingStation, codigo, nombre, ubicacion,
 (5, 'LS-ANT', 'Antofagasta', 'Antofagasta, Chile', 'En mantenimiento', 'Estación con trabajos programados.'),
 (6, 'LS-VAL', 'Valparaíso', 'Valparaíso, Chile', 'Operativa', 'Estación de aterrizaje en la zona central de Chile.');
 
--- Segmentos: capacidades en Gbps. Utilizada y reservada no superan la capacidad total.
+-- Segmentos: capacidades en Gbps. Las asignaciones confirmadas forman parte de la capacidad utilizada.
 INSERT IGNORE INTO segmento (idSegmento, codigo, idEstacionOrigen, idEstacionDestino, capacidadTotal, capacidadUtilizada, capacidadReservada, longitudKm, estado, descripcion) VALUES
-(1, 'SEG-MAN-LIM', 1, 3, 1000.00, 420.00, 120.00, 850.50, 'Operativo', 'Tramo submarino Manta - Lima.'),
-(2, 'SEG-LIM-ARI', 3, 4, 800.00, 560.00, 160.00, 1100.00, 'Degradado', 'Tramo submarino Lima - Arica con capacidad disponible limitada.'),
-(3, 'SEG-ARI-ANT', 4, 5, 600.00, 300.00, 100.00, 700.25, 'En mantenimiento', 'Tramo submarino Arica - Antofagasta.'),
-(4, 'SEG-ANT-VAL', 5, 6, 700.00, 620.00, 20.00, 950.75, 'Fuera de servicio', 'Tramo submarino Antofagasta - Valparaíso.'),
-(5, 'SEG-GYE-MAN', 2, 1, 900.00, 250.00, 150.00, 190.40, 'Operativo', 'Tramo submarino Guayaquil - Manta.'),
-(6, 'SEG-LIM-GYE', 3, 2, 500.00, 100.00, 50.00, 420.80, 'Operativo', 'Tramo submarino Lima - Guayaquil.');
+(1, 'SEG-MAN-LIM', 1, 3, 1000.00, 540.00, 0.00, 850.50, 'Operativo', 'Tramo submarino Manta - Lima.'),
+(2, 'SEG-LIM-ARI', 3, 4, 800.00, 720.00, 0.00, 1100.00, 'Degradado', 'Tramo submarino Lima - Arica con capacidad disponible limitada.'),
+(3, 'SEG-ARI-ANT', 4, 5, 600.00, 400.00, 0.00, 700.25, 'En mantenimiento', 'Tramo submarino Arica - Antofagasta.'),
+(4, 'SEG-ANT-VAL', 5, 6, 700.00, 640.00, 0.00, 950.75, 'Fuera de servicio', 'Tramo submarino Antofagasta - Valparaíso.'),
+(5, 'SEG-GYE-MAN', 2, 1, 900.00, 400.00, 0.00, 190.40, 'Operativo', 'Tramo submarino Guayaquil - Manta.'),
+(6, 'SEG-LIM-GYE', 3, 2, 500.00, 150.00, 0.00, 420.80, 'Operativo', 'Tramo submarino Lima - Guayaquil.');
 
 -- Rutas de servicio
 INSERT IGNORE INTO ruta (idRuta, codigo, nombre, idEstacionOrigen, idEstacionDestino, estado, descripcion) VALUES
@@ -586,6 +586,35 @@ INSERT IGNORE INTO mantenimiento_segmento (idMantenimiento, idSegmento) VALUES
 (4, 1);
 
 -- ============================================================
+-- MIGRACION: CAPACIDAD RESERVADA A CAPACIDAD UTILIZADA
+-- Una base nueva ya tiene los saldos de ejemplo consolidados.
+-- En una base existente, ejecutar solo este bloque con la app
+-- detenida y con respaldo. Las asignaciones por servicio y las
+-- muestras historicas se conservan. El traslado se hace una vez.
+-- ============================================================
+
+USE oceanlink;
+
+SET @seguridad_actual = @@SQL_SAFE_UPDATES;
+SET SQL_SAFE_UPDATES = 0;
+
+START TRANSACTION;
+UPDATE segmento
+SET capacidadUtilizada = capacidadUtilizada + capacidadReservada,
+    capacidadReservada = 0
+WHERE capacidadReservada > 0
+  AND capacidadUtilizada >= 0
+  AND capacidadUtilizada + capacidadReservada <= capacidadTotal;
+COMMIT;
+
+SET SQL_SAFE_UPDATES = @seguridad_actual;
+
+-- Si esta consulta devuelve filas, revisar sus saldos antes de asignarles capacidad.
+SELECT idSegmento, codigo, capacidadTotal, capacidadUtilizada, capacidadReservada
+FROM segmento
+WHERE capacidadReservada <> 0;
+
+-- ============================================================
 -- OCEANLINK - CONSULTAS SQL
 -- Consultas de lectura para los módulos principales del sistema.
 -- ============================================================
@@ -622,8 +651,7 @@ SELECT
     ed.nombre AS estacion_destino,
     s.capacidadTotal,
     s.capacidadUtilizada,
-    s.capacidadReservada,
-    (s.capacidadTotal - s.capacidadUtilizada - s.capacidadReservada) AS capacidadDisponible,
+    (s.capacidadTotal - s.capacidadUtilizada) AS capacidadDisponible,
     s.estado
 FROM segmento s
          INNER JOIN landing_station eo
@@ -638,9 +666,8 @@ SELECT
     codigo,
     capacidadTotal,
     capacidadUtilizada,
-    capacidadReservada,
-    (capacidadTotal - capacidadUtilizada - capacidadReservada) AS capacidadDisponible,
-    (capacidadUtilizada / capacidadTotal) * 100 AS porcentajeUtilizacion
+    (capacidadTotal - capacidadUtilizada) AS capacidadDisponible,
+    capacidadUtilizada * 100 / NULLIF(capacidadTotal,0) AS porcentajeUtilizacion
 FROM segmento
 ORDER BY porcentajeUtilizacion DESC;
 
@@ -668,7 +695,6 @@ SELECT
     s.codigo AS codigo_segmento,
     s.capacidadTotal,
     s.capacidadUtilizada,
-    s.capacidadReservada,
     s.estado AS estado_segmento,
     rs.capacidadRuta
 FROM ruta_segmento rs
@@ -825,13 +851,12 @@ FROM mantenimiento_segmento msg
 ORDER BY m.fechaInicio DESC, s.codigo;
 
 -- 15. Datos resumidos para el dashboard: capacidad total,
--- utilizada, reservada y disponible de toda la red
+-- utilizada y disponible de toda la red
 SELECT
     SUM(capacidadTotal) AS capacidadTotalRed,
     SUM(capacidadUtilizada) AS capacidadUtilizadaRed,
-    SUM(capacidadReservada) AS capacidadReservadaRed,
-    SUM(capacidadTotal - capacidadUtilizada - capacidadReservada) AS capacidadDisponibleRed,
-    (SUM(capacidadUtilizada) / SUM(capacidadTotal)) * 100 AS porcentajeUtilizacionRed
+    SUM(capacidadTotal - capacidadUtilizada) AS capacidadDisponibleRed,
+    SUM(capacidadUtilizada) * 100 / NULLIF(SUM(capacidadTotal),0) AS porcentajeUtilizacionRed
 FROM segmento;
 
 -- 16. Cantidad de segmentos por estado
@@ -864,9 +889,8 @@ SELECT
     h.fechaRegistro,
     h.capacidadTotal,
     h.capacidadUtilizada,
-    h.capacidadReservada,
-    h.capacidadDisponible,
-    h.porcentajeUtilizacion
+    h.capacidadTotal - h.capacidadUtilizada AS capacidadDisponible,
+    ROUND(h.capacidadUtilizada * 100 / NULLIF(h.capacidadTotal,0), 2) AS porcentajeUtilizacion
 FROM historial_capacidad h
          INNER JOIN segmento s
                     ON h.idSegmento = s.idSegmento
@@ -891,37 +915,6 @@ FROM servicio sv
 WHERE s.estado = 'Fuera de servicio'
   AND sv.estado <> 'Cancelado'
 ORDER BY sv.codigo;
-
-
--- ACTUALIZACION DE UNA BASE YA EXISTENTE (no borra registros).
--- CREATE TABLE IF NOT EXISTS no agrega columnas a tablas existentes.
--- Ejecutar estas instrucciones una sola vez, omitiendo las columnas/clave ya creadas:
--- ALTER TABLE oceanlink.reserva_capacidad MODIFY COLUMN idSolicitud INT NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.solicitud ADD COLUMN comentarioEvaluacion VARCHAR(255) NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.solicitud ADD COLUMN idEvaluador INT NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.solicitud ADD COLUMN fechaEvaluacion DATETIME NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.solicitud ADD CONSTRAINT fk_solicitud_evaluador
---   FOREIGN KEY (idEvaluador) REFERENCES oceanlink.usuario(idUsuario);
--- Reserva directa: idSolicitud=NULL. Reserva vinculada: conserva el id de la solicitud aprobada.
-
--- Servicio asociado a solicitudes de incremento de capacidad (bases existentes):
--- ALTER TABLE oceanlink.solicitud ADD COLUMN idServicio INT NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.solicitud ADD CONSTRAINT fk_solicitud_servicio
---   FOREIGN KEY (idServicio) REFERENCES oceanlink.servicio(idServicio);
--- No se asignan servicios automáticamente a solicitudes antiguas: deben revisarse sus datos.
-
--- Para actualizar una base existente con Alertas de Red, ejecutar únicamente
--- el bloque CREATE TABLE IF NOT EXISTS oceanlink.ampliacion_capacidad anterior.
--- Registrar un requerimiento no modifica la capacidad física del segmento.
-
--- ACTUALIZACION MAINTENANCE COORDINATOR (conserva los datos existentes):
--- ALTER TABLE oceanlink.mantenimiento ADD COLUMN titulo VARCHAR(150) NULL DEFAULT NULL;
--- ALTER TABLE oceanlink.mantenimiento ADD COLUMN descripcion TEXT NULL;
--- ALTER TABLE oceanlink.mantenimiento ADD COLUMN fechaFin DATETIME NULL DEFAULT NULL;
--- Ejecutar también el bloque CREATE TABLE IF NOT EXISTS oceanlink.mantenimiento_evento anterior.
--- Estados del módulo: Programado, En ejecución, Suspendido, Finalizado.
--- La finalización exige resultado y registra fechaFin y un evento; no restaura automáticamente incidencias.
-
 
 -- ============================================================
 -- LOGIN (Clase 9): usuarios reales del equipo + contraseñas hasheadas (SHA-256).

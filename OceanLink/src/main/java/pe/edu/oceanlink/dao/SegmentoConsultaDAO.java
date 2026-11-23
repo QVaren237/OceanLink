@@ -22,7 +22,7 @@ public class SegmentoConsultaDAO extends BaseDAO {
 
         String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, " +
                 "s.idEstacionDestino, s.capacidadTotal, s.capacidadUtilizada, " +
-                "s.capacidadReservada, s.longitudKm, s.estado, s.descripcion, " +
+                "s.longitudKm, s.estado, s.descripcion, " +
                 "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                 "FROM segmento s " +
                 "JOIN landing_station lo ON s.idEstacionOrigen=lo.idLandingStation " +
@@ -52,7 +52,6 @@ public class SegmentoConsultaDAO extends BaseDAO {
                     s.setIdEstacionDestino(rs.getInt("idEstacionDestino"));
                     s.setCapacidadTotal(rs.getDouble("capacidadTotal"));
                     s.setCapacidadUtilizada(rs.getDouble("capacidadUtilizada"));
-                    s.setCapacidadReservada(rs.getDouble("capacidadReservada"));
                     s.setLongitudKm(rs.getDouble("longitudKm"));
                     s.setEstado(rs.getString("estado"));
                     s.setDescripcion(rs.getString("descripcion"));

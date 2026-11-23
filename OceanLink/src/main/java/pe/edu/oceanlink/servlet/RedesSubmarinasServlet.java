@@ -80,13 +80,20 @@ public class RedesSubmarinasServlet extends HttpServlet {
                 guardar.setIdEstacionOrigen(idOrigen == null || idOrigen.isEmpty() ? 0 : Integer.parseInt(idOrigen));
                 guardar.setIdEstacionDestino(idDestino == null || idDestino.isEmpty() ? 0 : Integer.parseInt(idDestino));
                 guardar.setCapacidadTotal(parseDouble(request.getParameter("capacidadTotal")));
-                guardar.setCapacidadUtilizada(parseDouble(request.getParameter("capacidadUtilizada")));
-                guardar.setCapacidadReservada(parseDouble(request.getParameter("capacidadReservada")));
                 guardar.setLongitudKm(parseDouble(request.getParameter("longitudKm")));
                 guardar.setEstado(estado);
                 guardar.setDescripcion(descripcion);
 
                 if (idSegmento == null || idSegmento.isEmpty()) {
+                    guardar.setCapacidadUtilizada(parseDouble(request.getParameter("capacidadUtilizada")));
+                    if (!Double.isFinite(guardar.getCapacidadTotal())
+                            || !Double.isFinite(guardar.getCapacidadUtilizada())
+                            || guardar.getCapacidadUtilizada() < 0
+                            || guardar.getCapacidadUtilizada() > guardar.getCapacidadTotal()) {
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                "La capacidad utilizada debe estar entre cero y la capacidad total.");
+                        return;
+                    }
                     dao.crearSegmento(guardar);
                 } else {
                     guardar.setIdSegmento(Integer.parseInt(idSegmento));

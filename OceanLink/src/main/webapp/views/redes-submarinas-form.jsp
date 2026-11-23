@@ -111,19 +111,10 @@
               <input class="input" type="number" step="0.01" min="0" name="longitudKm" id="fLongitud" value="<%= s != null ? s.getLongitudKm() : "" %>"><div class="err" id="eLongitud" style="display:none;">Ingrese un número válido.</div>
             </div>
             <% if (s == null) { %>
-            <%-- Al registrar: se muestran los campos de capacidad utilizada y reservada --%>
             <div class="field">
               <label>Capacidad utilizada (Gbps) (*)</label>
               <input class="input" type="number" step="0.01" min="0" name="capacidadUtilizada" id="fCapUtil" value=""><div class="err" id="eCapUtil" style="display:none;">Ingrese un número válido.</div>
             </div>
-            <div class="field">
-              <label>Capacidad reservada (Gbps) (*)</label>
-              <input class="input" type="number" step="0.01" min="0" name="capacidadReservada" id="fCapRes" value=""><div class="err" id="eCapRes" style="display:none;">Ingrese un número válido.</div>
-            </div>
-            <% } else { %>
-            <%-- Al editar: se ocultan, pero se conservan los valores actuales para no borrarlos --%>
-            <input type="hidden" name="capacidadUtilizada" value="<%= s.getCapacidadUtilizada() %>">
-            <input type="hidden" name="capacidadReservada" value="<%= s.getCapacidadReservada() %>">
             <% } %>
             <div class="field">
               <label>Estado (*)</label>

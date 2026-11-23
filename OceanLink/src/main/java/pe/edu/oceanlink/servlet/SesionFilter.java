@@ -40,6 +40,12 @@ public class SesionFilter implements Filter {
         String ctx = request.getContextPath();
         String path = request.getRequestURI().substring(ctx.length());
 
+        // El menu JSP se incluye en las vistas y no se sirve como archivo.
+        if ("/views/supervisor-sidebar.jsp".equals(request.getServletPath())) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
         // Rutas públicas: login, recursos y páginas de "sesión cerrada"
         boolean publica =
                 path.equals("/") ||

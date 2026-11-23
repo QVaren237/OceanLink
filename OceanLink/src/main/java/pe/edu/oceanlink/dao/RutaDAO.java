@@ -149,7 +149,7 @@ public class RutaDAO extends BaseDAO {
                     "(SELECT COUNT(*) FROM cliente WHERE estado = 'Activo') AS clientesActivos, " +
                     "(SELECT COUNT(*) FROM segmento) AS segmentosMonitoreados, " +
                     "(SELECT COUNT(*) FROM solicitud WHERE estado IN ('Registrada', 'En evaluación', 'Pendiente por capacidad')) AS solicitudesPendientes, " +
-                    "(SELECT COUNT(*) FROM segmento WHERE capacidadTotal > 0 AND capacidadUtilizada / capacidadTotal > 0.95) AS segmentosCriticos";
+                    "(SELECT COUNT(*) FROM segmento WHERE capacidadTotal > 0 AND capacidadUtilizada > capacidadTotal * 0.95) AS segmentosCriticos";
             try (PreparedStatement pstmt = conn.prepareStatement(indicadores); ResultSet rs = pstmt.executeQuery()) {
                 rs.next();
                 panel.setClientesActivos(rs.getInt("clientesActivos"));
@@ -356,7 +356,6 @@ public class RutaDAO extends BaseDAO {
         tramo.setEstado(rs.getString("estado"));
         tramo.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
         tramo.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
-        tramo.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));
         return tramo;
     }
 }

@@ -81,7 +81,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                                 <th data-col="1" class="sortable">Capacidad Instalada<span class="sarrow">▼</span></th>
                                 <th data-col="2" class="sortable" title="Promedio de la capacidad utilizada en las muestras registradas del mes">Tráfico Promedio<span class="sarrow">▼</span></th>
                                 <th data-col="3" class="sortable">Pico Máximo<span class="sarrow">▼</span></th>
-                                <th data-col="4" class="sortable" title="Máximo de (utilizada más reservada) dividido entre capacidad total de cada muestra">Utilización Máx.<span class="sarrow">▼</span></th>
+                                <th data-col="4" class="sortable" title="Mayor porcentaje de capacidad utilizada respecto de la capacidad total de cada muestra">Utilización Máx.<span class="sarrow">▼</span></th>
                                 <th data-col="5" class="sortable">Tendencia<span class="sarrow">▼</span></th>
                             </tr>
                         </thead>
