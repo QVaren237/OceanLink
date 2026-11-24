@@ -27,6 +27,10 @@ public class SupervisorEstadisticas {
         return meses;
     }
 
+    public int porcentajeIncidencias(int cantidad) {
+        return totalIncidencias == 0 ? 0 : (int) Math.round(cantidad * 100.0 / totalIncidencias);
+    }
+
     public int getMaximoMensual() {
         int maximo = 1;
         for (SupervisorMes mes : meses) {

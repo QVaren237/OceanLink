@@ -12,13 +12,13 @@
  if(eventos==null){response.sendRedirect(request.getContextPath()+"/supervisor/incidencias");return;}
 %>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="tema-supervisor">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seguimiento de Fallas · OceanLink</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/supervisor.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor">
 <style>
   /* Nuevo color para la gravedad Media basado en la imagen */
   .pill-media { background: #e6e0f8; color: #434493; }

@@ -13,13 +13,13 @@
   }
 %>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="tema-supervisor">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Estadísticas del Supervisor ? OceanLink</title>
+  <title>Estadísticas del Supervisor · OceanLink</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/supervisor.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css?v=supervisor">
 </head>
 <body>
 <div class="shell">
@@ -116,10 +116,24 @@
         <section class="card estadisticas-card">
           <div class="card-head"><h2>Estado y severidad de incidencias</h2></div>
           <div class="card-pad estadisticas-grafico-body">
-            <dl class="estadisticas-estados">
-              <div><dt>Abiertas</dt><dd><%= datos.getIncidenciasAbiertas() %></dd></div>
-              <div><dt>Cerradas</dt><dd><%= datos.getIncidenciasCerradas() %></dd></div>
-              <div><dt>Críticas o altas</dt><dd><%= datos.getIncidenciasGraves() %></dd></div>
+            <dl class="estadisticas-estados" aria-label="Proporciones sobre las incidencias detectadas">
+              <%
+                String[] estados = {"Abiertas", "Cerradas", "Críticas o altas"};
+                int[] cantidades = {datos.getIncidenciasAbiertas(), datos.getIncidenciasCerradas(), datos.getIncidenciasGraves()};
+                int total = datos.getTotalIncidencias();
+                for (int i = 0; i < estados.length; i++) {
+                    int porcentaje = datos.porcentajeIncidencias(cantidades[i]);
+              %>
+              <div class="estadisticas-medidor">
+                <dt><%= estados[i] %></dt>
+                <dd>
+                  <div class="estadisticas-arco" style="--avance: <%= porcentaje * 2.7 %>deg">
+                    <span><%= total == 0 ? "—" : porcentaje + " %" %></span>
+                  </div>
+                  <div class="estadisticas-conteo"><%= cantidades[i] %> de <%= total %></div>
+                </dd>
+              </div>
+              <% } %>
             </dl>
             <ul class="estadisticas-severidad">
               <% for (SupervisorDatoGrafico severidad : datos.getSeveridades()) { %>
@@ -136,9 +150,6 @@
           </div>
         </section>
       </div>
-
-      <p class="estadisticas-nota">Las incidencias se agrupan por fecha de detección y su estado refleja el cierre registrado.
-        Los mantenimientos se agrupan por fecha de inicio. <%= request.getAttribute("notaClientes") %></p>
       <% } %>
     </main>
     <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
