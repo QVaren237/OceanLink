@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.dao;
 
 import java.sql.Connection;
@@ -16,12 +15,12 @@ public abstract class BaseDAO {
         }
 
         String user = "root";
-        String pass = "070501";
+        String pass = "root";
         String url = "jdbc:mysql://localhost:3306/oceanlink?serverTimezone=America/Lima";
 
         return DriverManager.getConnection(url, user, pass);
     }
-    // Conserva el punto de conexión usado por los módulos y sus pruebas.
+
     protected Connection abrirConexion() throws SQLException {
         return getConnection();
     }

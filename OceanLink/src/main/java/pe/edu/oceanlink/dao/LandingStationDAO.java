@@ -101,8 +101,6 @@ public class LandingStationDAO extends BaseDAO {
 
     public void cambiarEstado(String id, String nuevoEstado) {
 
-
-
         String sql = "UPDATE landing_station SET estado = ? WHERE idLandingStation = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

@@ -29,10 +29,10 @@
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
-        <div class="usermenu"><a href="#">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
+        <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
     </div>
     <div class="content">
@@ -42,7 +42,7 @@
           <div class="psub">Genera y descarga informes operativos utilizando filtros combinados.</div>
         </div>
       </div>
-      
+
       <form method="get" action="<%=request.getContextPath()%>/supervisor/reportes" class="card card-pad" style="margin-bottom: 20px;">
         <div class="form-grid">
           <div class="field"><label for="filterType">Tipo de Informe</label>

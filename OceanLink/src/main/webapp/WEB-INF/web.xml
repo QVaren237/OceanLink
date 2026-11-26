@@ -7,9 +7,6 @@
 
     <display-name>OceanLink</display-name>
 
-    <!-- Seguridad de la cookie de sesión:
-         - http-only: el JavaScript del navegador NO puede leer el JSESSIONID (evita robo por XSS)
-         - tracking-mode COOKIE: el id de sesión nunca viaja en la URL -->
     <session-config>
         <cookie-config>
             <http-only>true</http-only>

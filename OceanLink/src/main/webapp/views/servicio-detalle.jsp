@@ -36,13 +36,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
 <style>
-/* Solo afecta a la vista de información del cliente. */
-/* Botones idénticos en tamaño y trazo a client-detail.html. */
+
 .detalle-action-group{display:flex;gap:6px;flex-wrap:wrap}
 .detalle-icon-btn{width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid var(--line-strong,#d5e2e5);background:#fff;color:var(--muted,#5a8894);cursor:pointer}
 .detalle-icon-btn:hover{border-color:var(--teal,#479ba4);color:var(--teal-d,#317d88);background:var(--aqua,#e9f5f5)}
 .detalle-icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-/* Ventanas basadas en el HTML original; solo afectan a esta página. */
+
 .detalle-modal-back[hidden]{display:none!important}
 .detalle-modal-back{position:fixed;inset:0;background:rgba(32,60,62,.34);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
 .detalle-modal{width:min(430px,100%);background:var(--surface,#fff);border-radius:var(--radius,18px);box-shadow:0 24px 60px rgba(42,91,94,.28);padding:26px 28px}
@@ -58,7 +57,7 @@
 .detalle-modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;padding:0;border:0}
 #utable th.sortable{cursor:pointer;user-select:none}
 #utable th .sarrow{margin-left:9px;color:#92a5ac;font-size:12px}
-/* Paginación con el mismo estilo de client-detail.html */
+
 #detallePagination{display:flex;align-items:center;gap:5px;padding:13px 22px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid var(--line,#dce7e8)}
 #detallePagination .page-btn{min-width:27px;height:27px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line-strong,#d5e2e5);background:#fff;border-radius:7px;font-size:11px;font-weight:700;color:var(--ink,#183640);cursor:pointer}
 #detallePagination .page-btn.active{background:var(--teal,#479ba4);border-color:var(--teal,#479ba4);color:#fff}
@@ -98,11 +97,11 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0" aria-label="Perfil de <%= escPerfilServicios(nombreServicios) %>">
-            <div class="avatar"><%= escPerfilServicios(inicialesServicios) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
             <div class="uinfo"><div class="un"><%= escPerfilServicios(nombreServicios) %></div><div class="ur">Capacity Planner</div></div>
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">
-                <a href="<%= request.getContextPath() %>/capacity-planner/panel?action=perfil">Mi perfil</a>
+                <a href="<%= request.getContextPath() %>/PerfilServlet">Mi perfil</a>
                 <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
             </div>
         </div>
@@ -221,8 +220,7 @@ function verServicio(btn){
  document.getElementById('detalleRutaEstado').textContent=d.estado||'';
  const tramos=document.getElementById('detalleRutaTramos');
  tramos.replaceChildren();
- // Los segmentos reales NO se cargan en ServicioDAO.obtenerServiciosPorCliente().
- // Presentar los extremos de la ruta, sin inventar tramos ni su consumo.
+
  const fila=document.createElement('div');
  const fuerte=document.createElement('strong');
  fuerte.textContent=(d.origen||'Origen no disponible')+' ↔ '+(d.destino||'Destino no disponible');
@@ -244,7 +242,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')cerrarModale
 for(const modal of document.querySelectorAll('.detalle-modal-back'))modal.addEventListener('click',function(e){if(e.target===modal)cerrarModales()});
 </script>
 <script>
-// El buscador actualiza la paginación sin modificar los registros de MySQL.
+
 function filtrarFilas(inputId, tableId){
     if (window.actualizarPaginacionDetalle) window.actualizarPaginacionDetalle(true);
 }
@@ -316,7 +314,7 @@ function filtrarFilas(inputId, tableId){
         var columnaActual = -1;
         var ascendente = true;
         var collation = new Intl.Collator('es', {numeric: true, sensitivity: 'base'});
-        // Las 6 columnas de datos; ACCIONES no se ordena.
+
         encabezados.slice(0, 6).forEach(function (th, indice) {
             th.classList.add('sortable');
             th.dataset.col = String(indice);
@@ -341,7 +339,7 @@ function filtrarFilas(inputId, tableId){
                 if (columnaActual === indice) ascendente = !ascendente;
                 else { columnaActual = indice; ascendente = true; }
                 var filas = Array.prototype.slice.call(cuerpo.rows);
-                // Ignorar el mensaje vacío de colspan=7.
+
                 if (!filas.length || (filas.length === 1 && filas[0].cells.length < 2)) return;
                 function valor(tr) {
                     var td = tr.cells[indice];
@@ -357,7 +355,7 @@ function filtrarFilas(inputId, tableId){
                 filas.sort(function (a, b) {
                     var av = valor(a), bv = valor(b), cmp;
                     if (indice === 3) {
-                        // Capacidad: 15.00 Gbps, 100 Gbps, etc.
+
                         var na = Number(av.replace(/[^\d.,-]/g, '').replace(',', '.'));
                         var nb = Number(bv.replace(/[^\d.,-]/g, '').replace(',', '.'));
                         cmp = Number.isFinite(na) && Number.isFinite(nb) ? na - nb : collation.compare(av, bv);

@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.util;
 
 public class Validacion {
@@ -19,4 +18,3 @@ public class Validacion {
         return correo.matches(formatoCorreo);
     }
 }
-

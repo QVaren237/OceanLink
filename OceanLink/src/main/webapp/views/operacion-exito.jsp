@@ -2,12 +2,12 @@
 <%
     String modulo = request.getParameter("mod");
     String operacion = request.getParameter("op");
-    
+
     String titulo = "Operación exitosa";
     String mensaje = "La operación se completó correctamente.";
     String link = request.getContextPath() + "/PanelServlet";
     String nombreModulo = "panel";
-    
+
     if ("usuario".equals(modulo)) {
         link = request.getContextPath() + "/UsuarioServlet?action=lista";
         nombreModulo = "usuarios";
@@ -58,14 +58,14 @@
       <div class="crumb">OceanLink / Administrador</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo">
           <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
           <div class="ur">Administrador</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="#">Editar perfil</a>
+          <a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a>
           <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
         </div>
       </div>
@@ -87,7 +87,7 @@
         <a class="btn btn-primary" style="margin-top:12px" href="<%= link %>">Volver a <%= nombreModulo %></a>
       </div>
     </div>
-    
+
     <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
   </div>
 </div>

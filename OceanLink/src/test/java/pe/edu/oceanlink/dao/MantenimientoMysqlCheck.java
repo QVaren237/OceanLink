@@ -4,7 +4,6 @@ import java.sql.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-/** Pruebas explícitas en esquema aislado; nunca inserta datos funcionales en oceanlink. */
 public class MantenimientoMysqlCheck {
  private static String db;private static int checks;
  private static final String[] TABLAS={"rol","usuario","cliente","landing_station","segmento","ruta","ruta_segmento","servicio","incidencia","incidencia_segmento","incidencia_evento","mantenimiento","mantenimiento_segmento","mantenimiento_evento"};

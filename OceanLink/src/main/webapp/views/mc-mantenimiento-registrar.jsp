@@ -30,7 +30,6 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
             </select>
           </div>
 
-          <!-- Este campo se muestra solo si es Correctivo -->
           <div class="field mc-ref-5" id="campoIncidencia" hidden>
             <label>Vincular a Incidencia del Network Operator (*)</label>
             <select class="input" id="mcIncidencia" name="idIncidencia"><option value="">Seleccione el ticket reportado...</option><% for(String[] i:incidencias){ %><option value="<%=h(i[0])%>" <%=i[0].equals(request.getParameter("idIncidencia"))?"selected":""%>><%=h(i[1])%></option><% } %></select>

@@ -60,7 +60,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
                 <div class="field" style="margin-top: 20px;">
                     <label>Servicios asignados en este enlace</label>
                     <div class="card" style="box-shadow: none; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden;">
-                        
+
                         <div class="card-pad" style="background: var(--surface); padding: 10px 15px; border-bottom: 1px solid var(--line);">
                             <div class="usearch-box" style="width: 100%;">
                                 <span class="usearch-ic">
@@ -69,7 +69,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
                                 <input id="usearch" type="search" aria-label="Buscar servicio o empresa" placeholder="Buscar servicio o empresa...">
                             </div>
                         </div>
-                        
+
                         <div class="table-wrap" style="border: none; border-radius: 0;">
                             <table id="reservasTable">
                                 <thead>
@@ -87,7 +87,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
 <td style="text-align:center"><input type="radio" name="servicioUI" class="radio-tabla" value="<%=servicio.getIdServicio()%>" aria-label="Seleccionar <%=h(servicio.getCodigo())%>" <%=String.valueOf(servicio.getIdServicio()).equals(request.getParameter("idServicio"))?"checked":""%>></td></tr><% } %>
 </tbody>
                             </table>
-                            
+
                             <nav class="pagination" id="capacidadPaginas" aria-label="Paginación de servicios"></nav>
                         </div>
                     </div>

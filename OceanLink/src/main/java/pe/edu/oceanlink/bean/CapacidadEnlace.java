@@ -3,7 +3,6 @@ package pe.edu.oceanlink.bean;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/** Consulta de capacidad; no modifica la infraestructura ni las reservas. */
 public class CapacidadEnlace {
     private int idSegmento;
     private String codigo;
@@ -40,7 +39,7 @@ public class CapacidadEnlace {
     public void setLongitudKm(BigDecimal valor) { longitudKm = valor; }
 
     public String getNombre() { return nombreOrigen + " - " + nombreDestino; }
-    // El módulo de alertas de la maqueta usa un umbral preventivo del 85%.
+
     public boolean isAlertaSaturacion() {
         return getPorcentajeUtilizacion()!=null && getCapacidadAsignada().multiply(BigDecimal.valueOf(100))
                 .compareTo(capacidadTotal.multiply(BigDecimal.valueOf(85)))>=0;
@@ -56,7 +55,7 @@ public class CapacidadEnlace {
         return capacidadTotal == null || getCapacidadAsignada() == null ? null
                 : capacidadTotal.subtract(getCapacidadAsignada());
     }
-    // La capacidad asignada queda utilizada al confirmar la reserva.
+
     public BigDecimal getPorcentajeUtilizacion() {
         return capacidadTotal == null || capacidadTotal.signum() <= 0 || getCapacidadAsignada() == null
                 ? null : getCapacidadAsignada().multiply(BigDecimal.valueOf(100))

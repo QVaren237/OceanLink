@@ -16,7 +16,7 @@
                     <h1>Monitoreo Proactivo de Saturación</h1>
                     <div class="psub">Segmentos de fibra óptica con utilización superior al umbral preventivo (85%).</div>
                 </div>
-                
+
                 <div class="legend-box alertas-estilo-1">
                     <div class="legend-items">
                         <span><span class="pill pill-crit alertas-estilo-2"><span class="dot"></span></span> Atención Inmediata</span>
@@ -73,7 +73,7 @@
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="alertasPaginas" aria-label="Paginación de alertas"></nav>
 </div>
 <script>

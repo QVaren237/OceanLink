@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
-/** Exporta reportes del Supervisor, siguiendo el patrón PdfServlet del laboratorio IWEB. */
 @WebServlet("/supervisor/exportar-csv")
 public class SupervisorCsvServlet extends HttpServlet {
 
@@ -43,7 +42,6 @@ public class SupervisorCsvServlet extends HttpServlet {
             return;
         }
 
-        // La misma consulta usada en la tabla JSP garantiza el mismo filtro de resultados.
         SupervisorDAO dao = new SupervisorDAO();
         ArrayList<SupervisorReporteFila> filas;
         try {
@@ -74,7 +72,7 @@ public class SupervisorCsvServlet extends HttpServlet {
         response.setHeader("Cache-Control", "no-store");
 
         PrintWriter writer = response.getWriter();
-        writer.write('\uFEFF'); // BOM UTF-8: facilita la lectura de tildes en Excel.
+        writer.write('\uFEFF');
         escribirFila(writer, cabeceras);
         for (SupervisorReporteFila fila : filas) {
             escribirFila(writer, new String[]{
@@ -88,7 +86,6 @@ public class SupervisorCsvServlet extends HttpServlet {
         return valor == null || valor.isBlank() ? null : LocalDate.parse(valor);
     }
 
-    /** Escapa comillas/separadores y neutraliza fórmulas en hojas de cálculo. */
     private static String escapar(String valor) {
         if (valor == null) valor = "";
         valor = valor.replace("\r", " ").replace("\n", " ");

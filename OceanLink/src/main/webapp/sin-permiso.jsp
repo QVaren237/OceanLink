@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="pe.edu.oceanlink.bean.Usuario" %>
 <%
-    // El botón "Volver" lleva a cada rol a SU propio panel
     String destino = request.getContextPath() + "/LoginServlet";
     Usuario __u = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
     if (__u != null) {

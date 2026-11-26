@@ -5,7 +5,7 @@
 <%@ page import="pe.edu.oceanlink.bean.RutaSegmento" %>
 <%@ page import="pe.edu.oceanlink.bean.LandingStation" %>
 <%!
-    // Escape para texto y atributos HTML; nunca insertar datos en JavaScript inline.
+
     private String h(Object valor) {
         return valor == null ? "" : valor.toString().replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
@@ -16,7 +16,7 @@
     String seccionPlanner = request.getAttribute("seccion") == null ? "rutas" : request.getAttribute("seccion").toString();
     Object usuarioSesionPlanner = session.getAttribute("usuarioSesion");
     Usuario perfilPlanner = usuarioSesionPlanner instanceof Usuario ? (Usuario) usuarioSesionPlanner : null;
-    // Perfil de la maqueta mientras el equipo integra el inicio de sesión.
+
     String nombrePlanner = perfilPlanner == null ? "Gerson García" :
             ((perfilPlanner.getNombre() == null ? "" : perfilPlanner.getNombre()) + " " +
                     (perfilPlanner.getApellido() == null ? "" : perfilPlanner.getApellido())).trim();
@@ -24,7 +24,7 @@
     for (String partePlanner : nombrePlanner.split("\\s+")) {
         if (!partePlanner.isEmpty() && inicialesPlanner.length() < 2) inicialesPlanner += partePlanner.substring(0, 1).toUpperCase(java.util.Locale.ROOT);
     }
-    // Los datos compartidos viajan en request, como en los ejemplos de jsp:include.
+
     request.setAttribute("nombrePlanner", nombrePlanner);
     request.setAttribute("inicialesPlanner", inicialesPlanner);
     request.setAttribute("perfilPlanner", perfilPlanner);
@@ -67,7 +67,7 @@
             <div class="grow"></div>
             <% if (!"sesion".equals(seccionPlanner)) { %>
             <div class="userpill" tabindex="0" aria-label="Perfil de <%= h(pe.edu.oceanlink.util.Vista.nombre(session)) %>">
-                <div class="avatar"><%= h(pe.edu.oceanlink.util.Vista.iniciales(session)) %></div>
+                <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= h(pe.edu.oceanlink.util.Vista.iniciales(session)) %></div>
                 <div class="uinfo"><div class="un"><%= h(pe.edu.oceanlink.util.Vista.nombre(session)) %></div><div class="ur">Capacity Planner</div></div>
                 <span class="ucaret" aria-hidden="true">▾</span>
                 <div class="usermenu">

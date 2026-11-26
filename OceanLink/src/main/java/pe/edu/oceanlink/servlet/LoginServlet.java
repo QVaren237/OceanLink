@@ -10,6 +10,8 @@ import pe.edu.oceanlink.dao.LoginDAO;
 import pe.edu.oceanlink.bean.Usuario;
 import pe.edu.oceanlink.util.SesionContador;
 import pe.edu.oceanlink.util.SesionRegistro;
+import pe.edu.oceanlink.dao.UsuarioDAO;
+import java.util.Base64;
 
 import java.io.IOException;
 
@@ -21,7 +23,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        // Solo se da por iniciada si la sesión sigue vigente en el registro del servidor
+
         if (usuario != null && usuario.getIdUsuario() > 0
                 && SesionRegistro.esValida(usuario.getCorreo(), session.getId())) {
             redirigirPorRol(usuario, request, response);
@@ -37,7 +39,6 @@ public class LoginServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String accion = request.getParameter("accion");
 
-        // Cerrar sesión: es GLOBAL (se cierra en todos los navegadores del usuario)
         if ("logout".equals(accion)) {
             HttpSession s = request.getSession(false);
             if (s != null) {
@@ -53,13 +54,12 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
         Usuario usuario = new LoginDAO().validarConHashEnJava(correo, password);
 
-        // Credenciales incorrectas
         if (usuario == null) {
             request.setAttribute("error", "Usuario o contraseña incorrectos.");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
-        // Cuenta pendiente de activación
+
         if (!usuario.isCuentaActivada()) {
             request.setAttribute("error",
                     "Tu cuenta todavía no está activada. Revisa tu correo electrónico y utiliza el enlace de activación.");
@@ -67,7 +67,6 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Cuenta inactiva: no se le permite ingresar (mensaje solo para inactivos)
         if (!"Activo".equals(usuario.getEstado())) {
             request.setAttribute("error",
                     "Tu cuenta está inactiva.<br>Contacta al administrador (adrian.angles@oceanlink.test).");
@@ -75,16 +74,25 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Ingreso correcto
         HttpSession session = request.getSession();
         if (session.getAttribute("usuario") == null) {
-            SesionContador.login(); // esta sesión pasa a estar activa
+            SesionContador.login();
         }
         session.setAttribute("usuario", usuario);
         session.setAttribute("usuarioSesion", usuario);
         session.setAttribute("responsableSesion", usuario);
-        session.setMaxInactiveInterval(600); // 10 minutos
-        SesionRegistro.registrar(usuario.getCorreo(), session.getId()); // registra esta sesión
+        session.setMaxInactiveInterval(600);
+
+        try {
+            byte[] __f = new UsuarioDAO().obtenerFoto(usuario.getIdUsuario());
+            if (__f != null && __f.length > 0) {
+                String __fmt = (__f.length >= 8 && __f[0] == (byte) 0x89) ? "png" : "jpeg";
+                session.setAttribute("fotoPerfil", "data:image/" + __fmt + ";base64," + Base64.getEncoder().encodeToString(__f));
+            } else {
+                session.removeAttribute("fotoPerfil");
+            }
+        } catch (Exception e) {  }
+        SesionRegistro.registrar(usuario.getCorreo(), session.getId());
         redirigirPorRol(usuario, request, response);
     }
 
@@ -93,11 +101,11 @@ public class LoginServlet extends HttpServlet {
         String ctx = request.getContextPath();
         String destino;
         switch (u.getIdRol()) {
-            case 1: destino = "/PanelServlet";                   break; // Administrador
-            case 2: destino = "/CapacityPlannerServlet";         break; // Capacity Planner
-            case 3: destino = "/NetworkOperatorServlet";         break; // Network Operator
-            case 4: destino = "/MaintenanceCoordinatorServlet";  break; // Maintenance Coordinator
-            case 5: destino = "/SupervisorServlet";              break; // Supervisor
+            case 1: destino = "/PanelServlet";                   break;
+            case 2: destino = "/CapacityPlannerServlet";         break;
+            case 3: destino = "/NetworkOperatorServlet";         break;
+            case 4: destino = "/MaintenanceCoordinatorServlet";  break;
+            case 5: destino = "/SupervisorServlet";              break;
             default: destino = "/PanelServlet";                  break;
         }
         response.sendRedirect(ctx + destino);

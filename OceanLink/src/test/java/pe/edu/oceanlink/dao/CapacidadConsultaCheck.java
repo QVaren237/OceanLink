@@ -3,7 +3,6 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.CapacidadEnlace;
 import java.math.BigDecimal;
 
-/** Ejecutar como aplicación Java, sin dependencias de pruebas adicionales. */
 public class CapacidadConsultaCheck {
     private static int comprobaciones;
 

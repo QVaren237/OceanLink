@@ -24,7 +24,7 @@ ArrayList<Incidencia> lista=(ArrayList<Incidencia>)request.getAttribute("lista")
        LocalDateTime fechaRegistro = i.getFechaDeteccion().toLocalDateTime();
        String claveCronologica = fechaRegistro.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
   %>
-    <%-- La tabla ordena por textContent. La clave ISO conserva el orden cronologico. --%>
+
     <span hidden><%= claveCronologica %></span>
     <time datetime="<%= claveCronologica %>"><%= fechaRegistro.format(FORMATO_REGISTRO) %></time>
   <% } %>

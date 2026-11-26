@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Ejecutar con --mysql-aislado. Crea y elimina un esquema temporal; no escribe datos en oceanlink. */
 public class CapacidadReservaMysqlCheck {
     private static String esquema;
     private static int verificaciones;

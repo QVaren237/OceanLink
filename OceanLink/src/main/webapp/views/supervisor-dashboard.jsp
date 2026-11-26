@@ -35,7 +35,7 @@
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
         <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
@@ -49,7 +49,6 @@
         </div>
       </div>
 
-      <!-- KPIs con colores de alerta según utilización -->
       <div class="kpis">
         <div class="kpi">
           <%

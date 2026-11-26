@@ -68,11 +68,11 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0" aria-label="Perfil de <%= escPerfilServicios(nombreServicios) %>">
-            <div class="avatar"><%= escPerfilServicios(inicialesServicios) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
             <div class="uinfo"><div class="un"><%= escPerfilServicios(nombreServicios) %></div><div class="ur">Capacity Planner</div></div>
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">
-                <a href="<%= request.getContextPath() %>/capacity-planner/panel?action=perfil">Mi perfil</a>
+                <a href="<%= request.getContextPath() %>/PerfilServlet">Mi perfil</a>
                 <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
             </div>
         </div>

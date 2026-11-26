@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public class RolDAO extends BaseDAO {
 
-    // Se usa para llenar el combo de roles en el formulario de usuario
     public ArrayList<Rol> obtenerListaRoles() {
         ArrayList<Rol> listaRoles = new ArrayList<>();
         try {
@@ -31,7 +30,6 @@ public class RolDAO extends BaseDAO {
         return listaRoles;
     }
 
-    // Cuenta el total de roles del sistema
     public int contarRoles() {
         int total = 0;
         try {

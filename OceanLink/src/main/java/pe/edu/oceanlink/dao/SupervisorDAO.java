@@ -15,13 +15,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-/** Consultas de solo lectura para el Panel General de Supervisor. */
 public class SupervisorDAO extends BaseDAO {
 
     public SupervisorResumen obtenerResumen() throws SQLException {
         SupervisorResumen resumen = new SupervisorResumen();
         try (Connection conn = getConnection()) {
-            // Promedio de uso porcentual por segmento, sin contar segmentos sin capacidad total.
+
             String sqlUso = "SELECT ROUND(AVG(100 * " + CapacidadDAO.USO_ACTUAL
                 + " / NULLIF(s.capacidadTotal,0)), 2) AS porcentaje FROM segmento s WHERE s.capacidadTotal > 0";
             try (PreparedStatement ps = conn.prepareStatement(sqlUso);
@@ -29,14 +28,12 @@ public class SupervisorDAO extends BaseDAO {
                 if (rs.next()) resumen.setUtilizacionPromedio(rs.getBigDecimal("porcentaje"));
             }
 
-            // Incidencias sin fecha de cierre: criterio verificable en el esquema.
             String sqlFallas = "SELECT COUNT(*) AS total FROM incidencia WHERE fechaCierre IS NULL";
             try (PreparedStatement ps = conn.prepareStatement(sqlFallas);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) resumen.setFallasActivas(rs.getInt("total"));
             }
 
-            // Semana calendario actual, de lunes a domingo (zona horaria de MySQL).
             String sqlMantenimientos = "SELECT COUNT(*) AS total FROM mantenimiento "
                 + "WHERE fechaInicio >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) "
                 + "AND fechaInicio < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)";
@@ -45,7 +42,6 @@ public class SupervisorDAO extends BaseDAO {
                 if (rs.next()) resumen.setMantenimientosSemana(rs.getInt("total"));
             }
 
-            // Un tramo es crítico cuando supera el 95% de la capacidad total.
             String sqlCriticos = "SELECT COUNT(*) AS total FROM segmento s "
                 + "WHERE s.capacidadTotal > 0 AND " + CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95";
             try (PreparedStatement ps = conn.prepareStatement(sqlCriticos);
@@ -87,7 +83,6 @@ public class SupervisorDAO extends BaseDAO {
         return lista;
     }
 
-    /** Eventos reales de incidencias y mantenimientos, sin duplicar sus segmentos. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorEvento> listarEventos() throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorEvento> lista = new ArrayList<>();
         String sql = "SELECT CONCAT('I:', i.idIncidencia) clave, i.codigo, "
@@ -126,7 +121,6 @@ public class SupervisorDAO extends BaseDAO {
         return lista;
     }
 
-    /** Servicios cuyas rutas incluyen los segmentos asociados al evento. No modifica datos. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorAfectado> listarAfectados(String clave) throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorAfectado> lista=new ArrayList<>();
         if(clave==null || !clave.matches("[IM]:[0-9]{1,10}")) return lista;
@@ -156,13 +150,12 @@ public class SupervisorDAO extends BaseDAO {
         return lista;
     }
 
-    /** Reportes de solo consulta. Las fechas corresponden a cada evento/registro. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> listarReporte(
             String tipo, java.time.LocalDate inicio, java.time.LocalDate fin) throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> filas = new ArrayList<>();
         String sql;
         if ("capacidad".equals(tipo)) {
-            // Historial real de capacidad (instantáneas registradas en historial_capacidad).
+
             sql = "SELECT s.codigo c1, DATE_FORMAT(h.fechaRegistro,'%d/%m/%Y') c2, "
                 + "CONCAT(COALESCE(h.capacidadTotal,0),' Gbps') c3, "
                 + "COALESCE(CONCAT(h.capacidadTotal - h.capacidadUtilizada,' Gbps'),'Sin datos') c4, "
@@ -181,8 +174,7 @@ public class SupervisorDAO extends BaseDAO {
                 + "AND s.fechaActivacion <= COALESCE(?, '9999-12-31') "
                 + "ORDER BY s.fechaActivacion DESC,s.codigo";
         } else {
-            // Incidencias cerradas. Impacto = cantidad de clientes distintos cuyas rutas
-            // usan uno de los segmentos vinculados a la incidencia (afectación potencial).
+
             sql = "SELECT i.codigo c1, DATE_FORMAT(i.fechaCierre,'%d/%m/%Y') c2, "
                 + "COALESCE(GROUP_CONCAT(DISTINCT CONCAT(eo.nombre,' → ',ed.nombre) SEPARATOR ', '),'Sin tramo vinculado') c3, "
                 + "CONCAT(COUNT(DISTINCT sv.idCliente),' clientes relacionados') c4, "
@@ -215,10 +207,7 @@ public class SupervisorDAO extends BaseDAO {
         }
         return filas;
     }
-    /**
-     * Obtiene los indicadores estadísticos de incidencias y mantenimientos.
-     * Las fechas se utilizan como límites del período consultado.
-     */
+
     public SupervisorEstadisticas obtenerEstadisticas(
             LocalDate inicio, LocalDate fin) throws SQLException {
 
@@ -228,7 +217,6 @@ public class SupervisorDAO extends BaseDAO {
         Date hasta = Date.valueOf(fin);
         try (Connection conn = getConnection()) {
 
-            // 1. Estadísticas de incidencias.
             String sqlIncidencias = """
                     SELECT COUNT(*) AS total,
                            SUM(CASE WHEN fechaCierre IS NULL THEN 1 ELSE 0 END) AS abiertas,
@@ -266,7 +254,6 @@ public class SupervisorDAO extends BaseDAO {
                 }
             }
 
-            // 2. Cantidad de mantenimientos iniciados en el período.
             String sqlMantenimientos =
                     "SELECT COUNT(*) AS total " +
                             "FROM mantenimiento " +
@@ -285,7 +272,6 @@ public class SupervisorDAO extends BaseDAO {
                 }
             }
 
-            // 3. Segmentos vinculados a incidencias o mantenimientos del período.
             String sqlSegmentos =
                     "SELECT COUNT(DISTINCT segmentos.idSegmento) AS total " +
                             "FROM ( " +
@@ -327,7 +313,6 @@ public class SupervisorDAO extends BaseDAO {
                 }
             }
 
-            // 4. Clientes relacionados con los segmentos involucrados.
             String sqlClientes =
                     "SELECT COUNT(DISTINCT sv.idCliente) AS total " +
                             "FROM servicio sv " +

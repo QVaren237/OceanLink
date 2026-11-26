@@ -59,10 +59,10 @@ ArrayList<SolicitudCapacidad> solicitudes=(ArrayList<SolicitudCapacidad>)request
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="capacidadPaginas" aria-label="Paginación de solicitudes"></nav>
             </div>
-        
+
 </div>
 <script>
 (function(){

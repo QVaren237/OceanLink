@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.dao;
 
 import pe.edu.oceanlink.bean.Incidencia;
@@ -79,7 +78,6 @@ public class IncidenciaDAO extends BaseDAO {
             try {
                 int id;
 
-                // La tabla incidencia no tiene AUTO_INCREMENT en idIncidencia.
                 try (PreparedStatement ps = conn.prepareStatement(
                         "SELECT COALESCE(MAX(idIncidencia),0)+1 FROM incidencia FOR UPDATE")) {
                     try (ResultSet rs = ps.executeQuery()) {

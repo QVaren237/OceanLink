@@ -22,7 +22,7 @@ public class PanelServlet extends HttpServlet {
         request.setAttribute("usuariosActivos", usuarioDao.contarUsuariosActivos());
         request.setAttribute("totalRoles", rolDao.contarRoles());
         request.setAttribute("recientes", usuarioDao.obtenerUsuariosRecientes(5));
-        request.setAttribute("sesionesActivas", SesionContador.activas()); // sesiones realmente abiertas
+        request.setAttribute("sesionesActivas", SesionContador.activas());
 
         request.getRequestDispatcher("/views/panel.jsp").forward(request, response);
     }

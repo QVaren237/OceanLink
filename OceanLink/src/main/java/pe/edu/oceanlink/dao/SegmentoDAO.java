@@ -39,7 +39,7 @@ public class SegmentoDAO extends BaseDAO {
 
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
-            // Dos JOIN a landing_station: uno para la estación de origen y otro para la de destino
+
             String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
                          "s.capacidadTotal, " + CapacidadDAO.USO_ACTUAL + " AS capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
                          "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
@@ -93,7 +93,7 @@ public class SegmentoDAO extends BaseDAO {
                     pstmt.setInt(2, s.getIdEstacionOrigen());
                     pstmt.setInt(3, s.getIdEstacionDestino());
                     pstmt.setDouble(4, s.getCapacidadTotal());
-                    // Una edicion de datos del tramo no sobrescribe el uso registrado por el Planner.
+
                     pstmt.setDouble(5, s.getLongitudKm());
                     pstmt.setString(6, s.getEstado());
                     pstmt.setString(7, s.getDescripcion());
@@ -108,8 +108,6 @@ public class SegmentoDAO extends BaseDAO {
 
     public void cambiarEstado(String id, String nuevoEstado) {
 
-
-
         String sql = "UPDATE segmento SET estado = ? WHERE idSegmento = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -121,7 +119,6 @@ public class SegmentoDAO extends BaseDAO {
         }
     }
 
-    // Convierte una fila del ResultSet en un objeto Segmento (evita repetir código)
     private Segmento mapear(ResultSet rs) throws SQLException {
         Segmento s = new Segmento();
         s.setIdSegmento(rs.getInt("idSegmento"));

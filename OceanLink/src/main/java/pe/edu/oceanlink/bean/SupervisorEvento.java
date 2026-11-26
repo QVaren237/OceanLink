@@ -1,9 +1,8 @@
 package pe.edu.oceanlink.bean;
 
-/** Evento de incidencia o mantenimiento consultado por Supervisor (solo lectura). */
 public class SupervisorEvento {
     private String codigo, tipo, tramo, gravedad, estado;
-    private String clave; // I:id o M:id
+    private String clave;
     public String getCodigo(){return codigo;}
     public void setCodigo(String v){codigo=v;}
     public String getTipo(){return tipo;}

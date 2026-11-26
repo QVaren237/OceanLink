@@ -17,7 +17,6 @@ public class UsuarioDAO extends BaseDAO {
 
     public void crearUsuario(Usuario u) throws SQLException, ClassNotFoundException {
 
-
         try {
 
             try (Connection conn = getConnection()) {
@@ -116,8 +115,6 @@ public class UsuarioDAO extends BaseDAO {
         return token;
     }
 
-
-    // Comprueba si el enlace de activación existe, no fue utilizado y no venció.
     public boolean tokenActivacionValido(String token)
             throws SQLException, ClassNotFoundException {
 
@@ -138,7 +135,6 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-    // Activa la cuenta, guarda la contraseña y marca el enlace como utilizado.
     public boolean activarCuenta(String token, String nuevaPassword)
             throws SQLException, ClassNotFoundException {
 
@@ -206,15 +202,13 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-
-
     public ArrayList<Usuario> obtenerListaUsuarios() {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try {
 
             Connection conn = getConnection();
             java.sql.Statement stmt = conn.createStatement();
-            // JOIN con rol para traer el nombre del rol y mostrarlo en la tabla
+
             String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.password, u.estado, u.idRol, r.nombre AS nombreRol " +
                     "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario";
             ResultSet rs = stmt.executeQuery(sql);
@@ -270,7 +264,7 @@ public class UsuarioDAO extends BaseDAO {
         try {
 
             try (Connection conn = getConnection()) {
-                // Si no se escribió una nueva contraseña, se conserva la actual (no se sobrescribe)
+
                 boolean cambiaPassword = u.getPassword() != null && !u.getPassword().isEmpty();
                 String sql = cambiaPassword
                         ? "UPDATE usuario SET nombre = ?, apellido = ?, correo = ?, password = ?, estado = ?, idRol = ? WHERE idUsuario = ?"
@@ -298,8 +292,6 @@ public class UsuarioDAO extends BaseDAO {
 
     public void cambiarEstado(String id, String nuevoEstado) {
 
-
-
         String sql = "UPDATE usuario SET estado = ? WHERE idUsuario = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -311,7 +303,6 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-    // Cuenta el total de usuarios registrados
     public int contarUsuarios() {
         int total = 0;
         try {
@@ -327,7 +318,6 @@ public class UsuarioDAO extends BaseDAO {
         return total;
     }
 
-    // Cuenta solo los usuarios con estado Activo
     public int contarUsuariosActivos() {
         int total = 0;
         try {
@@ -343,7 +333,6 @@ public class UsuarioDAO extends BaseDAO {
         return total;
     }
 
-    // Trae los ultimos usuarios registrados (para la tabla del panel)
     public ArrayList<Usuario> obtenerUsuariosRecientes(int limite) {
         ArrayList<Usuario> lista = new ArrayList<>();
         try {
@@ -373,7 +362,7 @@ public class UsuarioDAO extends BaseDAO {
         }
         return lista;
     }
-    // Compatibilidad con el formulario de perfil de Network Operator.
+
     public byte[] obtenerFoto(int idUsuario) throws SQLException {
         try(Connection conn=abrirConexion();PreparedStatement ps=conn.prepareStatement("SELECT foto FROM usuario WHERE idUsuario=?")){
             ps.setInt(1,idUsuario);try(ResultSet rs=ps.executeQuery()){return rs.next()?rs.getBytes("foto"):null;}
@@ -403,7 +392,7 @@ public class UsuarioDAO extends BaseDAO {
                 try(PreparedStatement ps=conn.prepareStatement("SELECT password,estado FROM usuario WHERE idUsuario=? FOR UPDATE")){
                     ps.setInt(1,usuario.getIdUsuario());try(ResultSet rs=ps.executeQuery()){
                         if(!rs.next()||!"Activo".equals(rs.getString("estado")))throw new IllegalArgumentException("El usuario no existe o está inactivo.");
-                        // Se conserva el formato de contraseñas que utiliza el CRUD actual.
+
                         if(!java.util.Objects.equals(pe.edu.oceanlink.util.Seguridad.sha256(claveActual),rs.getString("password")))throw new IllegalArgumentException("La contraseña actual es incorrecta.");
                     }
                 }

@@ -26,7 +26,7 @@
       <a class="nav-item" href="<%= request.getContextPath() %>/ClienteServlet?action=lista"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg><span>Clientes</span></a>
       <a class="nav-item" href="<%= request.getContextPath() %>/LandingStationServlet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 11 16m6.3-8.7L13 16"/></svg><span>Landing Stations</span></a>
       <a class="nav-item active" href="<%= request.getContextPath() %>/RedesSubmarinasServlet"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Redes submarinas</span></a>
-      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.html"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
+      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.jsp"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
     </nav>
     <div class="side-foot">
       <div class="role-badge">
@@ -41,14 +41,14 @@
       <div class="crumb">OceanLink / Administrador</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo">
           <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
           <div class="ur">Administrador</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="#">Editar perfil</a>
+          <a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a>
           <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
         </div>
       </div>
@@ -245,7 +245,7 @@
   renderPage();
 })();
 </script>
-<!-- MODAL DE CONFIRMACIÓN DE ESTADO -->
+
 <div id="stateModal" class="modal-back" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; justify-content:center; align-items:center;">
   <div class="modal" style="background:#fff; padding:24px; border-radius:12px; max-width:400px; width:100%; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
     <h3 id="modalTitle" style="margin-top:0; font-size:18px; color:var(--text-main);">Cambiar estado</h3>

@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor">
 <style>
-  /* Nuevo color para la gravedad Media basado en la imagen */
+
   .pill-media { background: #e6e0f8; color: #434493; }
   .pill-media .dot { background: #8a7ab9; }
 </style>
@@ -35,10 +35,10 @@
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
         <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
-        <div class="usermenu"><a href="#">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
+        <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
     </div>
     <div class="content">
@@ -48,15 +48,15 @@
           <div class="psub">Revisa el impacto en clientes provocado por eventos en la red.</div>
         </div>
       </div>
-      
+
       <div class="card">
-        <!-- Bloque de filtros en línea -->
+
         <div class="card-pad" style="border-bottom: 1px solid var(--line); display: flex; gap: 14px; align-items: center;">
           <div class="usearch-box" style="flex: 1; max-width: 420px; min-width: 320px;">
             <span class="usearch-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
             <input id="usearch" placeholder="Buscar por tramo o ID...">
           </div>
-          
+
           <div style="width: 220px;">
             <select id="severityFilter" class="input" style="height: 38px; cursor: pointer;">
               <option value="all">Todas las gravedades</option>
@@ -104,8 +104,7 @@
 </tbody>
           </table>
         </div>
-        
-        <!-- Paginación -->
+
         <div class="pagination" id="eventPagination" aria-label="Páginas de eventos"></div>
 
       </div>
@@ -114,7 +113,6 @@
   </div>
 </div>
 
-<!-- Modal de clientes asociados a la infraestructura de este evento -->
 <div class="modal-back" id="modalAfectacion" role="dialog" aria-modal="true" aria-labelledby="tituloAfectados">
   <div class="modal" style="width:600px;max-width:94vw;">
     <h3 id="tituloAfectados">Clientes Afectados</h3>

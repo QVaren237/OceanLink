@@ -5,7 +5,7 @@
 <%@ page import="pe.edu.oceanlink.bean.RutaSegmento" %>
 <%@ page import="pe.edu.oceanlink.bean.LandingStation" %>
 <%!
-    // Escape para texto y atributos HTML; nunca insertar datos en JavaScript inline.
+
     private String h(Object valor) {
         return valor == null ? "" : valor.toString().replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
@@ -21,7 +21,7 @@
 <% Usuario perfilPlanner = (Usuario) request.getAttribute("perfilPlanner"); %>
 <div class="page-head"><div><h1>Mi perfil</h1><div class="psub">Información de tu cuenta y área de trabajo.</div></div></div>
 <div class="card card-pad planner-profile">
-    <div class="avatar"><%= h(request.getAttribute("inicialesPlanner")) %></div>
+    <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= h(request.getAttribute("inicialesPlanner")) %></div>
     <div><h2><%= h(request.getAttribute("nombrePlanner")) %></h2><p>Capacity Planner</p>
         <% if (perfilPlanner != null && perfilPlanner.getCorreo() != null) { %><p><%= h(perfilPlanner.getCorreo()) %></p><% } %>
     </div>

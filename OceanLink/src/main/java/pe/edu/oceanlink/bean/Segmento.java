@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.bean;
 
 public class Segmento {

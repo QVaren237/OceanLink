@@ -5,7 +5,6 @@ import java.sql.*;
 import java.util.*;
 import java.math.BigDecimal;
 
-/** JDBC y PreparedStatement, siguiendo el patrón DAO de las clases 7.2 y 7.3. */
 public class MantenimientoDAO extends BaseDAO {
     private static final String CONSULTA="SELECT m.*,COALESCE(NULLIF(m.titulo,''),NULLIF(LEFT(m.actividades,150),''),m.codigo) AS tituloVista,"
         +"COALESCE(s.codigo,ls.codigo) AS infraestructuraCodigo,CASE WHEN m.idSegmento IS NOT NULL THEN CONCAT(lo.nombre,' ↔ ',ld.nombre) ELSE CONCAT('Landing Station ',ls.nombre) END AS infraestructuraNombre,"

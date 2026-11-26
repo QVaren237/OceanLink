@@ -1,7 +1,3 @@
--- ============================================================
--- OCEANLINK: BASE DE DATOS + DATOS DE PRUEBA
--- ============================================================
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -9,8 +5,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 CREATE SCHEMA IF NOT EXISTS `oceanlink` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci ;
 USE `oceanlink` ;
 
--- Table `oceanlink`.`cliente`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`cliente` (
                                                      `idCliente` INT NOT NULL AUTO_INCREMENT,
                                                      `razonSocial` VARCHAR(100) NOT NULL,
@@ -22,14 +16,10 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`cliente` (
     `estado` VARCHAR(20) NULL DEFAULT NULL,
     PRIMARY KEY (`idCliente`),
     UNIQUE INDEX `ruc` (`ruc` ASC) VISIBLE)
-    ENGINE = InnoDB -- Este apartado indica el motor de almacenamiento que usará la table, que permitirá con claves foráneas. Es recomendable eliminar este apartado
-    DEFAULT CHARACTER SET = utf8mb4 -- Permitirá almancenar tildes, la letra ñ, etc
-    COLLATE = utf8mb4_spanish_ci; -- permitirá comprar con palabras mayusculas y minusculas (textos en español)
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`landing_station`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`landing_station` (
                                                              `idLandingStation` INT NOT NULL AUTO_INCREMENT,
                                                              `codigo` VARCHAR(30) NOT NULL,
@@ -43,10 +33,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`landing_station` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`segmento`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`segmento` (
                                                       `idSegmento` INT NOT NULL AUTO_INCREMENT,
                                                       `codigo` VARCHAR(30) NOT NULL,
@@ -72,10 +58,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`segmento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`historial_capacidad`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`historial_capacidad` (
                                                                  `idHistorial` INT NOT NULL AUTO_INCREMENT,
                                                                  `idSegmento` INT NOT NULL,
@@ -94,10 +76,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`historial_capacidad` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`rol`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`rol` (
                                                  `idRol` INT NOT NULL AUTO_INCREMENT,
                                                  `nombre` VARCHAR(30) NOT NULL,
@@ -106,10 +84,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`rol` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`usuario`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`usuario` (
                                                      `idUsuario` INT NOT NULL AUTO_INCREMENT,
                                                      `nombre` VARCHAR(50) NOT NULL,
@@ -129,10 +103,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`usuario` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`incidencia`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia` (
                                                         `idIncidencia` INT NOT NULL,
                                                         `codigo` VARCHAR(30) NOT NULL,
@@ -153,8 +123,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- Eventos de seguimiento de las incidencias de Network Operator.
 CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_evento` (
                                                                `idEvento` INT NOT NULL AUTO_INCREMENT,
                                                                `idIncidencia` INT NOT NULL,
@@ -167,9 +135,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_evento` (
     REFERENCES `oceanlink`.`incidencia` (`idIncidencia`)
     ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
--- -----------------------------------------------------
--- Table `oceanlink`.`incidencia_segmento`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_segmento` (
                                                                  `idIncidencia` INT NOT NULL,
                                                                  `idSegmento` INT NOT NULL,
@@ -185,10 +150,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`incidencia_segmento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`mantenimiento`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento` (
                                                            `idMantenimiento` INT NOT NULL AUTO_INCREMENT,
                                                            `codigo` VARCHAR(30) NOT NULL,
@@ -227,10 +188,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`mantenimiento_segmento`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_segmento` (
                                                                     `idMantenimiento` INT NOT NULL,
                                                                     `idSegmento` INT NOT NULL,
@@ -246,8 +203,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_segmento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- Bitácora de Maintenance Coordinator.
 CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_evento` (
     `idEvento` INT NOT NULL AUTO_INCREMENT,
     `idMantenimiento` INT NOT NULL,
@@ -263,9 +218,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`mantenimiento_evento` (
     CONSTRAINT `fk_mc_evento_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `oceanlink`.`usuario` (`idUsuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
--- -----------------------------------------------------
--- Table `oceanlink`.`ruta`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta` (
                                                   `idRuta` INT NOT NULL AUTO_INCREMENT,
                                                   `codigo` VARCHAR(30) NOT NULL,
@@ -288,10 +240,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`servicio`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
     `idServicio` INT NOT NULL AUTO_INCREMENT,
     `codigo` VARCHAR(30) NOT NULL,
@@ -317,10 +265,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`solicitud`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
                                                        `idSolicitud` INT NOT NULL AUTO_INCREMENT,
                                                        `codigo` VARCHAR(30) NOT NULL,
@@ -359,10 +303,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`solicitud` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`reserva_capacidad`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`reserva_capacidad` (
                                                                `idReserva` INT NOT NULL AUTO_INCREMENT,
                                                                `idSolicitud` INT NULL DEFAULT NULL,
@@ -393,10 +333,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`reserva_capacidad` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
--- -----------------------------------------------------
--- Table `oceanlink`.`ruta_segmento`
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta_segmento` (
                                                            `idRuta` INT NOT NULL,
                                                            `idSegmento` INT NOT NULL,
@@ -414,24 +350,15 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`ruta_segmento` (
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_spanish_ci;
 
-
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
--- ============================================================
--- DATOS FICTICIOS DE PRUEBA
--- INSERT IGNORE evita errores por claves ya existentes.
--- ============================================================
-
 USE oceanlink;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Vaciar tablas en orden inverso de dependencia para poder volver a ejecutar el script.
-
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Roles
 INSERT IGNORE INTO rol (idRol, nombre) VALUES
 (1, 'Administrador'),
 (2, 'Capacity Planner'),
@@ -439,7 +366,6 @@ INSERT IGNORE INTO rol (idRol, nombre) VALUES
 (4, 'Maintenance Coordinator'),
 (5, 'Supervisor');
 
--- Requerimientos internos de ampliación física; separados de las solicitudes de Network Operator.
 CREATE TABLE IF NOT EXISTS `oceanlink`.`ampliacion_capacidad` (
     `idAmpliacion` INT NOT NULL AUTO_INCREMENT,
     `codigo` VARCHAR(30) NOT NULL,
@@ -457,7 +383,6 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`ampliacion_capacidad` (
     CONSTRAINT `fk_ampliacion_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `oceanlink`.`usuario` (`idUsuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
--- Usuarios de prueba. La contraseña es ficticia y no está destinada a autenticación real.
 INSERT IGNORE INTO usuario (idUsuario, nombre, apellido, correo, password, estado, idRol, foto) VALUES
 (1, 'Adrian', 'Angles', 'adrian.angles@oceanlink.test', SHA2('admin123',256), 'Activo', 1, NULL),
 (2, 'Gerson', 'Vargas', 'gerson.vargas@oceanlink.test', SHA2('capacity123',256), 'Activo', 2, NULL),
@@ -466,7 +391,6 @@ INSERT IGNORE INTO usuario (idUsuario, nombre, apellido, correo, password, estad
 (5, 'Miguel', 'Arce', 'miguel.arce@oceanlink.test', SHA2('super123',256), 'Activo', 5, NULL),
 (6, 'Andrés', 'León', 'andres.leon@oceanlink.test', SHA2('operator123',256), 'Activo', 3, NULL);
 
--- Clientes empresariales ficticios
 INSERT IGNORE INTO cliente (idCliente, razonSocial, ruc, telefono, correo, direccion, contacto, estado) VALUES
 (1, 'Andes Data S.A.C.', '20123456781', '+51 1 555 0101', 'contacto@andesdata.test', 'Av. Javier Prado 1200, Lima, Perú', 'María Cárdenas', 'Activo'),
 (2, 'Pacífico Cloud Perú S.A.C.', '20123456782', '+51 1 555 0102', 'operaciones@pacificocloud.test', 'Av. El Derby 250, Lima, Perú', 'José Medina', 'Activo'),
@@ -474,7 +398,6 @@ INSERT IGNORE INTO cliente (idCliente, razonSocial, ruc, telefono, correo, direc
 (4, 'Nube Austral Ltda.', '20123456784', '+56 2 555 0104', 'soporte@nubeaustral.test', 'Av. Providencia 800, Santiago, Chile', 'Pablo Ríos', 'Activo'),
 (5, 'Telecom del Pacífico S.A.C.', '20123456785', '+51 1 555 0105', 'contacto@telecompacifico.test', 'Calle Los Pinos 330, Lima, Perú', 'Rosa Núñez', 'Inactivo');
 
--- Estaciones de aterrizaje ficticias en la costa del Pacífico
 INSERT IGNORE INTO landing_station (idLandingStation, codigo, nombre, ubicacion, estado, descripcion) VALUES
 (1, 'LS-MAN', 'Manta', 'Manta, Ecuador', 'Operativa', 'Estación de aterrizaje en la costa ecuatoriana.'),
 (2, 'LS-GYE', 'Guayaquil', 'Guayaquil, Ecuador', 'Operativa', 'Punto de conexión regional.'),
@@ -483,7 +406,6 @@ INSERT IGNORE INTO landing_station (idLandingStation, codigo, nombre, ubicacion,
 (5, 'LS-ANT', 'Antofagasta', 'Antofagasta, Chile', 'En mantenimiento', 'Estación con trabajos programados.'),
 (6, 'LS-VAL', 'Valparaíso', 'Valparaíso, Chile', 'Operativa', 'Estación de aterrizaje en la zona central de Chile.');
 
--- Segmentos: capacidades en Gbps. Las asignaciones confirmadas forman parte de la capacidad utilizada.
 INSERT IGNORE INTO segmento (idSegmento, codigo, idEstacionOrigen, idEstacionDestino, capacidadTotal, capacidadUtilizada, capacidadReservada, longitudKm, estado, descripcion) VALUES
 (1, 'SEG-MAN-LIM', 1, 3, 1000.00, 540.00, 0.00, 850.50, 'Operativo', 'Tramo submarino Manta - Lima.'),
 (2, 'SEG-LIM-ARI', 3, 4, 800.00, 720.00, 0.00, 1100.00, 'Degradado', 'Tramo submarino Lima - Arica con capacidad disponible limitada.'),
@@ -492,7 +414,6 @@ INSERT IGNORE INTO segmento (idSegmento, codigo, idEstacionOrigen, idEstacionDes
 (5, 'SEG-GYE-MAN', 2, 1, 900.00, 400.00, 0.00, 190.40, 'Operativo', 'Tramo submarino Guayaquil - Manta.'),
 (6, 'SEG-LIM-GYE', 3, 2, 500.00, 150.00, 0.00, 420.80, 'Operativo', 'Tramo submarino Lima - Guayaquil.');
 
--- Rutas de servicio
 INSERT IGNORE INTO ruta (idRuta, codigo, nombre, idEstacionOrigen, idEstacionDestino, estado, descripcion) VALUES
 (1, 'RUT-MAN-ARI', 'Manta - Lima - Arica', 1, 4, 'Operativa', 'Ruta compuesta por los segmentos Manta-Lima y Lima-Arica.'),
 (2, 'RUT-GYE-LIM', 'Guayaquil - Manta - Lima', 2, 3, 'Operativa', 'Ruta compuesta por los segmentos Guayaquil-Manta y Manta-Lima.'),
@@ -508,7 +429,6 @@ INSERT IGNORE INTO ruta_segmento (idRuta, idSegmento, orden, capacidadRuta) VALU
 (3, 4, 2, 700.00),
 (4, 6, 1, 500.00);
 
--- Servicios contratados. El servicio de la ruta no operativa queda suspendido.
 INSERT IGNORE INTO servicio (idServicio, codigo, idCliente, idRuta, origen, destino, capacidadContratada, fechaActivacion, estado) VALUES
 (1, 'SRV-2026-001', 1, 1, 'Manta, Ecuador', 'Arica, Chile', 120.00, '2026-02-10', 'Activo'),
 (2, 'SRV-2026-002', 2, 1, 'Manta, Ecuador', 'Arica, Chile', 160.00, '2026-03-15', 'Activo'),
@@ -517,7 +437,6 @@ INSERT IGNORE INTO servicio (idServicio, codigo, idCliente, idRuta, origen, dest
 (5, 'SRV-2026-005', 1, 4, 'Lima, Perú', 'Guayaquil, Ecuador', 50.00, '2026-05-05', 'Activo'),
 (6, 'SRV-2026-006', 5, 2, 'Guayaquil, Ecuador', 'Lima, Perú', 40.00, '2026-05-18', 'Cancelado');
 
--- Solicitudes: se incluyen estados distintos para probar filtros y agrupaciones.
 INSERT IGNORE INTO solicitud (idSolicitud, codigo, idCliente, idRuta, capacidadSolicitada, fechaSolicitud, fechaLimite, motivo, estado, observacion, idUsuario) VALUES
 (1, 'SOL-2026-001', 1, 1, 120.00, '2026-01-25', '2026-02-05', 'Ampliación de conectividad empresarial', 'Activa', 'Servicio activado luego de reservar capacidad.', 2),
 (2, 'SOL-2026-002', 2, 1, 160.00, '2026-02-20', '2026-03-10', 'Conexión para centro de datos', 'Activa', 'Solicitud atendida y servicio activo.', 2),
@@ -528,7 +447,6 @@ INSERT IGNORE INTO solicitud (idSolicitud, codigo, idCliente, idRuta, capacidadS
 (7, 'SOL-2026-007', 2, 4, 75.00, '2026-06-02', '2026-06-20', 'Incremento de capacidad', 'En evaluación', 'Pendiente de revisión del Capacity Planner.', 2),
 (8, 'SOL-2026-008', 3, 1, 90.00, '2026-06-15', '2026-06-30', 'Capacidad para nuevo servicio', 'Registrada', 'Solicitud recién ingresada.', 6);
 
--- Reservas vinculadas a solicitudes y servicios existentes.
 INSERT IGNORE INTO reserva_capacidad (idReserva, idSolicitud, idSegmento, idServicio, capacidadReservada, fechaReserva, estado, idUsuario) VALUES
 (1, 1, 1, 1, 120.00, '2026-02-02', 'Consumida', 2),
 (2, 1, 2, 1, 120.00, '2026-02-02', 'Consumida', 2),
@@ -538,7 +456,6 @@ INSERT IGNORE INTO reserva_capacidad (idReserva, idSolicitud, idSegmento, idServ
 (6, 3, 1, 3, 100.00, '2026-03-20', 'Consumida', 2),
 (7, 5, 6, 5, 50.00, '2026-05-02', 'Activa', 2);
 
--- Historial de capacidad para consultas históricas, tendencias y agregaciones.
 INSERT IGNORE INTO historial_capacidad (idHistorial, idSegmento, fechaRegistro, capacidadTotal, capacidadUtilizada, capacidadReservada, capacidadDisponible, porcentajeUtilizacion) VALUES
 (1, 1, '2026-04-01 09:00:00', 1000.00, 300.00, 100.00, 600.00, 30.00),
 (2, 1, '2026-05-01 09:00:00', 1000.00, 360.00, 120.00, 520.00, 36.00),
@@ -559,7 +476,6 @@ INSERT IGNORE INTO historial_capacidad (idHistorial, idSegmento, fechaRegistro, 
 (17, 6, '2026-05-01 09:00:00', 500.00, 80.00, 40.00, 380.00, 16.00),
 (18, 6, '2026-06-01 09:00:00', 500.00, 100.00, 50.00, 350.00, 20.00);
 
--- Incidencias con diferentes severidades y estados.
 INSERT IGNORE INTO incidencia (idIncidencia, codigo, titulo, descripcion, severidad, estado, fechaDeteccion, fechaCierre, idUsuario) VALUES
 (1, 'INC-2026-001', 'Degradación de señal en Lima-Arica', 'Se registra una degradación en el tramo; se requiere seguimiento operativo.', 'Alta', 'En análisis', '2026-06-10 08:30:00', NULL, 3),
 (2, 'INC-2026-002', 'Interrupción en Antofagasta-Valparaíso', 'El segmento se encuentra fuera de servicio y afecta la ruta asociada.', 'Crítica', 'Reparación programada', '2026-06-12 14:10:00', NULL, 6),
@@ -573,7 +489,6 @@ INSERT IGNORE INTO incidencia_segmento (idIncidencia, idSegmento) VALUES
 (4, 3),
 (4, 4);
 
--- Mantenimientos preventivos y correctivos, programados y concluidos.
 INSERT IGNORE INTO mantenimiento (idMantenimiento, codigo, tipo, idIncidencia, idSegmento, idLandingStation, fechaInicio, duracionEstimada, estado, actividades, resultado, idUsuario) VALUES
 (1, 'MNT-2026-001', 'Preventivo', NULL, 1, NULL, '2026-07-05 01:00:00', 4.00, 'Programado', 'Inspección planificada del tramo y revisión de parámetros registrados.', NULL, 4),
 (2, 'MNT-2026-002', 'Correctivo', 2, 4, NULL, '2026-06-20 02:00:00', 8.00, 'En ejecución', 'Diagnóstico y reparación del tramo afectado.', NULL, 4),
@@ -585,14 +500,6 @@ INSERT IGNORE INTO mantenimiento_segmento (idMantenimiento, idSegmento) VALUES
 (2, 4),
 (3, 3),
 (4, 1);
-
--- ============================================================
--- MIGRACION: CAPACIDAD RESERVADA A CAPACIDAD UTILIZADA
--- Una base nueva ya tiene los saldos de ejemplo consolidados.
--- En una base existente, ejecutar solo este bloque con la app
--- detenida y con respaldo. Las asignaciones por servicio y las
--- muestras historicas se conservan. El traslado se hace una vez.
--- ============================================================
 
 USE oceanlink;
 
@@ -610,33 +517,10 @@ COMMIT;
 
 SET SQL_SAFE_UPDATES = @seguridad_actual;
 
--- Si esta consulta devuelve filas, revisar sus saldos antes de asignarles capacidad.
 SELECT idSegmento, codigo, capacidadTotal, capacidadUtilizada, capacidadReservada
 FROM segmento
 WHERE capacidadReservada <> 0;
 
--- Si oceanlink ya existe y servicio no tiene ultimaReservaLiberada,
--- seleccionar y ejecutar solo las sentencias dentro de este bloque.
-/*
-USE oceanlink;
-
-ALTER TABLE servicio ADD COLUMN ultimaReservaLiberada INT NOT NULL DEFAULT 0;
-
-UPDATE servicio
-SET ultimaReservaLiberada = COALESCE((
-    SELECT MAX(rc.idReserva)
-    FROM reserva_capacidad rc
-    WHERE rc.idServicio = servicio.idServicio
-), 0)
-WHERE estado = 'Cancelado' AND idServicio > 0;
-*/
-
--- ============================================================
--- OCEANLINK - CONSULTAS SQL
--- Consultas de lectura para los módulos principales del sistema.
--- ============================================================
-
--- 1. Listar clientes
 SELECT
     idCliente,
     razonSocial,
@@ -649,7 +533,6 @@ SELECT
 FROM cliente
 ORDER BY razonSocial;
 
--- 2. Listar estaciones de aterrizaje
 SELECT
     idLandingStation,
     codigo,
@@ -660,7 +543,6 @@ SELECT
 FROM landing_station
 ORDER BY nombre;
 
--- 3. Listar segmentos con sus estaciones de origen y destino
 SELECT
     s.idSegmento,
     s.codigo,
@@ -677,7 +559,6 @@ FROM segmento s
                     ON s.idEstacionDestino = ed.idLandingStation
 ORDER BY s.codigo;
 
--- 4. Capacidad disponible y porcentaje de utilización por segmento
 SELECT
     idSegmento,
     codigo,
@@ -688,7 +569,6 @@ SELECT
 FROM segmento
 ORDER BY porcentajeUtilizacion DESC;
 
--- 5. Listar rutas con sus estaciones de origen y destino
 SELECT
     r.idRuta,
     r.codigo,
@@ -704,7 +584,6 @@ FROM ruta r
                     ON r.idEstacionDestino = ed.idLandingStation
 ORDER BY r.codigo;
 
--- 6. Ver los segmentos que componen cada ruta, en orden
 SELECT
     r.codigo AS codigo_ruta,
     r.nombre AS nombre_ruta,
@@ -721,7 +600,6 @@ FROM ruta_segmento rs
                     ON rs.idSegmento = s.idSegmento
 ORDER BY r.idRuta, rs.orden;
 
--- 7. Listar servicios junto con el cliente y la ruta
 SELECT
     sv.idServicio,
     sv.codigo,
@@ -739,7 +617,6 @@ FROM servicio sv
                     ON sv.idRuta = r.idRuta
 ORDER BY sv.idServicio DESC;
 
--- 8. Capacidad contratada por cliente
 SELECT
     c.idCliente,
     c.razonSocial,
@@ -752,7 +629,6 @@ FROM cliente c
 GROUP BY c.idCliente, c.razonSocial
 ORDER BY capacidadContratada DESC;
 
--- 9. Listar solicitudes con cliente, ruta y usuario responsable
 SELECT
     so.idSolicitud,
     so.codigo,
@@ -774,7 +650,6 @@ FROM solicitud so
                    ON so.idUsuario = u.idUsuario
 ORDER BY so.fechaSolicitud DESC;
 
--- 10. Ver reservas de capacidad asociadas a solicitudes y segmentos
 SELECT
     rc.idReserva,
     so.codigo AS solicitud,
@@ -795,7 +670,6 @@ FROM reserva_capacidad rc
                    ON rc.idUsuario = u.idUsuario
 ORDER BY rc.fechaReserva DESC;
 
--- 11. Listar incidencias con el usuario que la registró
 SELECT
     i.idIncidencia,
     i.codigo,
@@ -811,7 +685,6 @@ FROM incidencia i
                    ON i.idUsuario = u.idUsuario
 ORDER BY i.fechaDeteccion DESC;
 
--- 12. Segmentos relacionados con cada incidencia
 SELECT
     i.codigo AS codigo_incidencia,
     i.titulo,
@@ -826,8 +699,6 @@ FROM incidencia_segmento isg
                     ON isg.idSegmento = s.idSegmento
 ORDER BY i.idIncidencia, s.codigo;
 
--- 13. Listar mantenimientos con información de incidencia, segmento,
--- estación y usuario responsable
 SELECT
     m.idMantenimiento,
     m.codigo,
@@ -852,7 +723,6 @@ FROM mantenimiento m
                    ON m.idUsuario = u.idUsuario
 ORDER BY m.fechaInicio DESC;
 
--- 14. Segmentos asociados a cada mantenimiento
 SELECT
     m.codigo AS codigo_mantenimiento,
     m.tipo,
@@ -867,8 +737,6 @@ FROM mantenimiento_segmento msg
                     ON msg.idSegmento = s.idSegmento
 ORDER BY m.fechaInicio DESC, s.codigo;
 
--- 15. Datos resumidos para el dashboard: capacidad total,
--- utilizada y disponible de toda la red
 SELECT
     SUM(capacidadTotal) AS capacidadTotalRed,
     SUM(capacidadUtilizada) AS capacidadUtilizadaRed,
@@ -876,7 +744,6 @@ SELECT
     SUM(capacidadUtilizada) * 100 / NULLIF(SUM(capacidadTotal),0) AS porcentajeUtilizacionRed
 FROM segmento;
 
--- 16. Cantidad de segmentos por estado
 SELECT
     estado,
     COUNT(*) AS cantidad
@@ -884,13 +751,11 @@ FROM segmento
 GROUP BY estado
 ORDER BY cantidad DESC;
 
--- 17. Cantidad de incidencias activas (no cerradas)
 SELECT
     COUNT(*) AS incidenciasActivas
 FROM incidencia
 WHERE estado <> 'Cerrada';
 
--- 18. Servicios por estado
 SELECT
     estado,
     COUNT(*) AS cantidadServicios
@@ -898,8 +763,6 @@ FROM servicio
 GROUP BY estado
 ORDER BY cantidadServicios DESC;
 
--- 19. Consultar el historial de capacidad por segmento
--- Se muestran todos los registros, ordenados del más reciente al más antiguo.
 SELECT
     h.idHistorial,
     s.codigo AS codigo_segmento,
@@ -913,7 +776,6 @@ FROM historial_capacidad h
                     ON h.idSegmento = s.idSegmento
 ORDER BY s.codigo, h.fechaRegistro DESC;
 
--- 20. Servicios que utilizan rutas con al menos un segmento fuera de servicio
 SELECT DISTINCT
     sv.idServicio,
     sv.codigo,
@@ -933,25 +795,17 @@ WHERE s.estado = 'Fuera de servicio'
   AND sv.estado <> 'Cancelado'
 ORDER BY sv.codigo;
 
--- ============================================================
--- LOGIN (Clase 9): usuarios reales del equipo + contraseñas hasheadas (SHA-256).
--- Estos UPDATE garantizan nombre/correo/contraseña aunque la tabla usuario ya existiera
--- (porque el INSERT IGNORE de arriba no sobrescribe filas ya creadas).
--- SHA2(x,256) de MySQL = Seguridad.sha256(x) de Java.
--- ============================================================
 USE oceanlink;
-UPDATE usuario SET nombre='Adrian', apellido='Angles',   correo='adrian.angles@oceanlink.test',   password=SHA2('admin123',256)    WHERE idUsuario=1; -- Administrador
-UPDATE usuario SET nombre='Gerson', apellido='Vargas',   correo='gerson.vargas@oceanlink.test',   password=SHA2('capacity123',256) WHERE idUsuario=2; -- Capacity Planner
-UPDATE usuario SET nombre='Ariana', apellido='Casanova', correo='ariana.casanova@oceanlink.test', password=SHA2('operator123',256) WHERE idUsuario=3; -- Network Operator
-UPDATE usuario SET nombre='Gerson', apellido='García',   correo='gerson.garcia@oceanlink.test',   password=SHA2('mant123',256)     WHERE idUsuario=4; -- Maintenance Coordinator
-UPDATE usuario SET nombre='Miguel', apellido='Arce',     correo='miguel.arce@oceanlink.test',     password=SHA2('super123',256)    WHERE idUsuario=5; -- Supervisor
-UPDATE usuario SET password=SHA2('operator123',256) WHERE idUsuario=6; -- Network Operator (Andrés León)
-
-
+UPDATE usuario SET nombre='Adrian', apellido='Angles',   correo='adrian.angles@oceanlink.test',   password=SHA2('admin123',256)    WHERE idUsuario=1;
+UPDATE usuario SET nombre='Gerson', apellido='Vargas',   correo='gerson.vargas@oceanlink.test',   password=SHA2('capacity123',256) WHERE idUsuario=2;
+UPDATE usuario SET nombre='Ariana', apellido='Casanova', correo='ariana.casanova@oceanlink.test', password=SHA2('operator123',256) WHERE idUsuario=3;
+UPDATE usuario SET nombre='Gerson', apellido='García',   correo='gerson.garcia@oceanlink.test',   password=SHA2('mant123',256)     WHERE idUsuario=4;
+UPDATE usuario SET nombre='Miguel', apellido='Arce',     correo='miguel.arce@oceanlink.test',     password=SHA2('super123',256)    WHERE idUsuario=5;
+UPDATE usuario SET password=SHA2('operator123',256) WHERE idUsuario=6;
 
 CREATE TABLE IF NOT EXISTS recuperacion_password (
-    idRecuperacion INT NOT NULL AUTO_INCREMENT, 
-    idUsuario INT NOT NULL, 
+    idRecuperacion INT NOT NULL AUTO_INCREMENT,
+    idUsuario INT NOT NULL,
     tokenHash CHAR(64) NOT NULL,
     fechaExpiracion DATETIME NOT NULL,
     usado BOOLEAN NOT NULL DEFAULT FALSE,
@@ -967,15 +821,11 @@ CREATE TABLE IF NOT EXISTS recuperacion_password (
         ON DELETE CASCADE
 );
 
-
 USE oceanlink;
 
--- 1. Identificar si la cuenta ya fue activada.
--- Las cuentas existentes quedan activadas para no bloquearlas.
 ALTER TABLE usuario
 ADD COLUMN cuentaActivada BOOLEAN NOT NULL DEFAULT TRUE;
 
--- 2. Crear tabla para gestionar los enlaces de activación.
 CREATE TABLE IF NOT EXISTS activacion_cuenta (
     idActivacion INT NOT NULL AUTO_INCREMENT,
     idUsuario INT NOT NULL,
@@ -993,4 +843,3 @@ CREATE TABLE IF NOT EXISTS activacion_cuenta (
         REFERENCES usuario(idUsuario)
         ON DELETE CASCADE
 );
-

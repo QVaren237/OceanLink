@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.service;
 
 import pe.edu.oceanlink.dao.RecuperacionPasswordDAO;
@@ -16,7 +15,6 @@ public class RecuperacionPasswordService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    // Genera un token seguro para recuperar la contraseña.
     private String generarToken() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
@@ -26,14 +24,12 @@ public class RecuperacionPasswordService {
                 .encodeToString(bytes);
     }
 
-    // Envía el enlace de recuperación al correo del usuario.
     public void solicitarRecuperacion(
             String correo, String urlRecuperacion) throws Exception {
 
         Integer idUsuario =
                 recuperacionDAO.obtenerIdUsuarioActivoPorCorreo(correo);
 
-        // No revela si el correo está registrado.
         if (idUsuario == null) {
             return;
         }
@@ -42,7 +38,6 @@ public class RecuperacionPasswordService {
 
         String tokenHash = Seguridad.sha256(token);
 
-        // El enlace tendrá una validez de 30 minutos.
         Timestamp expiracion = Timestamp.from(
                 Instant.now().plusSeconds(30 * 60)
         );
@@ -70,7 +65,6 @@ public class RecuperacionPasswordService {
         EmailService.enviarCorreo(correo, asunto, contenido);
     }
 
-    // Comprueba el token y cambia la contraseña.
     public boolean restablecerPassword(
             String token, String nuevaPassword) throws Exception {
 
@@ -86,7 +80,7 @@ public class RecuperacionPasswordService {
                 nuevaPassword
         );
     }
-    // Verifica si el enlace de recuperación sigue siendo válido.
+
     public boolean tokenValido(String token) throws Exception {
         if (token == null || token.isBlank()) {
             return false;
@@ -96,6 +90,5 @@ public class RecuperacionPasswordService {
 
         return recuperacionDAO.obtenerUsuarioPorTokenValido(tokenHash) != null;
     }
-
 
 }

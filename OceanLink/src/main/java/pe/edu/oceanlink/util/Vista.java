@@ -3,7 +3,6 @@ package pe.edu.oceanlink.util;
 import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.bean.Usuario;
 
-/** Helpers para mostrar en las vistas el usuario que inició sesión (barra superior). */
 public class Vista {
 
     private static Usuario u(HttpSession s) {
@@ -30,5 +29,16 @@ public class Vista {
         if (x.getNombre() != null && !x.getNombre().isEmpty()) i += x.getNombre().charAt(0);
         if (x.getApellido() != null && !x.getApellido().isEmpty()) i += x.getApellido().charAt(0);
         return i.toUpperCase();
+    }
+
+    public static String foto(HttpSession s) {
+        Object o = (s == null) ? null : s.getAttribute("fotoPerfil");
+        return (o instanceof String) ? (String) o : null;
+    }
+
+    public static String avatarAttr(HttpSession s) {
+        String f = foto(s);
+        return (f == null) ? "" :
+            " style=\"background-image:url('" + f + "');background-size:cover;background-position:center;color:transparent\"";
     }
 }

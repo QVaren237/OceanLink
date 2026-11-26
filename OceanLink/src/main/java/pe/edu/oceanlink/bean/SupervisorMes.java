@@ -4,7 +4,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-/** Conteos de los dos tipos de eventos en un mes del período consultado. */
 public class SupervisorMes {
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("MMM yyyy", new Locale("es", "PE"));
 

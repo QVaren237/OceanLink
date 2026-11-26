@@ -33,7 +33,7 @@ public class RedesSubmarinasServlet extends HttpServlet {
                 view.forward(request, response);
                 break;
             case "formCrear":
-                // Las estaciones se usan para los combos de origen y destino
+
                 request.setAttribute("estaciones", lsDao.obtenerListaLandingStations());
                 view = request.getRequestDispatcher("/views/redes-submarinas-form.jsp");
                 view.forward(request, response);
@@ -106,7 +106,6 @@ public class RedesSubmarinasServlet extends HttpServlet {
         }
     }
 
-    // Convierte texto a double; si viene vacío o inválido devuelve 0
     private double parseDouble(String valor) {
         if (valor == null || valor.trim().isEmpty()) return 0;
         try {

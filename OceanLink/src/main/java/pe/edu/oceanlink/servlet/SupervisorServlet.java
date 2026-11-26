@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import pe.edu.oceanlink.bean.SupervisorAfectado;
 
-/** Controlador MVC de solo consulta para el Panel General del Supervisor. */
 @WebServlet(name = "SupervisorServlet", urlPatterns = {"/supervisor/panel", "/supervisor/incidencias", "/supervisor/afectados", "/supervisor/reportes", "/SupervisorServlet"})
 public class SupervisorServlet extends HttpServlet {
     @Override

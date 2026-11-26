@@ -79,7 +79,7 @@
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="capacidadPaginas" aria-label="Paginación de enlaces"></nav>
             </div>
         <% } %>

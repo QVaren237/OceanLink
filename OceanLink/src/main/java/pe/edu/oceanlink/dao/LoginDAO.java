@@ -10,10 +10,9 @@ import java.sql.SQLException;
 
 public class LoginDAO extends BaseDAO {
 
-    // ---- MANERA 1: el hash se hace en JAVA (diapositiva 37) ----
     public Usuario validarConHashEnJava(String correo, String password) {
         Usuario usuario = null;
-        String passHash = Seguridad.sha256(password); // se cifra en Java
+        String passHash = Seguridad.sha256(password);
         String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.estado, u.idRol, "
                 + "u.cuentaActivada, r.nombre AS nombreRol "
                 + "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol "
@@ -31,7 +30,6 @@ public class LoginDAO extends BaseDAO {
         return usuario;
     }
 
-    // ---- MANERA 2: el hash lo hace la BASE DE DATOS con SHA2 (diapositiva 37) ----
     public Usuario validarConHashEnSQL(String correo, String password) {
         Usuario usuario = null;
         String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.estado, u.idRol, "
@@ -41,7 +39,7 @@ public class LoginDAO extends BaseDAO {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, correo);
-            ps.setString(2, password); // se envía en texto plano; MySQL la hashea
+            ps.setString(2, password);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) usuario = mapear(rs);
             }

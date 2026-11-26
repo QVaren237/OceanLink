@@ -11,10 +11,8 @@ import java.util.*;
 import java.sql.*;
 import java.util.ArrayList;
 
-/** JDBC de consulta para las vistas de Capacidad de Capacity Planner. */
 public class CapacidadDAO extends BaseDAO {
-    // La conexión JDBC se hereda de BaseDAO (clase 8.1).
-    // Se usa el alias s para segmento en las consultas de capacidad.
+
     static final String USO_ACTUAL = """
             (s.capacidadUtilizada - COALESCE((
                 SELECT SUM(rc.capacidadReservada)
@@ -109,7 +107,7 @@ public class CapacidadDAO extends BaseDAO {
     }
 
     public ArrayList<CapacidadServicio> listarServicios(int idSegmento) throws SQLException {
-        // EXISTS evita duplicar el servicio si hay más de una asociación con el mismo segmento.
+
         String sql = "SELECT sv.idServicio, sv.idCliente, sv.codigo, sv.capacidadContratada, sv.estado, "
                 + "c.razonSocial, c.ruc, r.nombre AS ruta FROM servicio sv "
                 + "JOIN cliente c ON c.idCliente=sv.idCliente JOIN ruta r ON r.idRuta=sv.idRuta "
@@ -194,7 +192,7 @@ public class CapacidadDAO extends BaseDAO {
 
     public ArrayList<CapacidadServicio> serviciosReservables(int idSegmento,Integer idSolicitud) throws SQLException {
         ArrayList<CapacidadServicio> servicios=listarServicios(idSegmento);
-        // Los servicios cancelados o de clientes inactivos no pueden recibir nuevas reservas.
+
         try(Connection conn=abrirConexion()){
             for(Iterator<CapacidadServicio> it=servicios.iterator();it.hasNext();){
                 CapacidadServicio sv=it.next();
@@ -221,11 +219,10 @@ public class CapacidadDAO extends BaseDAO {
         try{
             BigDecimal cantidad=new BigDecimal(texto==null?"":texto.trim());
             if(cantidad.signum()>0 && cantidad.scale()<=2 && cantidad.compareTo(new BigDecimal("9999999999.99"))<=0)return cantidad;
-        }catch(NumberFormatException e){ /* Se informa como error del formulario. */ }
+        }catch(NumberFormatException e){  }
         throw new IllegalArgumentException("Ingresa una capacidad positiva, de hasta dos decimales.");
     }
 
-    /** Una única transacción para la reserva directa o vinculada y todos sus segmentos. */
     public void reservar(int idServicio,Collection<Integer> ids,BigDecimal cantidad,Integer idSolicitud,int idUsuario) throws SQLException {
         validarCantidad(cantidad==null?null:cantidad.toPlainString());
         TreeSet<Integer> seleccion=new TreeSet<>(ids);

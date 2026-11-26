@@ -21,7 +21,6 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                 </div>
             </div>
 
-            <!-- Panel de Filtros -->
             <form class="card card-pad" method="get" action="<%=ctx%>/capacity-planner/historico" class="historico-estilo-1">
                 <div class="historico-estilo-2">
                     <div class="field historico-estilo-3">
@@ -44,7 +43,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                     </button>
                 </div>
             </form>
-<!-- KPIs de Tendencia -->
+
             <div class="kpis">
                 <div class="kpi">
                     <span class="kbadge historico-estilo-7">CRECIMIENTO</span>
@@ -61,9 +60,8 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                 </div>
             </div>
 
-            <!-- Tabla de Registros Históricos con Buscador -->
             <div class="card">
-                <!-- Barra de búsqueda idéntica a dashboard.html -->
+
                 <div class="card-pad historico-estilo-11">
                     <div class="usearch-box historico-estilo-12">
                         <span class="usearch-ic">
@@ -99,7 +97,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="historicoPaginas" aria-label="Paginación de registros históricos"></nav>
 </div>
 <script>

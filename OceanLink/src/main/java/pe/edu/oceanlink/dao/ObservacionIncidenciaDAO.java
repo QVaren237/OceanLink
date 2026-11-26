@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.dao;
 
 import pe.edu.oceanlink.bean.ObservacionIncidencia;

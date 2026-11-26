@@ -21,7 +21,7 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
 
       <div class="card card-pad mc-ref-7">
         <form method="post" action="<%=base%>"><input type="hidden" name="action" value="preparar"><input type="hidden" name="id" value="<%=m.getIdMantenimiento()%>"><input type="hidden" name="token" value="<%=h(request.getAttribute("mcToken"))%>">
-          
+
           <div class="info-strip mc-ref-8">
             <div class="ii">i</div>
             <div>
@@ -47,5 +47,5 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
           </div>
         </form>
       </div>
-    
+
 <jsp:include page="/views/mc-fin.jsp"/>

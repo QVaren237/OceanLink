@@ -2,10 +2,6 @@ package pe.edu.oceanlink.bean;
 
 import java.util.ArrayList;
 
-/**
- * Almacena los indicadores estadísticos del Supervisor.
- * Es una clase de consulta: no modifica información.
- */
 public class SupervisorEstadisticas {
 
     private int totalIncidencias;

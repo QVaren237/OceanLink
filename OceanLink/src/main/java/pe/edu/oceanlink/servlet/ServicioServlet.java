@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/** Controlador MVC de servicios contratados del Capacity Planner. */
 @WebServlet(name = "ServicioServlet", value = "/capacity-planner/servicios")
 public class ServicioServlet extends HttpServlet {
 
@@ -77,7 +76,7 @@ public class ServicioServlet extends HttpServlet {
                     }
                     request.setAttribute("cliente", cliente);
                     ArrayList<Ruta> rutas = rutaDAO.obtenerListaRutas();
-                    // Cargar segmentos REALES ordenados, no los del HTML de demostración.
+
                     for (Ruta r : rutas) {
                         if ("Operativa".equals(r.getEstado())) {
                             Ruta completa = rutaDAO.obtenerRuta(r.getIdRuta());
@@ -115,11 +114,11 @@ public class ServicioServlet extends HttpServlet {
                 request.setAttribute("ruta", rutaDAO.obtenerRuta(servicio.getIdRuta()));
                 request.getRequestDispatcher("/views/servicio-confirm.jsp").forward(request, response);
             } else if ("guardar".equals(action)) {
-                // Revalidar: nunca confiar en los campos hidden de la pantalla de confirmación.
+
                 Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
                 servicio.setCodigo("SRV-" + LocalDate.now().getYear() + "-" +
                         UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-                // Estado administrativo actual; no implica una reserva física de capacidad.
+
                 servicio.setEstado("Activo");
                 int nuevoId = servicioDAO.crearServicio(servicio);
                 response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=exito&cliente=" +
@@ -176,12 +175,12 @@ public class ServicioServlet extends HttpServlet {
         Servicio servicio = new Servicio();
         servicio.setIdCliente(idCliente);
         servicio.setIdRuta(idRuta);
-        // Los nombres se obtienen de RutaDAO, no se aceptan del formulario.
+
         servicio.setOrigen(ruta.getNombreOrigen());
         servicio.setDestino(ruta.getNombreDestino());
         if (servicio.getOrigen() == null || servicio.getDestino() == null)
             throw new IllegalArgumentException("La ruta no tiene estaciones de origen y destino definidas");
-        // La capacidad se asignará desde el módulo Capacidad, aún pendiente.
+
         servicio.setCapacidadContratada(null);
         servicio.setFechaActivacion(fecha);
         return servicio;
