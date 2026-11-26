@@ -41,7 +41,7 @@ public class SegmentoDAO extends BaseDAO {
             Statement stmt = conn.createStatement();
             // Dos JOIN a landing_station: uno para la estación de origen y otro para la de destino
             String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
-                         "s.capacidadTotal, s.capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
+                         "s.capacidadTotal, " + CapacidadDAO.USO_ACTUAL + " AS capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
                          "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                          "FROM segmento s " +
                          "INNER JOIN landing_station lo ON s.idEstacionOrigen = lo.idLandingStation " +
@@ -63,7 +63,7 @@ public class SegmentoDAO extends BaseDAO {
 
             try (Connection conn = getConnection()) {
                 String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, s.idEstacionDestino, " +
-                             "s.capacidadTotal, s.capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
+                             "s.capacidadTotal, " + CapacidadDAO.USO_ACTUAL + " AS capacidadUtilizada, s.longitudKm, s.estado, s.descripcion, " +
                              "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                              "FROM segmento s " +
                              "INNER JOIN landing_station lo ON s.idEstacionOrigen = lo.idLandingStation " +

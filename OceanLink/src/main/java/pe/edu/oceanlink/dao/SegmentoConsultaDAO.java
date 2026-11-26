@@ -21,7 +21,7 @@ public class SegmentoConsultaDAO extends BaseDAO {
         ArrayList<Segmento> lista = new ArrayList<>();
 
         String sql = "SELECT s.idSegmento, s.codigo, s.idEstacionOrigen, " +
-                "s.idEstacionDestino, s.capacidadTotal, s.capacidadUtilizada, " +
+                "s.idEstacionDestino, s.capacidadTotal, " + CapacidadDAO.USO_ACTUAL + " AS capacidadUtilizada, " +
                 "s.longitudKm, s.estado, s.descripcion, " +
                 "lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
                 "FROM segmento s " +

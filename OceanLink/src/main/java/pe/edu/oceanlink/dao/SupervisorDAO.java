@@ -22,8 +22,8 @@ public class SupervisorDAO extends BaseDAO {
         SupervisorResumen resumen = new SupervisorResumen();
         try (Connection conn = getConnection()) {
             // Promedio de uso porcentual por segmento, sin contar segmentos sin capacidad total.
-            String sqlUso = "SELECT ROUND(AVG(100 * capacidadUtilizada / NULLIF(capacidadTotal,0)), 2) AS porcentaje "
-                + "FROM segmento WHERE capacidadTotal > 0";
+            String sqlUso = "SELECT ROUND(AVG(100 * " + CapacidadDAO.USO_ACTUAL
+                + " / NULLIF(s.capacidadTotal,0)), 2) AS porcentaje FROM segmento s WHERE s.capacidadTotal > 0";
             try (PreparedStatement ps = conn.prepareStatement(sqlUso);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) resumen.setUtilizacionPromedio(rs.getBigDecimal("porcentaje"));
@@ -46,9 +46,8 @@ public class SupervisorDAO extends BaseDAO {
             }
 
             // Un tramo es crítico cuando supera el 95% de la capacidad total.
-            String sqlCriticos = "SELECT COUNT(*) AS total FROM segmento "
-                + "WHERE capacidadTotal > 0 AND "
-                + "capacidadUtilizada > capacidadTotal * 0.95";
+            String sqlCriticos = "SELECT COUNT(*) AS total FROM segmento s "
+                + "WHERE s.capacidadTotal > 0 AND " + CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95";
             try (PreparedStatement ps = conn.prepareStatement(sqlCriticos);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) resumen.setTramosCriticos(rs.getInt("total"));
@@ -60,14 +59,14 @@ public class SupervisorDAO extends BaseDAO {
     public ArrayList<SupervisorTramo> listarTramosAltaUtilizacion() throws SQLException {
         ArrayList<SupervisorTramo> lista = new ArrayList<>();
         String sql = "SELECT s.codigo, eo.nombre AS origen, ed.nombre AS destino, s.estado, "
-            + "s.capacidadTotal, s.capacidadTotal - s.capacidadUtilizada AS disponible, "
-            + "ROUND(100 * s.capacidadUtilizada / NULLIF(s.capacidadTotal,0), 2) AS porcentaje, "
-            + "s.capacidadUtilizada > s.capacidadTotal * 0.95 AS critico "
+            + "s.capacidadTotal, s.capacidadTotal - " + CapacidadDAO.USO_ACTUAL + " AS disponible, "
+            + "ROUND(100 * " + CapacidadDAO.USO_ACTUAL + " / NULLIF(s.capacidadTotal,0), 2) AS porcentaje, "
+            + CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95 AS critico "
             + "FROM segmento s "
             + "JOIN landing_station eo ON eo.idLandingStation = s.idEstacionOrigen "
             + "JOIN landing_station ed ON ed.idLandingStation = s.idEstacionDestino "
             + "WHERE s.capacidadTotal > 0 "
-            + "AND s.capacidadUtilizada >= s.capacidadTotal * 0.80 "
+            + "AND " + CapacidadDAO.USO_ACTUAL + " >= s.capacidadTotal * 0.80 "
             + "ORDER BY porcentaje DESC, s.codigo";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

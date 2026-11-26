@@ -131,6 +131,46 @@ public class CapacidadReservaMysqlCheck {
                 preparar();reservar(1,Arrays.asList(2,1),"15",null,1);
                 comprobar("2".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"Reserva multisegmento");
                 comprobar("2".equals(valor("SELECT COUNT(*) FROM segmento WHERE capacidadUtilizada=45")),"Mismo incremento por segmento");
+
+                ServicioDAO servicios = new ServicioDAO() {
+                    @Override public Connection getConnection() throws SQLException {
+                        return dao.abrirConexion();
+                    }
+                };
+                reservar(1, List.of(1), "5", null, 1);
+                reservar(2, List.of(1), "7", null, 1);
+                sql("UPDATE reserva_capacidad SET estado='Consumida' WHERE idServicio=1 AND capacidadReservada=5");
+                comprobar(servicios.cambiarEstado(1, "Suspendido"), "Suspender no libera capacidad");
+                comprobar(dao.obtener(1).getCapacidadUtilizada().compareTo(new BigDecimal("57")) == 0,
+                        "Conservar capacidad del servicio suspendido");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Cancelar el servicio");
+                comprobar("Cancelado".equals(valor("SELECT estado FROM servicio WHERE idServicio=1")), "Guardar cancelación");
+                comprobar(dao.obtener(1).getCapacidadUtilizada().compareTo(new BigDecimal("37")) == 0,
+                        "Liberar todas las reservas propias sin afectar a otro servicio");
+                comprobar(dao.obtener(2).getCapacidadUtilizada().compareTo(new BigDecimal("30")) == 0,
+                        "Liberar también el segundo tramo");
+                comprobar("1".equals(valor("SELECT COUNT(*) FROM reserva_capacidad WHERE idServicio=2 AND estado='Activa'")),
+                        "Conservar la reserva del otro servicio");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Repetir cancelación de forma segura");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "No liberar dos veces");
+                comprobar(servicios.cambiarEstado(1, "Activo"), "Reactivar un servicio cancelado");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "Reactivar no repone reservas liberadas");
+                reservar(1, List.of(1), "63", null, 1);
+                comprobar(dao.obtener(1).getCapacidadDisponible().signum() == 0, "Reutilizar toda la capacidad liberada");
+                comprobar(dao.listarAlertas().size() == 1 && supervisor.obtenerResumen().getTramosCriticos() == 1,
+                        "Planner y Supervisor reflejan la nueva utilización");
+                comprobar("0.00".equals(valor("SELECT capacidadDisponible FROM historial_capacidad " +
+                        "WHERE idSegmento=1 ORDER BY idHistorial DESC LIMIT 1")), "El historial nuevo usa el saldo actual");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Cancelar después de una nueva reserva");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "La segunda cancelación incluye la reserva nueva");
+                comprobar(dao.listarAlertas().isEmpty() && supervisor.obtenerResumen().getTramosCriticos() == 0,
+                        "Planner y Supervisor retiran la alerta tras cancelar");
+                comprobar(servicios.cambiarEstado(3, "Cancelado"), "Cancelar un servicio sin reservas");
+                comprobar(!servicios.cambiarEstado(999, "Cancelado"), "Conservar el resultado para un servicio inexistente");
+
                 preparar();rechaza(()->reservar(1,Arrays.asList(1),"85",null,1),"Exceso de disponibilidad");
                 comprobar("0".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"No guardar exceso");
                 preparar();sql("UPDATE segmento SET estado='Fuera de servicio' WHERE idSegmento=2");

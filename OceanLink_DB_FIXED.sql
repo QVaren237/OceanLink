@@ -302,6 +302,7 @@ CREATE TABLE IF NOT EXISTS `oceanlink`.`servicio` (
     `capacidadContratada` DECIMAL(12,2) NULL,
     `fechaActivacion` DATE NOT NULL,
     `estado` VARCHAR(30) NOT NULL,
+    `ultimaReservaLiberada` INT NOT NULL DEFAULT 0,
     PRIMARY KEY (`idServicio`),
     UNIQUE INDEX `codigo` (`codigo` ASC) VISIBLE,
     INDEX `fk_servicio_cliente` (`idCliente` ASC) VISIBLE,
@@ -613,6 +614,22 @@ SET SQL_SAFE_UPDATES = @seguridad_actual;
 SELECT idSegmento, codigo, capacidadTotal, capacidadUtilizada, capacidadReservada
 FROM segmento
 WHERE capacidadReservada <> 0;
+
+-- Si oceanlink ya existe y servicio no tiene ultimaReservaLiberada,
+-- seleccionar y ejecutar solo las sentencias dentro de este bloque.
+/*
+USE oceanlink;
+
+ALTER TABLE servicio ADD COLUMN ultimaReservaLiberada INT NOT NULL DEFAULT 0;
+
+UPDATE servicio
+SET ultimaReservaLiberada = COALESCE((
+    SELECT MAX(rc.idReserva)
+    FROM reserva_capacidad rc
+    WHERE rc.idServicio = servicio.idServicio
+), 0)
+WHERE estado = 'Cancelado' AND idServicio > 0;
+*/
 
 -- ============================================================
 -- OCEANLINK - CONSULTAS SQL

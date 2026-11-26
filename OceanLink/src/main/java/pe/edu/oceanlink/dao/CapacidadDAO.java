@@ -14,8 +14,20 @@ import java.util.ArrayList;
 /** JDBC de consulta para las vistas de Capacidad de Capacity Planner. */
 public class CapacidadDAO extends BaseDAO {
     // La conexión JDBC se hereda de BaseDAO (clase 8.1).
+    // Se usa el alias s para segmento en las consultas de capacidad.
+    static final String USO_ACTUAL = """
+            (s.capacidadUtilizada - COALESCE((
+                SELECT SUM(rc.capacidadReservada)
+                FROM reserva_capacidad rc
+                JOIN servicio sv ON sv.idServicio = rc.idServicio
+                WHERE rc.idSegmento = s.idSegmento
+                  AND rc.estado IN ('Activa', 'Consumida')
+                  AND (sv.estado = 'Cancelado' OR rc.idReserva <= sv.ultimaReservaLiberada)
+            ), 0))
+            """;
     private static final String ENLACES = "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, "
-            + "lo.ubicacion AS ubicacionOrigen, ld.ubicacion AS ubicacionDestino FROM segmento s "
+            + "lo.ubicacion AS ubicacionOrigen, ld.ubicacion AS ubicacionDestino, "
+            + USO_ACTUAL + " AS usoActual FROM segmento s "
             + "JOIN landing_station lo ON lo.idLandingStation=s.idEstacionOrigen "
             + "JOIN landing_station ld ON ld.idLandingStation=s.idEstacionDestino ";
 
@@ -126,7 +138,7 @@ public class CapacidadDAO extends BaseDAO {
         enlace.setNombreOrigen(rs.getString("nombreOrigen"));enlace.setNombreDestino(rs.getString("nombreDestino"));
         enlace.setUbicacionOrigen(rs.getString("ubicacionOrigen"));enlace.setUbicacionDestino(rs.getString("ubicacionDestino"));
         enlace.setEstado(rs.getString("estado"));enlace.setDescripcion(rs.getString("descripcion"));
-        enlace.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));enlace.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
+        enlace.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));enlace.setCapacidadUtilizada(rs.getBigDecimal("usoActual"));
         enlace.setLongitudKm(rs.getBigDecimal("longitudKm"));
         return enlace;
     }
@@ -252,8 +264,8 @@ public class CapacidadDAO extends BaseDAO {
                 for(int id:seleccion){
                     CapacidadEnlace enlace=bloquearSegmento(conn,id);
                     validarDisponible(enlace,cantidad);
-                    try(PreparedStatement ps=conn.prepareStatement("UPDATE segmento SET capacidadUtilizada=capacidadUtilizada+? WHERE idSegmento=? AND capacidadTotal-capacidadUtilizada>=?")){
-                        ps.setBigDecimal(1,cantidad);ps.setInt(2,id);ps.setBigDecimal(3,cantidad);
+                    try(PreparedStatement ps=conn.prepareStatement("UPDATE segmento SET capacidadUtilizada=capacidadUtilizada+? WHERE idSegmento=?")){
+                        ps.setBigDecimal(1,cantidad);ps.setInt(2,id);
                         if(ps.executeUpdate()!=1)throw new IllegalArgumentException("La disponibilidad cambió. Actualiza el formulario.");
                     }
                     try(PreparedStatement ps=conn.prepareStatement("INSERT INTO reserva_capacidad(idSolicitud,idSegmento,idServicio,capacidadReservada,fechaReserva,estado,idUsuario) VALUES(?,?,?,?,CURDATE(),'Activa',?)")){
@@ -321,11 +333,13 @@ public class CapacidadDAO extends BaseDAO {
             ps.setInt(1,id);try(ResultSet rs=ps.executeQuery()){while(rs.next())ids.add(rs.getInt(1));}}return ids;
     }
     private CapacidadEnlace bloquearSegmento(Connection conn,int id) throws SQLException {
-        try(PreparedStatement ps=conn.prepareStatement("SELECT codigo,estado,capacidadTotal,capacidadUtilizada,capacidadReservada FROM segmento WHERE idSegmento=? FOR UPDATE")){
+        String sql = "SELECT s.codigo, s.estado, s.capacidadTotal, s.capacidadReservada, "
+                + USO_ACTUAL + " AS usoActual FROM segmento s WHERE s.idSegmento=? FOR UPDATE";
+        try(PreparedStatement ps=conn.prepareStatement(sql)){
             ps.setInt(1,id);try(ResultSet rs=ps.executeQuery()){
                 if(!rs.next())throw new IllegalArgumentException("El segmento no existe.");
                 CapacidadEnlace e=new CapacidadEnlace();e.setIdSegmento(id);e.setCodigo(rs.getString("codigo"));e.setEstado(rs.getString("estado"));
-                e.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));e.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
+                e.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));e.setCapacidadUtilizada(rs.getBigDecimal("usoActual"));
                 BigDecimal reservaAnterior=rs.getBigDecimal("capacidadReservada");
                 if(reservaAnterior!=null && reservaAnterior.signum()!=0)
                     throw new IllegalArgumentException("Consolida primero la capacidad reservada anterior de "+e.getCodigo()+".");
@@ -339,8 +353,8 @@ public class CapacidadDAO extends BaseDAO {
     }
     private void registrarHistorial(Connection conn,int id) throws SQLException {
         String sql="INSERT INTO historial_capacidad(idSegmento,fechaRegistro,capacidadTotal,capacidadUtilizada,capacidadDisponible,porcentajeUtilizacion) "
-                +"SELECT idSegmento,NOW(),capacidadTotal,capacidadUtilizada,capacidadTotal-capacidadUtilizada,"
-                +"capacidadUtilizada*100/NULLIF(capacidadTotal,0) FROM segmento WHERE idSegmento=?";
+                +"SELECT s.idSegmento,NOW(),s.capacidadTotal,"+USO_ACTUAL+",s.capacidadTotal-"+USO_ACTUAL+","
+                +USO_ACTUAL+"*100/NULLIF(s.capacidadTotal,0) FROM segmento s WHERE s.idSegmento=?";
         try(PreparedStatement ps=conn.prepareStatement(sql)){ps.setInt(1,id);ps.executeUpdate();}
     }
     private SolicitudCapacidad mapearSolicitud(ResultSet rs) throws SQLException {

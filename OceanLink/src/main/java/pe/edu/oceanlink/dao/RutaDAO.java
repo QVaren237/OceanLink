@@ -21,7 +21,8 @@ public class RutaDAO extends BaseDAO {
             "INNER JOIN landing_station ld ON ld.idLandingStation = r.idEstacionDestino ";
 
     private static final String CONSULTA_SEGMENTO =
-            "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
+            "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, " +
+            CapacidadDAO.USO_ACTUAL + " AS usoActual " +
             "FROM segmento s INNER JOIN landing_station lo ON lo.idLandingStation = s.idEstacionOrigen " +
             "INNER JOIN landing_station ld ON ld.idLandingStation = s.idEstacionDestino ";
 
@@ -149,7 +150,8 @@ public class RutaDAO extends BaseDAO {
                     "(SELECT COUNT(*) FROM cliente WHERE estado = 'Activo') AS clientesActivos, " +
                     "(SELECT COUNT(*) FROM segmento) AS segmentosMonitoreados, " +
                     "(SELECT COUNT(*) FROM solicitud WHERE estado IN ('Registrada', 'En evaluación', 'Pendiente por capacidad')) AS solicitudesPendientes, " +
-                    "(SELECT COUNT(*) FROM segmento WHERE capacidadTotal > 0 AND capacidadUtilizada > capacidadTotal * 0.95) AS segmentosCriticos";
+                    "(SELECT COUNT(*) FROM segmento s WHERE s.capacidadTotal > 0 AND " +
+                    CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95) AS segmentosCriticos";
             try (PreparedStatement pstmt = conn.prepareStatement(indicadores); ResultSet rs = pstmt.executeQuery()) {
                 rs.next();
                 panel.setClientesActivos(rs.getInt("clientesActivos"));
@@ -355,7 +357,7 @@ public class RutaDAO extends BaseDAO {
         tramo.setNombreDestino(rs.getString("nombreDestino"));
         tramo.setEstado(rs.getString("estado"));
         tramo.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
-        tramo.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
+        tramo.setCapacidadUtilizada(rs.getBigDecimal("usoActual"));
         return tramo;
     }
 }

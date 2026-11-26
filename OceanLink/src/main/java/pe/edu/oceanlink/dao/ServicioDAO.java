@@ -93,15 +93,23 @@ public class ServicioDAO extends BaseDAO {
             throw new IllegalArgumentException("Estado inválido");
         }
 
-        try (Connection conn = getConnection()) {
-            String sql = "UPDATE servicio SET estado = ? WHERE idServicio = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, estado);
-                pstmt.setInt(2, idServicio);
-                return pstmt.executeUpdate() == 1;
-            }
+        String sql = "UPDATE servicio SET estado = ? WHERE idServicio = ?";
+        if ("Cancelado".equals(estado)) {
+            // Al reactivar el servicio, solo pueden volver a contar reservas nuevas.
+            sql = "UPDATE servicio SET estado = ?, ultimaReservaLiberada = " +
+                    "COALESCE((SELECT MAX(rc.idReserva) FROM reserva_capacidad rc " +
+                    "WHERE rc.idServicio = servicio.idServicio), " +
+                    "ultimaReservaLiberada) WHERE idServicio = ?";
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, estado);
+            pstmt.setInt(2, idServicio);
+            return pstmt.executeUpdate() == 1;
         }
     }
+
 
     // Convierte la fila del ResultSet en un Bean Servicio.
     private void llenarServicio(Servicio servicio, ResultSet rs) throws SQLException {
