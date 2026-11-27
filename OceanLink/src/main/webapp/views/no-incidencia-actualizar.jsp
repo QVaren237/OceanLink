@@ -26,11 +26,10 @@ String observacion = (String) request.getAttribute("observacion");
     <option<%= "En análisis".equals(nuevoEstado) ? " selected" : "" %>>En análisis</option>
     <option<%= "Reparación programada".equals(nuevoEstado) ? " selected" : "" %>>Reparación programada</option>
     <option<%= "En reparación".equals(nuevoEstado) ? " selected" : "" %>>En reparación</option>
-    <option<%= "Servicio restaurado".equals(nuevoEstado) ? " selected" : "" %>>Servicio restaurado</option>
     <option<%= "Cerrada".equals(nuevoEstado) ? " selected" : "" %>>Cerrada</option>
   </select>
   <span class="validation-message">Este campo es obligatorio.</span>
-  <div class="hint">Para restaurar el servicio, primero deben finalizar los mantenimientos correctivos con resultado registrado. El cierre requiere haber registrado la restauración.</div>
+  <div class="hint">Para cerrar la incidencia, primero usa «Registrar restauración» desde su detalle.</div>
 </div>
 <div class="field"><label for="no-field-2">Observación de la actualización (opcional)</label><textarea id="no-field-2" name="observacion" class="input" rows="3" placeholder="Ej. Se reemplazó el módulo óptico; en verificación."><%= observacion == null ? "" : h(observacion) %></textarea></div><div class="form-actions"><a class="btn btn-outline" href="<%=ctx%>/NetworkOperatorServlet?action=detalleIncidencia&amp;id=<%=incidencia.getIdIncidencia()%>">Cancelar</a><button class="btn btn-primary" type="submit">Guardar cambios</button></div></div><div id="noConfirmView" hidden><div class="page-head"><div><h1>Confirmar actualización</h1><div class="psub">Revisa la información antes de confirmar.</div></div></div><div class="card card-pad" style="max-width:720px"><div class="info-strip"><div class="ii">!</div><div><div class="it">CONFIRMAR OPERACIÓN</div><div class="id">La información se guardará al confirmar.</div></div></div><div id="noConfirmFields"></div><div class="form-actions"><button type="button" class="btn btn-outline" id="noBack">Volver a editar</button><button type="button" class="btn btn-primary" id="noSave">Confirmar</button></div></div></div></form></div><% } %><script>
 (function(){const form=document.querySelector('[data-confirm-form]');if(!form)return;let confirmed=false;
