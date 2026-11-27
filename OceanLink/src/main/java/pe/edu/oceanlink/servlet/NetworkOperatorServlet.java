@@ -203,9 +203,7 @@ public class NetworkOperatorServlet extends HttpServlet {
                 case "exito":
                     request.setAttribute(
                             "tipo", request.getParameter("tipo"));
-                    if ("restauracion".equals(request.getParameter("tipo"))) {
-                        request.setAttribute("idIncidencia", parseId(request.getParameter("id")));
-                    }
+                    request.setAttribute("idIncidencia", parseId(request.getParameter("id")));
 
                     forward(request, response, "/views/no-exito.jsp");
                     break;
