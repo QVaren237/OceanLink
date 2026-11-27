@@ -316,6 +316,8 @@
   .no-shell .pill-maintenance .dot{background:#8f7fc0}
   .no-shell .pill-info{background:var(--lilac);color:#5b4b8a}
   .no-shell .pill-info .dot{background:#8f7fc0}
+  .no-shell .pill-restaurado{background:#e0ecf8;color:#315c83}
+  .no-shell .pill-restaurado .dot{background:#537fa8}
   .no-shell .pill-neutral{background:#e7edf0;color:#6b7a90}
   .no-shell .pill-neutral .dot{background:#9aa8bc}
   .no-shell .pill-out{background:#f5dfe4;color:#a44e60}
@@ -880,6 +882,7 @@
   .estadisticas-filtros .field{flex:0 1 190px}
   .estadisticas-acciones{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .estadisticas-error{width:100%;color:var(--danger);font-size:13px;font-weight:700}
+  .reportes-filtros .estadisticas-error{margin-top:12px}
   .estadisticas-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
   .estadisticas-kpi{display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--teal)}
   .estadisticas-kpi:nth-child(even){border-top-color:#a498c7}

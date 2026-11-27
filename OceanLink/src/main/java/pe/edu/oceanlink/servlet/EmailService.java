@@ -1,4 +1,4 @@
-package pe.edu.oceanlink.service;
+package pe.edu.oceanlink.servlet;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;

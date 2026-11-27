@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.bean.Usuario;
-import pe.edu.oceanlink.util.SesionRegistro;
+import pe.edu.oceanlink.servlet.SesionRegistro;
 
 import java.io.IOException;
 

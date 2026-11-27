@@ -38,9 +38,9 @@
       <div class="grow"></div>
 
       <% if(!Boolean.TRUE.equals(request.getAttribute("ocultarPerfilMC"))){ %><div class="userpill" tabindex="0">
-      <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%=h(pe.edu.oceanlink.util.Vista.iniciales(session))%></div>
+      <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%=h(pe.edu.oceanlink.servlet.Vista.iniciales(session))%></div>
       <div class="uinfo">
-        <div class="un"><%=h(pe.edu.oceanlink.util.Vista.nombre(session))%></div>
+        <div class="un"><%=h(pe.edu.oceanlink.servlet.Vista.nombre(session))%></div>
         <div class="ur">Maintenance Coord.</div>
       </div>
       <span class="ucaret">▾</span>

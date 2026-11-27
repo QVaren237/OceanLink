@@ -133,14 +133,14 @@
 
             <div class="userpill" tabindex="0">
 
-                <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>>
-                    <%= pe.edu.oceanlink.util.Vista.iniciales(session) %>
+                <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>>
+                    <%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %>
                 </div>
 
                 <div class="uinfo">
 
                     <div class="un">
-                        <%= pe.edu.oceanlink.util.Vista.nombre(session) %>
+                        <%= pe.edu.oceanlink.servlet.Vista.nombre(session) %>
                     </div>
 
                     <div class="ur">

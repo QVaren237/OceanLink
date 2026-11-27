@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.dao.LoginDAO;
 import pe.edu.oceanlink.bean.Usuario;
-import pe.edu.oceanlink.util.SesionContador;
-import pe.edu.oceanlink.util.SesionRegistro;
+import pe.edu.oceanlink.servlet.SesionContador;
+import pe.edu.oceanlink.servlet.SesionRegistro;
 import pe.edu.oceanlink.dao.UsuarioDAO;
 import java.util.Base64;
 

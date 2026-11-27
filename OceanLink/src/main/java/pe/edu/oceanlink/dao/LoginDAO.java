@@ -1,7 +1,7 @@
 package pe.edu.oceanlink.dao;
 
 import pe.edu.oceanlink.bean.Usuario;
-import pe.edu.oceanlink.util.Seguridad;
+import pe.edu.oceanlink.dao.Seguridad;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -21,7 +21,7 @@
 <% Usuario perfilPlanner = (Usuario) request.getAttribute("perfilPlanner"); %>
 <div class="page-head"><div><h1>Mi perfil</h1><div class="psub">Información de tu cuenta y área de trabajo.</div></div></div>
 <div class="card card-pad planner-profile">
-    <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= h(request.getAttribute("inicialesPlanner")) %></div>
+    <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= h(request.getAttribute("inicialesPlanner")) %></div>
     <div><h2><%= h(request.getAttribute("nombrePlanner")) %></h2><p>Capacity Planner</p>
         <% if (perfilPlanner != null && perfilPlanner.getCorreo() != null) { %><p><%= h(perfilPlanner.getCorreo()) %></p><% } %>
     </div>

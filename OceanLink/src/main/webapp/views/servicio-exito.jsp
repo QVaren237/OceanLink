@@ -73,7 +73,7 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0" aria-label="Perfil de <%= escPerfilServicios(nombreServicios) %>">
-            <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
             <div class="uinfo"><div class="un"><%= escPerfilServicios(nombreServicios) %></div><div class="ur">Capacity Planner</div></div>
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">

@@ -23,24 +23,30 @@ public class SupervisorServlet extends HttpServlet {
             if ("/supervisor/reportes".equals(path)) {
                 String tipo = request.getParameter("tipo");
                 if (!"capacidad".equals(tipo) && !"servicios".equals(tipo)) tipo = "fallas";
-                java.time.LocalDate inicio, fin;
+                String fechaInicio = request.getParameter("inicio");
+                String fechaFin = request.getParameter("fin");
+                java.time.LocalDate inicio = null;
+                java.time.LocalDate fin = null;
+                String errorPeriodo = null;
                 try {
-                    String a = request.getParameter("inicio");
-                    String b = request.getParameter("fin");
-                    inicio = (a == null || a.isBlank()) ? null : java.time.LocalDate.parse(a);
-                    fin = (b == null || b.isBlank()) ? null : java.time.LocalDate.parse(b);
+                    inicio = leerFechaReporte(fechaInicio);
+                    fin = leerFechaReporte(fechaFin);
+                    if (inicio != null && fin != null && inicio.isAfter(fin)) {
+                        errorPeriodo = "La fecha de inicio debe ser anterior o igual a la fecha de fin.";
+                    }
                 } catch (java.time.format.DateTimeParseException e) {
-                    response.sendError(400, "Fecha inválida. Utiliza AAAA-MM-DD."); return;
+                    errorPeriodo = "Fecha inválida. Utiliza AAAA-MM-DD.";
                 }
-                if (inicio != null && fin != null && inicio.isAfter(fin)) {
-                    response.sendError(400, "La fecha inicial no puede superar la final."); return;
-                }
-                java.util.ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> filas =
-                    dao.listarReporte(tipo, inicio, fin);
+
                 request.setAttribute("tipoReporte", tipo);
-                request.setAttribute("fechaInicio", inicio == null ? "" : inicio.toString());
-                request.setAttribute("fechaFin", fin == null ? "" : fin.toString());
-                request.setAttribute("filasReporte", filas);
+                request.setAttribute("fechaInicio", fechaInicio == null || fechaInicio.isBlank() ? "" : fechaInicio);
+                request.setAttribute("fechaFin", fechaFin == null || fechaFin.isBlank() ? "" : fechaFin);
+                if (errorPeriodo == null) {
+                    request.setAttribute("filasReporte", dao.listarReporte(tipo, inicio, fin));
+                } else {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    request.setAttribute("errorPeriodo", errorPeriodo);
+                }
                 request.getRequestDispatcher("/views/supervisor-reportes.jsp").forward(request,response);
                 return;
             }
@@ -66,4 +72,13 @@ public class SupervisorServlet extends HttpServlet {
         }
     }
 
+    private java.time.LocalDate leerFechaReporte(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        if (!valor.matches("[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}")) {
+            throw new java.time.format.DateTimeParseException("Fecha fuera del formato esperado", valor, 0);
+        }
+        return java.time.LocalDate.parse(valor);
+    }
 }

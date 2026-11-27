@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.ArrayList,java.math.BigDecimal,java.math.RoundingMode,pe.edu.oceanlink.bean.CapacidadEnlace,pe.edu.oceanlink.bean.CapacidadServicio,pe.edu.oceanlink.bean.EvaluacionCapacidad,pe.edu.oceanlink.bean.SolicitudCapacidad,pe.edu.oceanlink.bean.Usuario,java.util.*" %>
+<%@ page import="java.time.format.DateTimeFormatter,java.util.ArrayList,java.math.BigDecimal,java.math.RoundingMode,pe.edu.oceanlink.bean.CapacidadEnlace,pe.edu.oceanlink.bean.CapacidadServicio,pe.edu.oceanlink.bean.EvaluacionCapacidad,pe.edu.oceanlink.bean.SolicitudCapacidad,pe.edu.oceanlink.bean.Usuario,java.util.*" %>
 <%!
+ private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
  private String h(Object v) { return v==null?"":v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); }
  private String numero(BigDecimal v) { return v==null?"Sin datos":v.stripTrailingZeros().toPlainString(); }
  private String capacidad(BigDecimal v) { return v==null?"Sin datos":numero(v)+" Gbps"; }
@@ -51,7 +52,7 @@ ArrayList<SolicitudCapacidad> solicitudes=(ArrayList<SolicitudCapacidad>)request
                             </tr>
                         </thead>
                         <tbody><% for(SolicitudCapacidad solicitud:solicitudes){ %><tr data-fila>
-<td data-sort="<%=h(solicitud.getCodigo())%>"><strong><%=h(solicitud.getCodigo())%></strong></td><td data-sort="<%=h(solicitud.getFechaSolicitud())%>"><%=h(solicitud.getFechaSolicitud())%></td>
+<td data-sort="<%=h(solicitud.getCodigo())%>"><strong><%=h(solicitud.getCodigo())%></strong></td><td data-sort="<%=h(solicitud.getFechaSolicitud())%>"><%= solicitud.getFechaSolicitud() == null ? "" : solicitud.getFechaSolicitud().toLocalDate().format(FORMATO_FECHA) %></td>
 <td data-sort="<%=h(solicitud.getCliente())%>"><%=h(solicitud.getCliente())%></td><td data-sort="<%=h(solicitud.getRuta())%>"><%=h(solicitud.getRuta())%></td>
 <td data-sort="<%=solicitud.getCapacidadSolicitada()%>"><strong><%=capacidad(BigDecimal.valueOf(solicitud.getCapacidadSolicitada()))%></strong></td>
 <td data-sort="<%=h(solicitud.getEstado())%>"><span class="pill <%="Rechazada".equals(solicitud.getEstado())?"pill-crit":Arrays.asList("Aprobada","Reservada","Activa","Provisionada").contains(solicitud.getEstado())?"pill-ok":"pill-warn"%>"><span class="dot"></span><%=h(solicitud.getEstado())%></span></td>

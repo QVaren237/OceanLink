@@ -10,7 +10,7 @@ import jakarta.servlet.http.Part;
 
 import pe.edu.oceanlink.bean.Usuario;
 import pe.edu.oceanlink.dao.UsuarioDAO;
-import pe.edu.oceanlink.util.SesionRegistro;
+import pe.edu.oceanlink.servlet.SesionRegistro;
 
 import java.io.IOException;
 import java.io.InputStream;

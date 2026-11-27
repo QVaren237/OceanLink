@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import pe.edu.oceanlink.dao.RolDAO;
 import pe.edu.oceanlink.dao.UsuarioDAO;
-import pe.edu.oceanlink.util.SesionContador;
+import pe.edu.oceanlink.servlet.SesionContador;
 
 import java.io.IOException;
 

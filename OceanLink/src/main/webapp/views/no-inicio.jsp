@@ -77,7 +77,7 @@
       <div class="crumb">OceanLink / Network Operator</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%=h(iniciales)%></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%=h(iniciales)%></div>
         <div class="uinfo"><div class="un"><%=h(nombre)%></div><div class="ur">Network Operator</div></div>
         <span class="ucaret">▾</span>
 

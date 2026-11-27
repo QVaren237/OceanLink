@@ -1,4 +1,4 @@
-package pe.edu.oceanlink.util;
+package pe.edu.oceanlink.dao;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

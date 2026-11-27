@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.bean.SupervisorReporteFila;
 import pe.edu.oceanlink.dao.SupervisorDAO;
 
@@ -50,22 +51,24 @@ public class SupervisorCsvServlet extends HttpServlet {
             throw new ServletException("Error al consultar los datos del reporte CSV.", ex);
         }
 
-        String nombre;
+        String prefijo;
         String[] cabeceras;
         switch (tipo) {
             case "capacidad":
-                nombre = "uso-capacidad.csv";
+                prefijo = "uso-capacidad";
                 cabeceras = new String[]{"Segmento", "Fecha Registro", "Capacidad Total", "Capacidad Disponible", "Utilización"};
                 break;
             case "servicios":
-                nombre = "servicios-por-cliente.csv";
+                prefijo = "servicios-por-cliente";
                 cabeceras = new String[]{"Cliente", "Fecha Activación", "Servicio", "Ruta", "Capacidad Contratada"};
                 break;
             default:
-                nombre = "historico-fallas.csv";
+                prefijo = "historico-fallas";
                 cabeceras = new String[]{"ID Evento", "Fecha Resolución", "Tramo", "Impacto Potencial", "Estado Final"};
         }
 
+        int numero = siguienteNumero(request.getSession(), tipo);
+        String nombre = prefijo + "-" + numero + ".csv";
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
@@ -82,6 +85,16 @@ public class SupervisorCsvServlet extends HttpServlet {
         writer.flush();
     }
 
+    private static int siguienteNumero(HttpSession sesion, String tipo) {
+        String atributo = "supervisor.csv.descargas." + tipo;
+        synchronized (sesion) {
+            Integer anterior = (Integer) sesion.getAttribute(atributo);
+            int numero = anterior == null ? 1 : anterior + 1;
+            sesion.setAttribute(atributo, numero);
+            return numero;
+        }
+    }
+
     private static LocalDate leerFecha(String valor) {
         return valor == null || valor.isBlank() ? null : LocalDate.parse(valor);
     }
@@ -93,12 +106,15 @@ public class SupervisorCsvServlet extends HttpServlet {
         if (!sinEspacios.isEmpty() && "=+-@".indexOf(sinEspacios.charAt(0)) >= 0) {
             valor = "'" + valor;
         }
-        return "\"" + valor.replace("\"", "\"\"") + "\"";
+        if (valor.indexOf(';') >= 0 || valor.indexOf('"') >= 0) {
+            return "\"" + valor.replace("\"", "\"\"") + "\"";
+        }
+        return valor;
     }
 
     private static void escribirFila(PrintWriter writer, String[] campos) {
         for (int i = 0; i < campos.length; i++) {
-            if (i > 0) writer.print(',');
+            if (i > 0) writer.print(';');
             writer.print(escapar(campos[i]));
         }
         writer.print("\r\n");

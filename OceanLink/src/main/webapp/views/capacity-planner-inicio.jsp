@@ -63,12 +63,12 @@
     </aside>
     <main class="main">
         <div class="topbar">
-            <div class="crumb">OceanLink / Capacity Planner<%= "rutas".equals(seccionPlanner) ? " / Rutas" : "perfil".equals(seccionPlanner) ? " / Mi perfil" : "" %></div>
+            <div class="crumb">OceanLink / Capacity Planner<%= "perfil".equals(seccionPlanner) ? " / Mi perfil" : "" %></div>
             <div class="grow"></div>
             <% if (!"sesion".equals(seccionPlanner)) { %>
-            <div class="userpill" tabindex="0" aria-label="Perfil de <%= h(pe.edu.oceanlink.util.Vista.nombre(session)) %>">
-                <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= h(pe.edu.oceanlink.util.Vista.iniciales(session)) %></div>
-                <div class="uinfo"><div class="un"><%= h(pe.edu.oceanlink.util.Vista.nombre(session)) %></div><div class="ur">Capacity Planner</div></div>
+            <div class="userpill" tabindex="0" aria-label="Perfil de <%= h(pe.edu.oceanlink.servlet.Vista.nombre(session)) %>">
+                <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= h(pe.edu.oceanlink.servlet.Vista.iniciales(session)) %></div>
+                <div class="uinfo"><div class="un"><%= h(pe.edu.oceanlink.servlet.Vista.nombre(session)) %></div><div class="ur">Capacity Planner</div></div>
                 <span class="ucaret" aria-hidden="true">▾</span>
                 <div class="usermenu">
 

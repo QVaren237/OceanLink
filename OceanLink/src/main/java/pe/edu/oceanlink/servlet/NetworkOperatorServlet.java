@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import pe.edu.oceanlink.bean.Incidencia;
 import pe.edu.oceanlink.bean.SolicitudCapacidad;
@@ -26,6 +27,21 @@ import java.util.UUID;
 @WebServlet(name = "NetworkOperatorServlet",
         value = "/NetworkOperatorServlet")
 public class NetworkOperatorServlet extends HttpServlet {
+
+    private static final String BORRADOR_RESTAURACION = "borradorRestauracion";
+
+    private static class BorradorRestauracion {
+        final int id;
+        final String resultado;
+        final String observaciones;
+        final String codigo = UUID.randomUUID().toString();
+
+        BorradorRestauracion(int id, String resultado, String observaciones) {
+            this.id = id;
+            this.resultado = resultado;
+            this.observaciones = observaciones;
+        }
+    }
 
     private final IncidenciaDAO incidenciaDAO = new IncidenciaDAO();
     private final ObservacionIncidenciaDAO eventoDAO =
@@ -187,6 +203,9 @@ public class NetworkOperatorServlet extends HttpServlet {
                 case "exito":
                     request.setAttribute(
                             "tipo", request.getParameter("tipo"));
+                    if ("restauracion".equals(request.getParameter("tipo"))) {
+                        request.setAttribute("idIncidencia", parseId(request.getParameter("id")));
+                    }
 
                     forward(request, response, "/views/no-exito.jsp");
                     break;
@@ -326,10 +345,18 @@ public class NetworkOperatorServlet extends HttpServlet {
 
                 int id = parseId(request.getParameter("id"));
                 String estado = request.getParameter("nuevoEstado");
+                String observacion = request.getParameter("observacion");
 
-                if (estado == null || estado.trim().isEmpty()) {
-                    request.setAttribute(
-                            "error", "El estado es obligatorio.");
+                try {
+                    if (estado == null || estado.trim().isEmpty()) {
+                        throw new IllegalArgumentException("El estado es obligatorio.");
+                    }
+                    incidenciaDAO.actualizarEstado(id, estado, observacion);
+                } catch (IllegalArgumentException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    request.setAttribute("error", e.getMessage());
+                    request.setAttribute("nuevoEstado", estado);
+                    request.setAttribute("observacion", observacion);
 
                     cargarDetalle(request, id);
 
@@ -338,9 +365,6 @@ public class NetworkOperatorServlet extends HttpServlet {
                     return;
                 }
 
-                incidenciaDAO.actualizarEstado(
-                        id, estado, request.getParameter("observacion"));
-
                 response.sendRedirect(
                         request.getContextPath()
                                 + "/NetworkOperatorServlet?action=exito"
@@ -348,49 +372,9 @@ public class NetworkOperatorServlet extends HttpServlet {
                 return;
             }
 
-            if ("registrarRestauracion".equals(action)) {
-
-                int id = parseId(request.getParameter("id"));
-                cargarDetalle(request,id);
-                if(!Boolean.TRUE.equals(request.getAttribute("restauracionHabilitada"))){
-                    response.setStatus(400);
-                    request.setAttribute("error","La incidencia debe estar abierta y sus mantenimientos correctivos finalizados con resultado registrado antes de verificar la restauración.");
-                    forward(request,response,"/views/no-incidencia-restauracion.jsp");return;
-                }
-                String resultado = request.getParameter("resultado");
-                String detalle = trim(
-                        request.getParameter("observaciones"));
-
-                if (resultado == null
-                        || resultado.isEmpty()
-                        || detalle.isEmpty()) {
-
-                    request.setAttribute(
-                            "error",
-                            "Completa el resultado y las observaciones.");
-
-                    cargarDetalle(request, id);
-
-                    forward(request, response,
-                            "/views/no-incidencia-restauracion.jsp");
-                    return;
-                }
-
-                String nuevoEstado =
-                        "Servicio restablecido".equals(resultado)
-                                ? "Servicio restaurado" : "En análisis";
-
-                incidenciaDAO.actualizarEstado(
-                        id, nuevoEstado,
-                        "Restauración: " + resultado + ". " + detalle);
-
-                eventoDAO.registrar(
-                        id, "RESTAURACION", resultado + ". " + detalle);
-
-                response.sendRedirect(
-                        request.getContextPath()
-                                + "/NetworkOperatorServlet?action=exito"
-                                + "&tipo=restauracion&id=" + id);
+            if ("revisarRestauracion".equals(action) || "editarRestauracion".equals(action)
+                    || "registrarRestauracion".equals(action)) {
+                procesarRestauracion(request, response, action);
                 return;
             }
 
@@ -493,12 +477,89 @@ public class NetworkOperatorServlet extends HttpServlet {
         }
     }
 
+    private void procesarRestauracion(HttpServletRequest request, HttpServletResponse response,
+                                     String action) throws ServletException, IOException, java.sql.SQLException {
+        int id = parseId(request.getParameter("id"));
+        HttpSession sesion = request.getSession();
+        String vistaFormulario = "/views/no-incidencia-restauracion.jsp";
+        cargarDetalle(request, id);
+
+        String resultado = request.getParameter("resultado");
+        String observaciones = trim(request.getParameter("observaciones"));
+
+        try {
+            if (!"revisarRestauracion".equals(action)) {
+                String codigo = request.getParameter("codigoConfirmacion");
+                BorradorRestauracion borrador;
+                synchronized (sesion) {
+                    borrador = (BorradorRestauracion) sesion.getAttribute(BORRADOR_RESTAURACION);
+                    if (borrador == null || borrador.id != id || !borrador.codigo.equals(codigo)) {
+                        throw new IllegalArgumentException("Vuelve a ingresar los datos para confirmar la restauración.");
+                    }
+                    sesion.removeAttribute(BORRADOR_RESTAURACION);
+                }
+                resultado = borrador.resultado;
+                observaciones = borrador.observaciones;
+            }
+
+            if ("editarRestauracion".equals(action)) {
+                request.setAttribute("resultado", resultado);
+                request.setAttribute("observaciones", observaciones);
+                forward(request, response, vistaFormulario);
+                return;
+            }
+
+            String motivoRestauracion = (String) request.getAttribute("motivoRestauracion");
+            if (motivoRestauracion != null) {
+                throw new IllegalArgumentException(motivoRestauracion);
+            }
+            if ("revisarRestauracion".equals(action)) {
+                if (!"Servicio restablecido".equals(resultado) && !"Restauración parcial".equals(resultado)) {
+                    throw new IllegalArgumentException("Selecciona un resultado de restauración válido.");
+                }
+                if (observaciones.isEmpty()) {
+                    throw new IllegalArgumentException("Completa las observaciones de la restauración.");
+                }
+
+                BorradorRestauracion borrador = new BorradorRestauracion(id, resultado, observaciones);
+                synchronized (sesion) {
+                    sesion.setAttribute(BORRADOR_RESTAURACION, borrador);
+                }
+                request.setAttribute("resultado", resultado);
+                request.setAttribute("observaciones", observaciones);
+                request.setAttribute("codigoConfirmacion", borrador.codigo);
+                forward(request, response, "/views/no-incidencia-restauracion-confirmar.jsp");
+                return;
+            }
+
+            incidenciaDAO.registrarRestauracion(id, resultado, observaciones);
+        } catch (IllegalArgumentException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            request.setAttribute("error", e.getMessage());
+            request.setAttribute("resultado", resultado);
+            request.setAttribute("observaciones", observaciones);
+            forward(request, response, vistaFormulario);
+            return;
+        }
+
+        response.sendRedirect(request.getContextPath()
+                + "/NetworkOperatorServlet?action=exito&tipo=restauracion&id=" + id);
+    }
+
     private void cargarDetalle(HttpServletRequest request, int id) throws java.sql.SQLException {
-        Incidencia detalleRestauracion = incidenciaDAO.obtener(id);
-        boolean abiertaRestauracion = detalleRestauracion != null
-                && !java.util.Arrays.asList("Cerrada", "Servicio restaurado").contains(detalleRestauracion.getEstado());
-        request.setAttribute("restauracionHabilitada", abiertaRestauracion && incidenciaDAO.puedeRestaurar(id));
-        request.setAttribute("incidencia", incidenciaDAO.obtener(id));
+        Incidencia incidencia = incidenciaDAO.obtener(id);
+        String motivoRestauracion = null;
+        if (incidencia == null) {
+            motivoRestauracion = "Incidencia no encontrada.";
+        } else if ("Cerrada".equals(incidencia.getEstado())) {
+            motivoRestauracion = "La incidencia está cerrada.";
+        } else if ("Servicio restaurado".equals(incidencia.getEstado())) {
+            motivoRestauracion = "La incidencia ya figura como servicio restaurado.";
+        } else if (!incidenciaDAO.puedeRestaurar(id)) {
+            motivoRestauracion = "Para registrar la restauración, deben finalizar los mantenimientos correctivos de todos los segmentos afectados y registrar sus resultados.";
+        }
+        request.setAttribute("motivoRestauracion", motivoRestauracion);
+        request.setAttribute("incidencia", incidencia);
         request.setAttribute(
                 "eventos", eventoDAO.listarPorIncidencia(id));
         request.setAttribute("serviciosAfectados", incidenciaDAO.listarServiciosAfectados(id));

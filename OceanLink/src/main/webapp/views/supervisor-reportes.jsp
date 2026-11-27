@@ -5,7 +5,8 @@
 <%
  @SuppressWarnings("unchecked")
  java.util.ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> filas=(java.util.ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila>) request.getAttribute("filasReporte");
- if(filas==null){response.sendRedirect(request.getContextPath()+"/supervisor/reportes");return;}
+ String error = (String) request.getAttribute("errorPeriodo");
+ if(filas==null && error==null){response.sendRedirect(request.getContextPath()+"/supervisor/reportes");return;}
  String tipo=(String)request.getAttribute("tipoReporte");
  String inicio=(String)request.getAttribute("fechaInicio");
  String fin=(String)request.getAttribute("fechaFin");
@@ -17,7 +18,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reportes Históricos · OceanLink</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor-reportes">
 </head>
 <body>
 <div class="shell">
@@ -29,8 +30,8 @@
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"<%= pe.edu.oceanlink.util.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
-        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
+        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
         <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
@@ -43,7 +44,7 @@
         </div>
       </div>
 
-      <form method="get" action="<%=request.getContextPath()%>/supervisor/reportes" class="card card-pad" style="margin-bottom: 20px;">
+      <form method="get" action="<%=request.getContextPath()%>/supervisor/reportes" class="card card-pad reportes-filtros" style="margin-bottom: 20px;">
         <div class="form-grid">
           <div class="field"><label for="filterType">Tipo de Informe</label>
             <select id="filterType" name="tipo" class="input">
@@ -56,7 +57,11 @@
           <div class="field"><label for="filterEndDate">Fecha de Fin</label><input type="date" id="filterEndDate" name="fin" class="input" value="<%=esc(fin)%>"></div>
           <div class="field" style="display:flex;align-items:flex-end;"><button type="submit" id="btnFilter" class="btn btn-outline" style="width:100%">Filtrar Datos</button></div>
         </div>
+        <% if (error != null) { %>
+          <p class="estadisticas-error" role="alert"><%= esc(error) %></p>
+        <% } %>
       </form>
+      <% if (filas != null) { %>
       <div style="display:flex;justify-content:flex-end;margin-bottom:15px">
         <a class="btn btn-primary" title="Exportar y Descargar CSV" href="<%=request.getContextPath()%>/supervisor/exportar-csv?tipo=<%=tipo%>&amp;inicio=<%=inicio%>&amp;fin=<%=fin%>">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar CSV
@@ -77,12 +82,14 @@
         </tbody></table></div>
         <div class="pagination" id="reportPagination"></div>
       </div>
+      <% } %>
 
     </div>
     <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
   </div>
 </div>
 
+<% if (filas != null) { %>
 <script>
 (function(){
   const tbody=document.getElementById('reportBody'),pages=document.getElementById('reportPagination');
@@ -119,4 +126,5 @@
   paint();
 })();
 </script>
+<% } %>
 </body></html>

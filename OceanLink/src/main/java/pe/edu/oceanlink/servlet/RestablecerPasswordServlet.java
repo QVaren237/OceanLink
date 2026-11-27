@@ -5,7 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import pe.edu.oceanlink.service.RecuperacionPasswordService;
+import pe.edu.oceanlink.servlet.RecuperacionPasswordService;
 
 import java.io.IOException;
 

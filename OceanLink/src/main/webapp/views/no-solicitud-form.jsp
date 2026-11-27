@@ -55,7 +55,10 @@ form.addEventListener('submit',function(e){if(confirmed)return;e.preventDefault(
  fields.replaceChildren();form.querySelectorAll('.field, .data-list > div').forEach(function(field){
  const controls=Array.from(field.querySelectorAll('input:not([type="hidden"]),textarea,select')),readonly=field.querySelector('.ro-field');if(!controls.length&&!readonly)return;
  const label=field.querySelector('label');let title=label?label.textContent.replace('*','').trim():field.previousElementSibling?field.previousElementSibling.textContent.trim():'';
- let values=controls.filter(c=>!c.disabled&&(c.type!=='checkbox'||c.checked)).map(c=>c.type==='checkbox'?c.parentElement.textContent.trim():c.tagName==='SELECT'?(c.selectedOptions[0]?c.selectedOptions[0].textContent:''):c.value).filter(Boolean);
+ let values=controls.filter(c=>!c.disabled&&(c.type!=='checkbox'||c.checked)).map(c=>{
+  if(c.type==='date') return c.value.split('-').reverse().join('/');
+  return c.type==='checkbox'?c.parentElement.textContent.trim():c.tagName==='SELECT'?(c.selectedOptions[0]?c.selectedOptions[0].textContent:''):c.value;
+ }).filter(Boolean);
  if(controls.includes(motivo)){title='Motivo';values=[motivo.value==='__otro__'?personalizado.value.trim():motivo.selectedOptions[0].textContent];}if(!values.length&&readonly)values=[readonly.textContent.trim()];if(!values.length)return;const item=document.createElement('div');item.className='field';const l=document.createElement('label');l.textContent=title;const v=document.createElement('div');v.className='ro-field';v.textContent=values.join(' · ');item.append(l,v);fields.append(item);
  });original.hidden=true;review.hidden=false;const heading=document.querySelector('.content>.page-head');if(heading)heading.hidden=true;const card=form.closest('.card')||form;if(card)card.style.maxWidth='760px';window.scrollTo(0,0);});
  document.getElementById('noBack').onclick=()=>{review.hidden=true;original.hidden=false;const heading=document.querySelector('.content>.page-head');if(heading)heading.hidden=false;const card=form.closest('.card')||form;if(card)card.style.maxWidth='';};document.getElementById('noSave').onclick=()=>{confirmed=true;form.requestSubmit();};

@@ -1,4 +1,4 @@
-package pe.edu.oceanlink.util;
+package pe.edu.oceanlink.servlet;
 
 public class Validacion {
 

@@ -1,6 +1,6 @@
 package pe.edu.oceanlink.servlet;
 
-import pe.edu.oceanlink.service.EmailService;
+import pe.edu.oceanlink.servlet.EmailService;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
-import pe.edu.oceanlink.util.Validacion;
+import pe.edu.oceanlink.servlet.Validacion;
 
 @WebServlet(name = "UsuarioServlet", value = "/UsuarioServlet")
 public class UsuarioServlet extends HttpServlet {

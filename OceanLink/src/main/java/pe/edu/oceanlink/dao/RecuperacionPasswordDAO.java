@@ -125,7 +125,7 @@ public class RecuperacionPasswordDAO extends BaseDAO {
 
             try {
                 String passwordHash =
-                        pe.edu.oceanlink.util.Seguridad.sha256(nuevaPassword);
+                        pe.edu.oceanlink.dao.Seguridad.sha256(nuevaPassword);
 
                 int filasActualizadas;
 

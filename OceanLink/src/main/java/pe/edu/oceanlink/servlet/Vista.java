@@ -1,9 +1,23 @@
-package pe.edu.oceanlink.util;
+package pe.edu.oceanlink.servlet;
 
 import jakarta.servlet.http.HttpSession;
 import pe.edu.oceanlink.bean.Usuario;
 
 public class Vista {
+
+    public static String claseEstadoIncidencia(String estado) {
+        if (estado == null) {
+            return "pill-neutral";
+        }
+        switch (estado) {
+            case "Detectada": return "pill-crit";
+            case "En análisis": return "pill-ok";
+            case "Reparación programada": return "pill-info";
+            case "En reparación": return "pill-warn";
+            case "Servicio restaurado": return "pill-restaurado";
+            default: return "pill-neutral";
+        }
+    }
 
     private static Usuario u(HttpSession s) {
         Object o = (s == null) ? null : s.getAttribute("usuario");

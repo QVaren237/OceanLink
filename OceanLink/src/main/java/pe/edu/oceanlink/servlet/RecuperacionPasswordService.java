@@ -1,7 +1,7 @@
-package pe.edu.oceanlink.service;
+package pe.edu.oceanlink.servlet;
 
 import pe.edu.oceanlink.dao.RecuperacionPasswordDAO;
-import pe.edu.oceanlink.util.Seguridad;
+import pe.edu.oceanlink.dao.Seguridad;
 
 import java.security.SecureRandom;
 import java.sql.Timestamp;
