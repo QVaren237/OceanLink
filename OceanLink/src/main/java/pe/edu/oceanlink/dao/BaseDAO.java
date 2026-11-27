@@ -15,7 +15,7 @@ public abstract class BaseDAO {
         }
 
         String user = "root";
-        String pass = "070501";
+        String pass = "root";
         String url = "jdbc:mysql://localhost:3306/oceanlink?serverTimezone=America/Lima";
 
         return DriverManager.getConnection(url, user, pass);
