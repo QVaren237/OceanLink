@@ -62,7 +62,7 @@ public class LoginServlet extends HttpServlet {
 
         if (!usuario.isCuentaActivada()) {
             request.setAttribute("error",
-                    "Tu cuenta todavía no está activada. Revisa tu correo electrónico y utiliza el enlace de activación.");
+                    "Tu cuenta todavía no está activada. Revisa tu correo electrónico y utiliza el enlace de activación.<br>Si necesitas ayuda, escribe al administrador (adrian.angles@oceanlink.test).");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
