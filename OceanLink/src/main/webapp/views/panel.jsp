@@ -15,7 +15,7 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
-          href="<%= request.getContextPath() %>/css/styles.css">
+          href="<%= request.getContextPath() %>/css/styles.css?v=3">
 </head>
 
 <body>
@@ -373,5 +373,6 @@
 
 </div>
 
+<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

@@ -47,6 +47,7 @@ public class SesionFilter implements Filter {
                         path.equals("/restablecer-password.jsp") ||
 
                         path.endsWith("sesion-cerrada.jsp") ||
+                        path.startsWith("/js/") ||
                         path.startsWith("/css/") ||
                         path.startsWith("/assets/");
 

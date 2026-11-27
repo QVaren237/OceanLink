@@ -3,5 +3,6 @@
         <footer class="appfoot"><span>OceanLink · Centro de operaciones</span></footer>
     </main>
 </div>
+<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

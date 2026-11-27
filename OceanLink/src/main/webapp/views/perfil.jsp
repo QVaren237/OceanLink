@@ -71,9 +71,9 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
-          href="<%=ctx%>/css/styles.css">
+          href="<%=ctx%>/css/styles.css?v=3">
     <style>
-      .err-msg{display:none;color:#bd586d;font-size:10.5px;margin-top:5px;font-weight:600}
+      .err-msg{display:none;color:#bd586d;font-size:10.5px;margin-top:4px;font-weight:600}
       .input.invalid,.password-input.invalid{border-color:#c0334a}
     </style>
 </head>
@@ -356,7 +356,7 @@
 
     (function(){
       var form = document.querySelector(".profile-edit-form");
-      function cont(input){ return input.closest(".field-label") || input.parentNode; }
+      function cont(input){ var p=input.parentNode; return (p && p.classList && p.classList.contains("password-field")) ? p : input; }
       function setErr(input,msg){
         input.classList.add("invalid");
         var c = cont(input), e = c.nextElementSibling;

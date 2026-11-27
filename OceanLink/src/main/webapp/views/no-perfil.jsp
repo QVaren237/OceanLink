@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%=ctx%>/css/styles.css">
+<link rel="stylesheet" href="<%=ctx%>/css/styles.css?v=3">
 </head>
 <body class="no-shell profile-edit-page">
 <main class="profile-edit-main">
@@ -102,5 +102,6 @@ const archivo=document.getElementById('fotoArchivo'),vista=document.getElementBy
 archivo.onchange=()=>{const f=archivo.files[0];if(!f)return;if(f.size>2097152||!['image/jpeg','image/png'].includes(f.type)){archivo.value='';alert('Selecciona una imagen JPG o PNG de hasta 2 MB.');return;}if(preview)URL.revokeObjectURL(preview);preview=URL.createObjectURL(f);vista.src=preview;vista.hidden=false;iniciales.hidden=true;document.getElementById('quitarFoto').value='false';};
 document.getElementById('quitarImagen').onclick=()=>{archivo.value='';vista.hidden=true;iniciales.hidden=false;document.getElementById('quitarFoto').value='true';};
 document.querySelector('form').addEventListener('submit',e=>{if(document.getElementById('new-password').value!==document.getElementById('confirm-password').value){e.preventDefault();alert('Las contraseñas nuevas no coinciden.');}});
-</script></body>
+</script><script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
+</body>
 </html>

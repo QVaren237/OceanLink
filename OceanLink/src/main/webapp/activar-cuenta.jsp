@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Activar cuenta · OceanLink</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=3">
 </head>
 <body>
 
@@ -100,5 +100,6 @@
     </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

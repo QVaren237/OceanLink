@@ -66,7 +66,7 @@
   .input::placeholder{color:var(--faint)}
   .input:focus{outline:none;border-color:#6bbab6;box-shadow:0 0 0 3px rgba(11,154,161,.10)}
   .input.bad{border-color:#dc8292}
-  .err{color:#bd586d;font-size:10.5px;font-weight:600;margin-top:5px}
+  .err{color:#bd586d;font-size:10.5px;font-weight:600;margin-top:4px}
   .hint{color:var(--faint);font-size:10px;margin-top:5px}
   .row-between{display:flex;justify-content:space-between;align-items:center;margin:-2px 0 18px}
   .foot-note{margin-top:18px;font-size:10.5px;color:var(--faint);text-align:center;line-height:1.7}
@@ -211,7 +211,29 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 
   @media(max-width:760px){
-    .side{position:fixed;left:-260px;z-index:40;transition:left .2s} .side.open{left:0}
+    .shell{flex-direction:column}
+    .side{position:static;width:100%;height:auto;flex-direction:row;align-items:center;gap:8px;padding:8px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,.9);overflow-x:auto}
+    .side .brand-side,.side .side-foot{display:none}
+    .nav-sec{flex-direction:row;gap:5px;flex:1 1 auto;overflow-x:auto}
+    .nav-sec .nav-label{display:none}
+    .nav-item{flex:0 0 auto;width:auto;white-space:nowrap;padding:8px 11px;font-size:11.5px;gap:8px}
+    .nav-item svg{width:15px;height:15px}
+    .topbar{padding:14px 16px}
+    .content{padding:18px 16px 28px;gap:14px}
+    .page-head h1{font-size:24px}
+    .kpis{grid-template-columns:1fr 1fr;gap:10px}
+    .kpi{padding:14px 13px}
+    .kpi .kv{font-size:23px}
+    .kpi .kl{margin-top:5px;font-size:10px}
+    .kpi .kbadge{font-size:8px;padding:3px 7px}
+    .card-head{padding:15px 16px}
+    thead th,tbody td{padding:11px 9px}
+    thead th{font-size:8.5px}
+    tbody td{font-size:11px}
+    .u-av{width:30px;height:30px}
+    .u-cell{gap:9px}
+    .u-mail{font-size:9px}
+    .pill{padding:4px 9px;font-size:9.5px}
     .search{display:none} .userpill .un,.userpill .ur{display:none}
   }
   @media(prefers-reduced-motion:reduce){&, *{animation:none!important;transition:none!important}}
