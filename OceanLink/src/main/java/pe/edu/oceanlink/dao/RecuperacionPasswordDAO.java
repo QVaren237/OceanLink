@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 public class RecuperacionPasswordDAO extends BaseDAO {
 
@@ -29,8 +28,7 @@ public class RecuperacionPasswordDAO extends BaseDAO {
         return null;
     }
 
-    public void guardarToken(int idUsuario, String tokenHash,
-                             Timestamp fechaExpiracion)
+    public void guardarToken(int idUsuario, String tokenHash)
             throws SQLException {
 
         String sqlDesactivar =
@@ -41,7 +39,7 @@ public class RecuperacionPasswordDAO extends BaseDAO {
         String sqlInsertar =
                 "INSERT INTO recuperacion_password "
                         + "(idUsuario, tokenHash, fechaExpiracion, usado) "
-                        + "VALUES (?, ?, ?, FALSE)";
+                        + "VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), FALSE)";
 
         try (Connection conn = getConnection()) {
 
@@ -60,7 +58,6 @@ public class RecuperacionPasswordDAO extends BaseDAO {
 
                     ps.setInt(1, idUsuario);
                     ps.setString(2, tokenHash);
-                    ps.setTimestamp(3, fechaExpiracion);
                     ps.executeUpdate();
                 }
 

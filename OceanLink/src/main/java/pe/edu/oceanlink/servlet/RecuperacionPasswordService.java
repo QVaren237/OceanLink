@@ -4,8 +4,6 @@ import pe.edu.oceanlink.dao.RecuperacionPasswordDAO;
 import pe.edu.oceanlink.dao.Seguridad;
 
 import java.security.SecureRandom;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Base64;
 
 public class RecuperacionPasswordService {
@@ -38,15 +36,7 @@ public class RecuperacionPasswordService {
 
         String tokenHash = Seguridad.sha256(token);
 
-        Timestamp expiracion = Timestamp.from(
-                Instant.now().plusSeconds(30 * 60)
-        );
-
-        recuperacionDAO.guardarToken(
-                idUsuario,
-                tokenHash,
-                expiracion
-        );
+        recuperacionDAO.guardarToken(idUsuario, tokenHash);
 
         String enlace = urlRecuperacion + "?token=" + token;
 
