@@ -1,3 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
-</div><footer class="appfoot"><span>OceanLink · Centro de operaciones</span></footer></div></div><script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
-</body></html>
+</div>
+<footer class="appfoot"><span>OceanLink · Centro de operaciones</span></footer>
+</div>
+</div>
+<% if (!Boolean.TRUE.equals(request.getAttribute("mcValidacionNativa"))) { %>
+    <script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
+<% } %>
+</body>
+</html>

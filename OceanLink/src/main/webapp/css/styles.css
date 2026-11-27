@@ -334,6 +334,46 @@
   .data-list .data-value{font-size:13px;font-weight:600}
   .data-list .data-label:nth-child(1),.data-list .data-value:nth-child(2){border-top:none}
 
+  .mc-detalle{display:grid;gap:18px;min-width:0}
+  .mc-detalle-volver{justify-self:start}
+  .mc-detalle-encabezado{align-items:center;justify-content:space-between}
+  .mc-detalle-titulo{flex:1 1 320px;min-width:0;overflow-wrap:anywhere}
+  .mc-detalle-acciones{display:flex;flex-wrap:wrap;gap:9px}
+  .mc-detalle-acciones button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+  .mc-detalle-acciones button:disabled:hover{background:var(--teal)}
+  .mc-detalle-grid{
+    display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);
+    align-items:start;gap:18px;
+  }
+  .mc-detalle-columna{display:grid;gap:18px;min-width:0}
+  .mc-detalle .card{min-width:0}
+  .mc-detalle .card-head{justify-content:space-between;flex-wrap:wrap}
+  .mc-detalle .card-head h2{font-size:15px;font-weight:800}
+  .mc-detalle .data-list{margin:0;grid-template-columns:minmax(125px,36%) minmax(0,1fr)}
+  .mc-detalle .data-value{overflow-wrap:anywhere}
+  .mc-detalle-multilinea{white-space:pre-wrap;overflow-wrap:anywhere}
+  .mc-detalle-form{border-bottom:1px solid var(--line)}
+  .mc-detalle-actividad{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px}
+  .mc-detalle-form .field{margin-bottom:0}
+  .mc-detalle-form .mc-responsable{margin-top:14px}
+  .mc-detalle-actividad .btn{min-height:40px}
+  .mc-detalle-eventos{list-style:none;padding:0 22px;font-size:12px;line-height:1.55}
+  .mc-detalle-eventos li{padding:13px 0;border-bottom:1px solid var(--line)}
+  .mc-detalle-eventos li:last-child{border-bottom:none}
+  .mc-detalle-evento-meta{color:#49696b;font-size:10.5px;font-weight:800;margin-bottom:4px}
+  .mc-detalle-nota{color:#49696b;font-size:12px;line-height:1.55;border-bottom:1px solid var(--line)}
+  .mc-detalle-vacio{color:#49696b}
+  .mc-detalle th:last-child,.mc-detalle td:last-child:not([colspan]){white-space:nowrap}
+  @media(max-width:1100px){
+    .mc-detalle-grid{grid-template-columns:minmax(0,1fr)}
+  }
+  @media(max-width:520px){
+    .mc-detalle .data-list,.mc-detalle-actividad{grid-template-columns:minmax(0,1fr)}
+    .mc-detalle .data-list .data-label{padding-bottom:3px}
+    .mc-detalle .data-list .data-value{border-top:0;padding-top:0}
+    .mc-detalle-actividad .btn{justify-self:start}
+  }
+
   .no-shell .pill-maintenance{background:var(--lilac);color:#5b4b8a}
   .no-shell .pill-maintenance .dot{background:#8f7fc0}
   .no-shell .pill-info{background:var(--lilac);color:#5b4b8a}
