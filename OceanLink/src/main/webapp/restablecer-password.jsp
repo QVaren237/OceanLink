@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
@@ -77,7 +76,7 @@
 
     <p>Ingresa tu nueva contraseña.</p>
 
-    <form action="${pageContext.request.contextPath}/RestablecerPasswordServlet"
+    <form novalidate action="${pageContext.request.contextPath}/RestablecerPasswordServlet"
           method="post">
 
         <input type="hidden" name="token"

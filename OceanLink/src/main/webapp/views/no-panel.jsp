@@ -45,7 +45,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=ctx%>/css/styles.css">
+  <link rel="stylesheet" href="<%=ctx%>/css/styles.css?v=3">
 </head>
 <body>
 <div class="shell no-shell">
@@ -81,11 +81,11 @@
       <div class="crumb">OceanLink / Network Operator</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"><%=h(iniciales)%></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%=h(iniciales)%></div>
         <div class="uinfo"><div class="un"><%=h(nombre)%></div><div class="ur">Network Operator</div></div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="<%=ctx%>/NetworkOperatorServlet?action=perfil">Editar perfil</a>
+          <a href="<%=ctx%>/PerfilServlet">Editar perfil</a>
           <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp">
             <input type="hidden" name="action" value="cerrarSesion">
             <button type="submit">Cerrar sesión</button>
@@ -156,7 +156,6 @@
           </div>
         </div>
       </div>
-
 
       <% } %>
     </div>

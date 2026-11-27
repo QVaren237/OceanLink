@@ -1,7 +1,7 @@
 package pe.edu.oceanlink.bean;
 
 import java.math.BigDecimal;
-/** Cliente y servicio asociados a un segmento afectado. */
+
 public class SupervisorAfectado {
     private String empresa, servicio, contacto;
     private BigDecimal capacidad;

@@ -1,6 +1,6 @@
 package pe.edu.oceanlink;
 
-import pe.edu.oceanlink.service.EmailService;
+import pe.edu.oceanlink.servlet.EmailService;
 
 public class PruebaCorreo {
 

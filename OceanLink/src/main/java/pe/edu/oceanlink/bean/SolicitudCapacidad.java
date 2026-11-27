@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.bean;
 
 import java.sql.Date;
@@ -16,7 +15,6 @@ public class SolicitudCapacidad {
     public void setNombreEvaluador(String valor){nombreEvaluador=valor;}
     public java.sql.Timestamp getFechaEvaluacion(){return fechaEvaluacion;}
     public void setFechaEvaluacion(java.sql.Timestamp valor){fechaEvaluacion=valor;}
-
 
     private int idSolicitud;
     private String codigo;

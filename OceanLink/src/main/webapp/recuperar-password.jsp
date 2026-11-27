@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Recuperar contraseña · OceanLink</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=3">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
         </div>
         <% } %>
 
-        <form action="${pageContext.request.contextPath}/RecuperarPasswordServlet"
+        <form novalidate action="${pageContext.request.contextPath}/RecuperarPasswordServlet"
               method="post">
 
             <div class="field">

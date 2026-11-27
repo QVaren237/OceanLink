@@ -17,9 +17,8 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
       <div class="cs-ic mc-ref-25">✓</div>
       <h2>Estado Modificado Correctamente</h2>
       <p>El estado del mantenimiento <%=h(exito.get("codigo"))%> ha sido actualizado a "<%=h(exito.get("estado"))%>" y la justificación técnica fue registrada en la bitácora exitosamente.</p>
-      
-      <!-- Este botón retorna a la vista de detalles enviando un parámetro en la URL para simular la actualización visual del estado -->
+
       <a class="btn btn-primary mc-ref-26" href="<%=base%>?action=detalle&amp;id=<%=h(exito.get("id"))%>">Volver a los Detalles</a>
     </div>
-  
+
 <jsp:include page="/views/mc-fin.jsp"/>

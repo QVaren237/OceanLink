@@ -21,7 +21,7 @@
             <div style="margin-bottom: 5px;">
                 <a href="<%=ctx%>/capacity-planner/capacidad" class="link">&lt;- Volver a Capacidad</a>
             </div>
-            
+
             <div class="page-head">
                 <div>
                     <h1><%=h(enlace.getCodigo())%>: <%=h(enlace.getNombre())%></h1>
@@ -34,21 +34,19 @@
                 </button>
             </div>
 
-            <!-- Grid de Paneles Superiores -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px;">
-                
-                <!-- Panel 1: Estado y Capacidad -->
+
                 <div class="card card-pad" style="border-top: 4px solid var(--teal);">
                     <h3 style="font-family: var(--head); font-size: 14px; font-weight: 800; margin-bottom: 15px; color: var(--ink); display: flex; justify-content: space-between;">
                         Estado de Capacidad
                         <span class="pill <%=estadoClase(enlace.getEstado())%>" style="font-size: 9px;"><span class="dot"></span><%=enlace.getEstado()==null?"Sin datos":h(enlace.getEstado())%></span>
                     </h3>
-                    
+
                     <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px;">
                         <span style="color: var(--teal-dd);"><%=capacidad(enlace.getCapacidadAsignada())%> Asignados</span>
                         <span style="color: var(--muted);"><%=capacidad(enlace.getCapacidadDisponible())%> Disponibles</span>
                     </div>
-                    
+
                     <div class="progress-track" style="height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; margin-bottom: 16px;">
                         <div class="progress-fill capacidad-fill-<%=enlace.getClaseUtilizacion()%>" style="width:<%=enlace.getAnchoProgreso()%>%;height:100%"></div>
                     </div>
@@ -65,10 +63,9 @@
                     </div>
                 </div>
 
-                <!-- Panel 2: Ficha Técnica -->
                 <div class="card card-pad">
                     <h3 style="font-family: var(--head); font-size: 14px; font-weight: 800; margin-bottom: 15px; color: var(--ink);">Especificaciones Físicas</h3>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11.5px;">
                         <div>
                             <span style="color: var(--muted); display: block;">Nodo Origen (Landing)</span>
@@ -94,12 +91,11 @@
                 </div>
             </div>
 
-            <!-- Tabla Detallada de Clientes y Servicios -->
             <div class="card">
                 <div class="card-head">
                     <h3>Servicios y Clientes Alojados</h3>
                 </div>
-                
+
                 <div class="card-pad" style="border-bottom: 1px solid var(--line); display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                     <div class="usearch-box" style="flex: 1; min-width: 300px;">
                         <span class="usearch-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>

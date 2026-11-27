@@ -10,7 +10,7 @@ import jakarta.servlet.http.Part;
 
 import pe.edu.oceanlink.bean.Usuario;
 import pe.edu.oceanlink.dao.UsuarioDAO;
-import pe.edu.oceanlink.util.SesionRegistro;
+import pe.edu.oceanlink.servlet.SesionRegistro;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -139,7 +139,7 @@ public class PerfilServlet extends HttpServlet {
                 "true".equals(request.getParameter("quitarFoto"));
 
         try {
-            // Validaciones del formulario
+
             if (nombre.isEmpty() || apellido.isEmpty()) {
                 throw new IllegalArgumentException(
                         "El nombre y apellido son obligatorios."
@@ -177,7 +177,6 @@ public class PerfilServlet extends HttpServlet {
                 );
             }
 
-            // Obtener fotografía
             Part archivo = request.getPart("foto");
 
             if (archivo != null && archivo.getSize() > 0) {
@@ -202,7 +201,6 @@ public class PerfilServlet extends HttpServlet {
                 }
             }
 
-            // Construir usuario actualizado
             Usuario editado = new Usuario();
 
             editado.setIdUsuario(actual.getIdUsuario());
@@ -211,13 +209,11 @@ public class PerfilServlet extends HttpServlet {
             editado.setCorreo(correo);
             editado.setPassword(nuevaPassword);
 
-            // Conservar el rol original.
             editado.setIdRol(actual.getIdRol());
             editado.setEstado(actual.getEstado());
 
             String correoAnterior = actual.getCorreo();
 
-            // Guardar cambios en MySQL
             usuarioDAO.actualizarPerfil(
                     editado,
                     claveActual,
@@ -225,7 +221,6 @@ public class PerfilServlet extends HttpServlet {
                     quitarFoto
             );
 
-            // Actualizar los datos de la sesión
             actual.setNombre(nombre);
             actual.setApellido(apellido);
             actual.setCorreo(correo);
@@ -234,16 +229,21 @@ public class PerfilServlet extends HttpServlet {
             session.setAttribute("usuarioSesion", actual);
             session.setAttribute("responsableSesion", actual);
 
-            // Si cambió el correo, invalidar las sesiones antiguas
-            // y registrar esta sesión con el nuevo correo.
             if (!correoAnterior.equalsIgnoreCase(correo)) {
                 SesionRegistro.cerrarUsuario(correoAnterior);
                 SesionRegistro.registrar(correo, session.getId());
             }
 
+            if (quitarFoto) {
+                session.removeAttribute("fotoPerfil");
+            } else if (foto != null && foto.length > 0) {
+                String __fmt = (foto.length >= 8 && foto[0] == (byte) 0x89) ? "png" : "jpeg";
+                session.setAttribute("fotoPerfil",
+                        "data:image/" + __fmt + ";base64," + Base64.getEncoder().encodeToString(foto));
+            }
+
             response.sendRedirect(
-                    request.getContextPath()
-                            + "/PerfilServlet?guardado=1"
+                    request.getContextPath() + obtenerPanel(actual.getIdRol())
             );
 
         } catch (IllegalArgumentException e) {

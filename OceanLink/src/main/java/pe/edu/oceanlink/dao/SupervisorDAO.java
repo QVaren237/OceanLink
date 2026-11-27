@@ -3,36 +3,37 @@ package pe.edu.oceanlink.dao;
 import pe.edu.oceanlink.bean.SupervisorResumen;
 import pe.edu.oceanlink.bean.SupervisorTramo;
 import java.math.BigDecimal;
+import pe.edu.oceanlink.bean.SupervisorDatoGrafico;
+import pe.edu.oceanlink.bean.SupervisorEstadisticas;
+import pe.edu.oceanlink.bean.SupervisorMes;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
-/** Consultas de solo lectura para el Panel General de Supervisor. */
 public class SupervisorDAO extends BaseDAO {
 
     public SupervisorResumen obtenerResumen() throws SQLException {
         SupervisorResumen resumen = new SupervisorResumen();
         try (Connection conn = getConnection()) {
-            // Promedio de uso porcentual por segmento, sin contar segmentos sin capacidad total.
-            String sqlUso = "SELECT COALESCE(ROUND(AVG(LEAST(100, 100 * "
-                + "(COALESCE(capacidadUtilizada,0) + COALESCE(capacidadReservada,0)) "
-                + "/ NULLIF(capacidadTotal,0))), 2), 0) AS porcentaje "
-                + "FROM segmento WHERE capacidadTotal > 0";
+
+            String sqlUso = "SELECT ROUND(AVG(100 * " + CapacidadDAO.USO_ACTUAL
+                + " / NULLIF(s.capacidadTotal,0)), 2) AS porcentaje FROM segmento s WHERE s.capacidadTotal > 0";
             try (PreparedStatement ps = conn.prepareStatement(sqlUso);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) resumen.setUtilizacionPromedio(rs.getBigDecimal("porcentaje"));
             }
 
-            // Incidencias sin fecha de cierre: criterio verificable en el esquema.
             String sqlFallas = "SELECT COUNT(*) AS total FROM incidencia WHERE fechaCierre IS NULL";
             try (PreparedStatement ps = conn.prepareStatement(sqlFallas);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) resumen.setFallasActivas(rs.getInt("total"));
             }
 
-            // Semana calendario actual, de lunes a domingo (zona horaria de MySQL).
             String sqlMantenimientos = "SELECT COUNT(*) AS total FROM mantenimiento "
                 + "WHERE fechaInicio >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) "
                 + "AND fechaInicio < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)";
@@ -41,13 +42,11 @@ public class SupervisorDAO extends BaseDAO {
                 if (rs.next()) resumen.setMantenimientosSemana(rs.getInt("total"));
             }
 
-            // Saturación >= 95% de la capacidad total.
-            String sqlSaturados = "SELECT COUNT(*) AS total FROM segmento "
-                + "WHERE capacidadTotal > 0 AND "
-                + "(COALESCE(capacidadUtilizada,0) + COALESCE(capacidadReservada,0)) / capacidadTotal >= 0.95";
-            try (PreparedStatement ps = conn.prepareStatement(sqlSaturados);
+            String sqlCriticos = "SELECT COUNT(*) AS total FROM segmento s "
+                + "WHERE s.capacidadTotal > 0 AND " + CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95";
+            try (PreparedStatement ps = conn.prepareStatement(sqlCriticos);
                  ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) resumen.setTramosSaturados(rs.getInt("total"));
+                if (rs.next()) resumen.setTramosCriticos(rs.getInt("total"));
             }
         }
         return resumen;
@@ -56,16 +55,14 @@ public class SupervisorDAO extends BaseDAO {
     public ArrayList<SupervisorTramo> listarTramosAltaUtilizacion() throws SQLException {
         ArrayList<SupervisorTramo> lista = new ArrayList<>();
         String sql = "SELECT s.codigo, eo.nombre AS origen, ed.nombre AS destino, s.estado, "
-            + "s.capacidadTotal, GREATEST(0, s.capacidadTotal - COALESCE(s.capacidadUtilizada,0) "
-            + "- COALESCE(s.capacidadReservada,0)) AS disponible, "
-            + "ROUND(100 * (COALESCE(s.capacidadUtilizada,0) + COALESCE(s.capacidadReservada,0)) "
-            + "/ NULLIF(s.capacidadTotal,0), 2) AS porcentaje "
+            + "s.capacidadTotal, s.capacidadTotal - " + CapacidadDAO.USO_ACTUAL + " AS disponible, "
+            + "ROUND(100 * " + CapacidadDAO.USO_ACTUAL + " / NULLIF(s.capacidadTotal,0), 2) AS porcentaje, "
+            + CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95 AS critico "
             + "FROM segmento s "
             + "JOIN landing_station eo ON eo.idLandingStation = s.idEstacionOrigen "
             + "JOIN landing_station ed ON ed.idLandingStation = s.idEstacionDestino "
             + "WHERE s.capacidadTotal > 0 "
-            + "AND (COALESCE(s.capacidadUtilizada,0) + COALESCE(s.capacidadReservada,0)) "
-            + "/ s.capacidadTotal >= 0.80 "
+            + "AND " + CapacidadDAO.USO_ACTUAL + " >= s.capacidadTotal * 0.80 "
             + "ORDER BY porcentaje DESC, s.codigo";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -79,13 +76,13 @@ public class SupervisorDAO extends BaseDAO {
                 tramo.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
                 tramo.setCapacidadDisponible(rs.getBigDecimal("disponible"));
                 tramo.setPorcentajeUtilizacion(rs.getBigDecimal("porcentaje"));
+                tramo.setCritico(rs.getBoolean("critico"));
                 lista.add(tramo);
             }
         }
         return lista;
     }
 
-    /** Eventos reales de incidencias y mantenimientos, sin duplicar sus segmentos. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorEvento> listarEventos() throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorEvento> lista = new ArrayList<>();
         String sql = "SELECT CONCAT('I:', i.idIncidencia) clave, i.codigo, "
@@ -124,7 +121,6 @@ public class SupervisorDAO extends BaseDAO {
         return lista;
     }
 
-    /** Servicios cuyas rutas incluyen los segmentos asociados al evento. No modifica datos. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorAfectado> listarAfectados(String clave) throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorAfectado> lista=new ArrayList<>();
         if(clave==null || !clave.matches("[IM]:[0-9]{1,10}")) return lista;
@@ -154,17 +150,16 @@ public class SupervisorDAO extends BaseDAO {
         return lista;
     }
 
-    /** Reportes de solo consulta. Las fechas corresponden a cada evento/registro. */
     public ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> listarReporte(
             String tipo, java.time.LocalDate inicio, java.time.LocalDate fin) throws SQLException {
         ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> filas = new ArrayList<>();
         String sql;
         if ("capacidad".equals(tipo)) {
-            // Historial real de capacidad (instantáneas registradas en historial_capacidad).
+
             sql = "SELECT s.codigo c1, DATE_FORMAT(h.fechaRegistro,'%d/%m/%Y') c2, "
                 + "CONCAT(COALESCE(h.capacidadTotal,0),' Gbps') c3, "
-                + "CONCAT(COALESCE(h.capacidadDisponible,0),' Gbps') c4, "
-                + "CONCAT(COALESCE(h.porcentajeUtilizacion,0),' %') c5 "
+                + "COALESCE(CONCAT(h.capacidadTotal - h.capacidadUtilizada,' Gbps'),'Sin datos') c4, "
+                + "COALESCE(CONCAT(ROUND(100 * h.capacidadUtilizada / NULLIF(h.capacidadTotal,0), 2),' %'),'Sin datos') c5 "
                 + "FROM historial_capacidad h JOIN segmento s ON s.idSegmento=h.idSegmento "
                 + "WHERE h.fechaRegistro >= COALESCE(?, '1000-01-01') "
                 + "AND h.fechaRegistro < DATE_ADD(COALESCE(?, '9998-12-30'),INTERVAL 1 DAY) "
@@ -179,8 +174,7 @@ public class SupervisorDAO extends BaseDAO {
                 + "AND s.fechaActivacion <= COALESCE(?, '9999-12-31') "
                 + "ORDER BY s.fechaActivacion DESC,s.codigo";
         } else {
-            // Incidencias cerradas. Impacto = cantidad de clientes distintos cuyas rutas
-            // usan uno de los segmentos vinculados a la incidencia (afectación potencial).
+
             sql = "SELECT i.codigo c1, DATE_FORMAT(i.fechaCierre,'%d/%m/%Y') c2, "
                 + "COALESCE(GROUP_CONCAT(DISTINCT CONCAT(eo.nombre,' → ',ed.nombre) SEPARATOR ', '),'Sin tramo vinculado') c3, "
                 + "CONCAT(COUNT(DISTINCT sv.idCliente),' clientes relacionados') c4, "
@@ -212,5 +206,199 @@ public class SupervisorDAO extends BaseDAO {
             }
         }
         return filas;
+    }
+
+    public SupervisorEstadisticas obtenerEstadisticas(
+            LocalDate inicio, LocalDate fin) throws SQLException {
+
+        SupervisorEstadisticas estadisticas = new SupervisorEstadisticas();
+
+        Date desde = Date.valueOf(inicio);
+        Date hasta = Date.valueOf(fin);
+        try (Connection conn = getConnection()) {
+
+            String sqlIncidencias = """
+                    SELECT COUNT(*) AS total,
+                           SUM(CASE WHEN fechaCierre IS NULL THEN 1 ELSE 0 END) AS abiertas,
+                           SUM(CASE WHEN fechaCierre IS NOT NULL THEN 1 ELSE 0 END) AS cerradas,
+                           SUM(CASE WHEN severidad IN ('Crítica', 'Critica') THEN 1 ELSE 0 END) AS criticas,
+                           SUM(CASE WHEN severidad = 'Alta' THEN 1 ELSE 0 END) AS altas,
+                           SUM(CASE WHEN severidad = 'Media' THEN 1 ELSE 0 END) AS medias,
+                           SUM(CASE WHEN severidad = 'Baja' THEN 1 ELSE 0 END) AS bajas
+                    FROM incidencia
+                    WHERE fechaDeteccion >= ? AND DATE(fechaDeteccion) <= ?
+                    """;
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlIncidencias)) {
+
+                ps.setDate(1, desde);
+                ps.setDate(2, hasta);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        estadisticas.setTotalIncidencias(rs.getInt("total"));
+                        estadisticas.setIncidenciasAbiertas(rs.getInt("abiertas"));
+                        estadisticas.setIncidenciasCerradas(rs.getInt("cerradas"));
+                        int criticas = rs.getInt("criticas");
+                        int altas = rs.getInt("altas");
+                        int medias = rs.getInt("medias");
+                        int bajas = rs.getInt("bajas");
+                        estadisticas.setIncidenciasGraves(criticas + altas);
+                        agregarSeveridad(estadisticas, "Crítica", criticas);
+                        agregarSeveridad(estadisticas, "Alta", altas);
+                        agregarSeveridad(estadisticas, "Media", medias);
+                        agregarSeveridad(estadisticas, "Baja", bajas);
+                        agregarSeveridad(estadisticas, "Sin clasificar",
+                                estadisticas.getTotalIncidencias() - criticas - altas - medias - bajas);
+                    }
+                }
+            }
+
+            String sqlMantenimientos =
+                    "SELECT COUNT(*) AS total " +
+                            "FROM mantenimiento " +
+                            "WHERE fechaInicio >= ? " +
+                            "AND DATE(fechaInicio) <= ?";
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlMantenimientos)) {
+
+                ps.setDate(1, desde);
+                ps.setDate(2, hasta);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        estadisticas.setTotalMantenimientos(rs.getInt("total"));
+                    }
+                }
+            }
+
+            String sqlSegmentos =
+                    "SELECT COUNT(DISTINCT segmentos.idSegmento) AS total " +
+                            "FROM ( " +
+                            "    SELECT ix.idSegmento " +
+                            "    FROM incidencia i " +
+                            "    JOIN incidencia_segmento ix ON ix.idIncidencia = i.idIncidencia " +
+                            "    WHERE i.fechaDeteccion >= ? " +
+                            "    AND DATE(i.fechaDeteccion) <= ? " +
+                            "    UNION " +
+                            "    SELECT ms.idSegmento " +
+                            "    FROM mantenimiento m " +
+                            "    JOIN mantenimiento_segmento ms " +
+                            "        ON ms.idMantenimiento = m.idMantenimiento " +
+                            "    WHERE m.fechaInicio >= ? " +
+                            "    AND DATE(m.fechaInicio) <= ? " +
+                            "    UNION " +
+                            "    SELECT m.idSegmento " +
+                            "    FROM mantenimiento m " +
+                            "    WHERE m.idSegmento IS NOT NULL " +
+                            "    AND m.fechaInicio >= ? " +
+                            "    AND DATE(m.fechaInicio) <= ? " +
+                            ") AS segmentos";
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlSegmentos)) {
+
+                ps.setDate(1, desde);
+                ps.setDate(2, hasta);
+                ps.setDate(3, desde);
+                ps.setDate(4, hasta);
+                ps.setDate(5, desde);
+                ps.setDate(6, hasta);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        estadisticas.setSegmentosInvolucrados(
+                                rs.getInt("total")
+                        );
+                    }
+                }
+            }
+
+            String sqlClientes =
+                    "SELECT COUNT(DISTINCT sv.idCliente) AS total " +
+                            "FROM servicio sv " +
+                            "JOIN ruta_segmento rx ON rx.idRuta = sv.idRuta " +
+                            "WHERE rx.idSegmento IN ( " +
+                            "    SELECT ix.idSegmento " +
+                            "    FROM incidencia i " +
+                            "    JOIN incidencia_segmento ix ON ix.idIncidencia = i.idIncidencia " +
+                            "    WHERE i.fechaDeteccion >= ? " +
+                            "    AND DATE(i.fechaDeteccion) <= ? " +
+                            "    UNION " +
+                            "    SELECT ms.idSegmento " +
+                            "    FROM mantenimiento m " +
+                            "    JOIN mantenimiento_segmento ms " +
+                            "        ON ms.idMantenimiento = m.idMantenimiento " +
+                            "    WHERE m.fechaInicio >= ? " +
+                            "    AND DATE(m.fechaInicio) <= ? " +
+                            "    UNION " +
+                            "    SELECT m.idSegmento " +
+                            "    FROM mantenimiento m " +
+                            "    WHERE m.idSegmento IS NOT NULL " +
+                            "    AND m.fechaInicio >= ? " +
+                            "    AND DATE(m.fechaInicio) <= ? " +
+                            ") " +
+                            "AND sv.estado NOT IN ('Cancelado', 'Cancelada')";
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlClientes)) {
+
+                ps.setDate(1, desde);
+                ps.setDate(2, hasta);
+                ps.setDate(3, desde);
+                ps.setDate(4, hasta);
+                ps.setDate(5, desde);
+                ps.setDate(6, hasta);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        estadisticas.setClientesRelacionados(
+                                rs.getInt("total")
+                        );
+                    }
+                }
+            }
+            cargarTendencia(conn, desde, hasta, estadisticas);
+        }
+        return estadisticas;
+    }
+
+    private void agregarSeveridad(SupervisorEstadisticas estadisticas, String etiqueta, int cantidad) {
+        SupervisorDatoGrafico dato = new SupervisorDatoGrafico();
+        dato.setEtiqueta(etiqueta);
+        dato.setCantidad(cantidad);
+        estadisticas.getSeveridades().add(dato);
+    }
+
+    private void cargarTendencia(Connection conn, Date inicio, Date fin, SupervisorEstadisticas estadisticas)
+            throws SQLException {
+        String sql = """
+                SELECT mes, SUM(incidencias) AS incidencias, SUM(mantenimientos) AS mantenimientos
+                FROM (
+                    SELECT DATE_FORMAT(fechaDeteccion, '%Y-%m') AS mes,
+                           COUNT(*) AS incidencias, 0 AS mantenimientos
+                    FROM incidencia
+                    WHERE fechaDeteccion >= ? AND DATE(fechaDeteccion) <= ?
+                    GROUP BY DATE_FORMAT(fechaDeteccion, '%Y-%m')
+                    UNION ALL
+                    SELECT DATE_FORMAT(fechaInicio, '%Y-%m') AS mes,
+                           0 AS incidencias, COUNT(*) AS mantenimientos
+                    FROM mantenimiento
+                    WHERE fechaInicio >= ? AND DATE(fechaInicio) <= ?
+                    GROUP BY DATE_FORMAT(fechaInicio, '%Y-%m')
+                ) AS eventos
+                GROUP BY mes
+                ORDER BY mes
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, inicio);
+            ps.setDate(2, fin);
+            ps.setDate(3, inicio);
+            ps.setDate(4, fin);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    estadisticas.getMeses().add(new SupervisorMes(rs.getString("mes"),
+                            rs.getInt("incidencias"), rs.getInt("mantenimientos")));
+                }
+            }
+        }
     }
 }

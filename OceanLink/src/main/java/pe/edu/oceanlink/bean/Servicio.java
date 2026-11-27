@@ -3,7 +3,6 @@ package pe.edu.oceanlink.bean;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Representa la tabla servicio de OceanLink_DB_FIXED.sql. */
 public class Servicio {
     private int idServicio;
     private String codigo;
@@ -15,7 +14,6 @@ public class Servicio {
     private LocalDate fechaActivacion;
     private String estado;
 
-    // Columnas adicionales de los JOIN para mostrar información en JSP.
     private String razonSocialCliente;
     private String nombreRuta;
 

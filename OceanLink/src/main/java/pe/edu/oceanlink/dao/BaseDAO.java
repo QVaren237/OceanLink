@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.dao;
 
 import java.sql.Connection;
@@ -21,7 +20,7 @@ public abstract class BaseDAO {
 
         return DriverManager.getConnection(url, user, pass);
     }
-    // Conserva el punto de conexión usado por los módulos y sus pruebas.
+
     protected Connection abrirConexion() throws SQLException {
         return getConnection();
     }

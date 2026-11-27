@@ -17,7 +17,6 @@ public class UsuarioDAO extends BaseDAO {
 
     public void crearUsuario(Usuario u) throws SQLException, ClassNotFoundException {
 
-
         try {
 
             try (Connection conn = getConnection()) {
@@ -26,7 +25,7 @@ public class UsuarioDAO extends BaseDAO {
                     pstmt.setString(1, u.getNombre());
                     pstmt.setString(2, u.getApellido());
                     pstmt.setString(3, u.getCorreo());
-                    pstmt.setString(4, pe.edu.oceanlink.util.Seguridad.sha256(u.getPassword()));
+                    pstmt.setString(4, pe.edu.oceanlink.dao.Seguridad.sha256(u.getPassword()));
                     pstmt.setString(5, u.getEstado());
                     pstmt.setInt(6, u.getIdRol());
                     pstmt.executeUpdate();
@@ -53,8 +52,8 @@ public class UsuarioDAO extends BaseDAO {
         String passwordTemporal = Base64.getEncoder()
                 .encodeToString(claveTemporal);
 
-        String passwordHash = pe.edu.oceanlink.util.Seguridad.sha256(passwordTemporal);
-        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
+        String passwordHash = pe.edu.oceanlink.dao.Seguridad.sha256(passwordTemporal);
+        String tokenHash = pe.edu.oceanlink.dao.Seguridad.sha256(token);
 
         LocalDateTime expiracion = LocalDateTime.now().plusHours(24);
 
@@ -116,12 +115,10 @@ public class UsuarioDAO extends BaseDAO {
         return token;
     }
 
-
-    // Comprueba si el enlace de activación existe, no fue utilizado y no venció.
     public boolean tokenActivacionValido(String token)
             throws SQLException, ClassNotFoundException {
 
-        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
+        String tokenHash = Seguridad.sha256(token);
 
         String sql = "SELECT idActivacion FROM activacion_cuenta "
                 + "WHERE tokenHash = ? AND usado = FALSE "
@@ -138,12 +135,11 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-    // Activa la cuenta, guarda la contraseña y marca el enlace como utilizado.
     public boolean activarCuenta(String token, String nuevaPassword)
             throws SQLException, ClassNotFoundException {
 
-        String tokenHash = pe.edu.oceanlink.util.Seguridad.sha256(token);
-        String passwordHash = pe.edu.oceanlink.util.Seguridad.sha256(nuevaPassword);
+        String tokenHash = pe.edu.oceanlink.dao.Seguridad.sha256(token);
+        String passwordHash = pe.edu.oceanlink.dao.Seguridad.sha256(nuevaPassword);
 
         String sqlBuscar = "SELECT idActivacion, idUsuario FROM activacion_cuenta "
                 + "WHERE tokenHash = ? AND usado = FALSE "
@@ -206,15 +202,13 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-
-
     public ArrayList<Usuario> obtenerListaUsuarios() {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try {
 
             Connection conn = getConnection();
             java.sql.Statement stmt = conn.createStatement();
-            // JOIN con rol para traer el nombre del rol y mostrarlo en la tabla
+
             String sql = "SELECT u.idUsuario, u.nombre, u.apellido, u.correo, u.password, u.estado, u.idRol, r.nombre AS nombreRol " +
                     "FROM usuario u INNER JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario";
             ResultSet rs = stmt.executeQuery(sql);
@@ -270,7 +264,7 @@ public class UsuarioDAO extends BaseDAO {
         try {
 
             try (Connection conn = getConnection()) {
-                // Si no se escribió una nueva contraseña, se conserva la actual (no se sobrescribe)
+
                 boolean cambiaPassword = u.getPassword() != null && !u.getPassword().isEmpty();
                 String sql = cambiaPassword
                         ? "UPDATE usuario SET nombre = ?, apellido = ?, correo = ?, password = ?, estado = ?, idRol = ? WHERE idUsuario = ?"
@@ -281,7 +275,7 @@ public class UsuarioDAO extends BaseDAO {
                     pstmt.setString(i++, u.getApellido());
                     pstmt.setString(i++, u.getCorreo());
                     if (cambiaPassword) {
-                        pstmt.setString(i++, pe.edu.oceanlink.util.Seguridad.sha256(u.getPassword()));
+                        pstmt.setString(i++, pe.edu.oceanlink.dao.Seguridad.sha256(u.getPassword()));
                     }
                     pstmt.setString(i++, u.getEstado());
                     pstmt.setInt(i++, u.getIdRol());
@@ -298,8 +292,6 @@ public class UsuarioDAO extends BaseDAO {
 
     public void cambiarEstado(String id, String nuevoEstado) {
 
-
-
         String sql = "UPDATE usuario SET estado = ? WHERE idUsuario = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -311,7 +303,6 @@ public class UsuarioDAO extends BaseDAO {
         }
     }
 
-    // Cuenta el total de usuarios registrados
     public int contarUsuarios() {
         int total = 0;
         try {
@@ -327,7 +318,6 @@ public class UsuarioDAO extends BaseDAO {
         return total;
     }
 
-    // Cuenta solo los usuarios con estado Activo
     public int contarUsuariosActivos() {
         int total = 0;
         try {
@@ -343,7 +333,6 @@ public class UsuarioDAO extends BaseDAO {
         return total;
     }
 
-    // Trae los ultimos usuarios registrados (para la tabla del panel)
     public ArrayList<Usuario> obtenerUsuariosRecientes(int limite) {
         ArrayList<Usuario> lista = new ArrayList<>();
         try {
@@ -373,7 +362,7 @@ public class UsuarioDAO extends BaseDAO {
         }
         return lista;
     }
-    // Compatibilidad con el formulario de perfil de Network Operator.
+
     public byte[] obtenerFoto(int idUsuario) throws SQLException {
         try(Connection conn=abrirConexion();PreparedStatement ps=conn.prepareStatement("SELECT foto FROM usuario WHERE idUsuario=?")){
             ps.setInt(1,idUsuario);try(ResultSet rs=ps.executeQuery()){return rs.next()?rs.getBytes("foto"):null;}
@@ -403,14 +392,14 @@ public class UsuarioDAO extends BaseDAO {
                 try(PreparedStatement ps=conn.prepareStatement("SELECT password,estado FROM usuario WHERE idUsuario=? FOR UPDATE")){
                     ps.setInt(1,usuario.getIdUsuario());try(ResultSet rs=ps.executeQuery()){
                         if(!rs.next()||!"Activo".equals(rs.getString("estado")))throw new IllegalArgumentException("El usuario no existe o está inactivo.");
-                        // Se conserva el formato de contraseñas que utiliza el CRUD actual.
-                        if(!java.util.Objects.equals(pe.edu.oceanlink.util.Seguridad.sha256(claveActual),rs.getString("password")))throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+
+                        if(!java.util.Objects.equals(Seguridad.sha256(claveActual),rs.getString("password")))throw new IllegalArgumentException("La contraseña actual es incorrecta.");
                     }
                 }
                 String sql="UPDATE usuario SET nombre=?,apellido=?,correo=?"+(!nueva.isEmpty()?",password=?":"")+(quitarFoto?",foto=NULL":foto!=null?",foto=?":"")+" WHERE idUsuario=?";
                 try(PreparedStatement ps=conn.prepareStatement(sql)){
                     int indice=1;ps.setString(indice++,nombre);ps.setString(indice++,apellido);ps.setString(indice++,correo);
-                    if(!nueva.isEmpty())ps.setString(indice++,pe.edu.oceanlink.util.Seguridad.sha256(nueva));if(!quitarFoto&&foto!=null)ps.setBytes(indice++,foto);ps.setInt(indice,usuario.getIdUsuario());
+                    if(!nueva.isEmpty())ps.setString(indice++,Seguridad.sha256(nueva));if(!quitarFoto&&foto!=null)ps.setBytes(indice++,foto);ps.setInt(indice,usuario.getIdUsuario());
                     if(ps.executeUpdate()!=1)throw new SQLException("No se pudo actualizar el usuario.");
                 }
                 conn.commit();

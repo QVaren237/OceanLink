@@ -15,14 +15,13 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
-          href="<%= request.getContextPath() %>/css/styles.css">
+          href="<%= request.getContextPath() %>/css/styles.css?v=3">
 </head>
 
 <body>
 
 <div class="shell">
 
-    <!-- MENÚ LATERAL -->
     <aside class="side">
 
         <div class="brand brand-side">
@@ -95,7 +94,7 @@
                 <span>Redes submarinas</span>
             </a>
 
-            <a class="nav-item" href="acceso-por-rol.html">
+            <a class="nav-item" href="acceso-por-rol.jsp">
 
                 <svg viewBox="0 0 24 24">
                     <rect x="4" y="10" width="16" height="10" rx="2"/>
@@ -107,7 +106,6 @@
 
         </nav>
 
-        <!-- ROL ACTIVO -->
         <div class="side-foot">
 
             <div class="role-badge">
@@ -123,10 +121,8 @@
 
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <div class="main">
 
-        <!-- BARRA SUPERIOR -->
         <div class="topbar">
 
             <div class="crumb">
@@ -137,14 +133,14 @@
 
             <div class="userpill" tabindex="0">
 
-                <div class="avatar">
-                    <%= pe.edu.oceanlink.util.Vista.iniciales(session) %>
+                <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>>
+                    <%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %>
                 </div>
 
                 <div class="uinfo">
 
                     <div class="un">
-                        <%= pe.edu.oceanlink.util.Vista.nombre(session) %>
+                        <%= pe.edu.oceanlink.servlet.Vista.nombre(session) %>
                     </div>
 
                     <div class="ur">
@@ -155,10 +151,8 @@
 
                 <span class="ucaret">▾</span>
 
-                <!-- MENÚ DE USUARIO -->
                 <div class="usermenu">
 
-                    <!-- NUEVO ENLACE AL PERFIL COMPARTIDO -->
                     <a href="<%= request.getContextPath() %>/PerfilServlet">
                         Editar perfil
                     </a>
@@ -173,7 +167,6 @@
 
         </div>
 
-        <!-- CUERPO DEL PANEL -->
         <div class="content">
 
             <div class="page-head">
@@ -190,7 +183,6 @@
 
             </div>
 
-            <!-- ESTADÍSTICAS -->
             <div class="kpis">
 
                 <div class="kpi">
@@ -245,7 +237,6 @@
 
             </div>
 
-            <!-- TABLA DE USUARIOS RECIENTES -->
             <div class="card">
 
                 <div class="card-head">
@@ -374,7 +365,6 @@
 
         </div>
 
-        <!-- PIE DE PÁGINA -->
         <div class="appfoot">
             <span>OceanLink · Centro de operaciones</span>
         </div>
@@ -385,4 +375,3 @@
 
 </body>
 </html>
-l>

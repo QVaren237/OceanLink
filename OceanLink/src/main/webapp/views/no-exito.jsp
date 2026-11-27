@@ -12,13 +12,19 @@
 %>
 <% String ctx=request.getContextPath(); %>
 <% request.setAttribute("tituloNO","Operación completada");request.setAttribute("seccionNO","incidencias");
-String tipo=request.getParameter("tipo");String titulo="Operación completada",mensaje="La operación se completó correctamente.";String destino="incidencias";
+String tipo=(String)request.getAttribute("tipo");String titulo="Operación completada",mensaje="La operación se completó correctamente.";String destino="incidencias";
+Integer idIncidencia = (Integer) request.getAttribute("idIncidencia");
 if("incidencia".equals(tipo)){titulo="Incidencia registrada";mensaje="La incidencia se registró correctamente y quedó incorporada al seguimiento operativo de la red.";}
 else if("actualizacion".equals(tipo)){titulo="Estado actualizado";mensaje="El estado de la incidencia se actualizó correctamente.";}
 else if("restauracion".equals(tipo)){titulo="Restauración registrada";mensaje="La restauración del servicio se registró correctamente.";}
 else if("observacion".equals(tipo)){titulo="Observación registrada";mensaje="La observación quedó incorporada al seguimiento de la incidencia.";}
 else if("solicitud".equals(tipo)){titulo="Solicitud enviada";mensaje="La solicitud de capacidad se registró para su evaluación.";destino="solicitudes";request.setAttribute("seccionNO",destino);}
+boolean volverAlDetalle = idIncidencia != null && idIncidencia > 0
+        && ("actualizacion".equals(tipo) || "observacion".equals(tipo) || "restauracion".equals(tipo));
+if (volverAlDetalle) request.setAttribute("tituloNO", titulo);
+String destinoUrl = volverAlDetalle ? "detalleIncidencia&amp;id=" + idIncidencia + "#datos-incidencia" : destino;
+String textoVolver = volverAlDetalle && "restauracion".equals(tipo) ? "Volver a la incidencia" : "Volver a " + destino;
 %>
 <jsp:include page="/views/no-inicio.jsp"/>
-<div class="card center-state"><div class="cs-ic" style="border-color:#8dcac3;color:var(--teal)">✓</div><h2><%=h(titulo)%></h2><p><%=h(mensaje)%></p><a class="btn btn-primary" href="<%=ctx%>/NetworkOperatorServlet?action=<%=destino%>">Volver a <%=destino%></a></div>
+<div class="card center-state"><div class="cs-ic" style="border-color:#8dcac3;color:var(--teal)">✓</div><h2><%=h(titulo)%></h2><p><%=h(mensaje)%></p><a class="btn btn-primary" href="<%=ctx%>/NetworkOperatorServlet?action=<%=destinoUrl%>"><%=h(textoVolver)%></a></div>
 <jsp:include page="/views/no-fin.jsp"/>

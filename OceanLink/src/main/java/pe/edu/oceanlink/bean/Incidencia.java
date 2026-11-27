@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.bean;
 
 import java.sql.Timestamp;

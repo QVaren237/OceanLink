@@ -11,7 +11,7 @@ public class Ruta {
     private int idEstacionDestino;
     private String estado = "Operativa";
     private String descripcion = "";
-    // Datos del JOIN para las vistas.
+
     private String nombreOrigen;
     private String nombreDestino;
     private int cantidadSegmentos;

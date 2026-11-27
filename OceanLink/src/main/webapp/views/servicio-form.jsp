@@ -34,7 +34,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=3">
 </head>
 <body>
   <div class="shell rutas-shell">
@@ -68,19 +68,20 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0" aria-label="Perfil de <%= escPerfilServicios(nombreServicios) %>">
-            <div class="avatar"><%= escPerfilServicios(inicialesServicios) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
             <div class="uinfo"><div class="un"><%= escPerfilServicios(nombreServicios) %></div><div class="ur">Capacity Planner</div></div>
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">
-                <a href="<%= request.getContextPath() %>/capacity-planner/panel?action=perfil">Mi perfil</a>
-                <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
+                <a href="<%= request.getContextPath() %>/PerfilServlet">Mi perfil</a>
+                <form novalidate method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
             </div>
         </div>
       </div>
 
       <div class="content" style="flex:1">
 <div class="page-head"><div><h1>Registrar nuevo servicio</h1><div class="psub">Asigna la ruta comercial al cliente y verifica la topología física subyacente.</div></div></div>
-<div class="card card-pad" style="max-width:720px"><form method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=confirmar">
+<% if(request.getAttribute("error")!=null){ %><div class="banner banner-err" role="alert" style="margin-bottom:16px"><%= esc(String.valueOf(request.getAttribute("error"))) %></div><% } %>
+<div class="card card-pad" style="max-width:720px"><form novalidate method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=confirmar">
 <input type="hidden" name="cliente" value="<%=cliente.getIdCliente()%>">
 <div class="field"><label>Cliente titular (*)</label><input class="input" value="<%=esc(cliente.getRazonSocial())%>" readonly style="background:var(--surface-2);color:var(--muted);border-style:dashed;"></div>
 <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
@@ -130,4 +131,5 @@ function mostrarTopologia() {
  else contenedor.textContent='Selecciona una ruta arriba para visualizar los enlaces físicos.';
 }
 </script>
+<script>function ocValida(f){var ok=true;var cs=f.querySelectorAll('input:not([type=hidden]),select,textarea');for(var i=0;i<cs.length;i++){(function(c){if(c.disabled)return;if(c._ocE){c._ocE.remove();c._ocE=null;}c.style.borderColor='';if(!c.checkValidity()){ok=false;var v=c.validity,m;if(v.valueMissing)m=(c.tagName==='SELECT')?'Selecciona una opción.':'Este campo es obligatorio.';else if(v.customError)m=c.validationMessage;else if(v.typeMismatch&&c.type==='email')m='Ingresa un correo válido.';else if(v.rangeUnderflow||v.rangeOverflow||v.stepMismatch||v.badInput)m='Ingresa un valor válido.';else m=c.validationMessage||'Revisa este campo.';var s=document.createElement('small');s.className='oc-err';s.style.cssText='display:block;color:#bd586d;font-size:10.5px;font-weight:600;margin-top:4px';s.textContent=m;c.insertAdjacentElement('afterend',s);c._ocE=s;c.style.borderColor='#c0334a';if(!c._ocB){c._ocB=1;var limpia=function(){if(c.checkValidity()&&c._ocE){c._ocE.remove();c._ocE=null;c.style.borderColor='';}};c.addEventListener('input',limpia);c.addEventListener('change',limpia);}}})(cs[i]);}return ok;}document.querySelectorAll('form').forEach(function(fm){if(fm.querySelector('[required]'))fm.addEventListener('submit',function(e){if(!ocValida(fm))e.preventDefault();});});</script>
 </body></html>

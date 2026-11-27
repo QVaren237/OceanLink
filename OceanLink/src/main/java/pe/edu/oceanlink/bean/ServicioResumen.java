@@ -3,7 +3,6 @@ package pe.edu.oceanlink.bean;
 import java.math.BigDecimal;
 import java.util.Locale;
 
-// Datos del JOIN cliente-servicio-segmento que se muestran en el panel.
 public class ServicioResumen {
     private int idCliente;
     private String razonSocial;

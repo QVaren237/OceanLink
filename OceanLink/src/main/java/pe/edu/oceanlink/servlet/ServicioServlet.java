@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/** Controlador MVC de servicios contratados del Capacity Planner. */
 @WebServlet(name = "ServicioServlet", value = "/capacity-planner/servicios")
 public class ServicioServlet extends HttpServlet {
 
@@ -77,7 +76,7 @@ public class ServicioServlet extends HttpServlet {
                     }
                     request.setAttribute("cliente", cliente);
                     ArrayList<Ruta> rutas = rutaDAO.obtenerListaRutas();
-                    // Cargar segmentos REALES ordenados, no los del HTML de demostración.
+
                     for (Ruta r : rutas) {
                         if ("Operativa".equals(r.getEstado())) {
                             Ruta completa = rutaDAO.obtenerRuta(r.getIdRuta());
@@ -109,17 +108,29 @@ public class ServicioServlet extends HttpServlet {
         RutaDAO rutaDAO = new RutaDAO();
         try {
             if ("confirmar".equals(action)) {
-                Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
+                Servicio servicio;
+                try {
+                    servicio = construirServicio(request, clienteDAO, rutaDAO);
+                } catch (IllegalArgumentException ex) {
+                    mostrarFormularioConError(request, response, rutaDAO, clienteDAO, ex.getMessage());
+                    return;
+                }
                 request.setAttribute("servicio", servicio);
                 request.setAttribute("cliente", clienteDAO.obtenerTrabajo(String.valueOf(servicio.getIdCliente())));
                 request.setAttribute("ruta", rutaDAO.obtenerRuta(servicio.getIdRuta()));
                 request.getRequestDispatcher("/views/servicio-confirm.jsp").forward(request, response);
             } else if ("guardar".equals(action)) {
-                // Revalidar: nunca confiar en los campos hidden de la pantalla de confirmación.
-                Servicio servicio = construirServicio(request, clienteDAO, rutaDAO);
+
+                Servicio servicio;
+                try {
+                    servicio = construirServicio(request, clienteDAO, rutaDAO);
+                } catch (IllegalArgumentException ex) {
+                    mostrarFormularioConError(request, response, rutaDAO, clienteDAO, ex.getMessage());
+                    return;
+                }
                 servicio.setCodigo("SRV-" + LocalDate.now().getYear() + "-" +
                         UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-                // Estado administrativo actual; no implica una reserva física de capacidad.
+
                 servicio.setEstado("Activo");
                 int nuevoId = servicioDAO.crearServicio(servicio);
                 response.sendRedirect(request.getContextPath() + "/capacity-planner/servicios?action=exito&cliente=" +
@@ -149,6 +160,32 @@ public class ServicioServlet extends HttpServlet {
         }
     }
 
+    private void mostrarFormularioConError(HttpServletRequest request, HttpServletResponse response,
+                                           RutaDAO rutaDAO, ClienteDAO clienteDAO, String mensaje)
+            throws ServletException, IOException {
+        try {
+            int idCliente = idPositivo(request.getParameter("cliente"));
+            Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
+            if (cliente == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, mensaje);
+                return;
+            }
+            request.setAttribute("cliente", cliente);
+            ArrayList<Ruta> rutas = rutaDAO.obtenerListaRutas();
+            for (Ruta r : rutas) {
+                if ("Operativa".equals(r.getEstado())) {
+                    Ruta completa = rutaDAO.obtenerRuta(r.getIdRuta());
+                    if (completa != null) r.setSegmentos(completa.getSegmentos());
+                }
+            }
+            request.setAttribute("rutas", rutas);
+            request.setAttribute("error", mensaje);
+            request.getRequestDispatcher("/views/servicio-form.jsp").forward(request, response);
+        } catch (SQLException | ClassNotFoundException ex) {
+            throw new ServletException("Error al mostrar el formulario de servicio", ex);
+        }
+    }
+
     private int idPositivo(String valor) {
         int id = Integer.parseInt(valor);
         if (id <= 0) throw new IllegalArgumentException("El identificador debe ser positivo");
@@ -158,7 +195,10 @@ public class ServicioServlet extends HttpServlet {
     private Servicio construirServicio(HttpServletRequest request, ClienteDAO clienteDAO, RutaDAO rutaDAO)
             throws SQLException, ClassNotFoundException {
         int idCliente = idPositivo(request.getParameter("cliente"));
-        int idRuta = idPositivo(request.getParameter("ruta"));
+        String rutaParam = request.getParameter("ruta");
+        if (rutaParam == null || rutaParam.isBlank())
+            throw new IllegalArgumentException("Selecciona la ruta solicitada.");
+        int idRuta = idPositivo(rutaParam);
         Cliente cliente = clienteDAO.obtenerTrabajo(String.valueOf(idCliente));
         if (cliente == null || !"Activo".equals(cliente.getEstado()))
             throw new IllegalArgumentException("El cliente no existe o está inactivo");
@@ -166,22 +206,25 @@ public class ServicioServlet extends HttpServlet {
         if (ruta == null || !"Operativa".equals(ruta.getEstado()))
             throw new IllegalArgumentException("Selecciona una ruta operativa");
 
+        String fechaParam = request.getParameter("fechaActivacion");
+        if (fechaParam == null || fechaParam.isBlank())
+            throw new IllegalArgumentException("Selecciona la fecha de activación.");
         LocalDate fecha;
         try {
-            fecha = LocalDate.parse(request.getParameter("fechaActivacion"));
+            fecha = LocalDate.parse(fechaParam);
         } catch (RuntimeException ex) {
-            throw new IllegalArgumentException("Fecha de activación inválida");
+            throw new IllegalArgumentException("Fecha de activación inválida.");
         }
 
         Servicio servicio = new Servicio();
         servicio.setIdCliente(idCliente);
         servicio.setIdRuta(idRuta);
-        // Los nombres se obtienen de RutaDAO, no se aceptan del formulario.
+
         servicio.setOrigen(ruta.getNombreOrigen());
         servicio.setDestino(ruta.getNombreDestino());
         if (servicio.getOrigen() == null || servicio.getDestino() == null)
             throw new IllegalArgumentException("La ruta no tiene estaciones de origen y destino definidas");
-        // La capacidad se asignará desde el módulo Capacidad, aún pendiente.
+
         servicio.setCapacidadContratada(null);
         servicio.setFechaActivacion(fecha);
         return servicio;

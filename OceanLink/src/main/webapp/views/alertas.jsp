@@ -16,7 +16,7 @@
                     <h1>Monitoreo Proactivo de Saturación</h1>
                     <div class="psub">Segmentos de fibra óptica con utilización superior al umbral preventivo (85%).</div>
                 </div>
-                
+
                 <div class="legend-box alertas-estilo-1">
                     <div class="legend-items">
                         <span><span class="pill pill-crit alertas-estilo-2"><span class="dot"></span></span> Atención Inmediata</span>
@@ -66,14 +66,14 @@
 <td data-sort="<%=h(enlace.getNombre())%>"><%=h(enlace.getNombre())%></td>
 <td data-sort="<%=h(enlace.getCapacidadAsignada())%>"><%=numero(enlace.getCapacidadAsignada())%> Gbps / <%=numero(enlace.getCapacidadTotal())%> Gbps</td>
 <td data-sort="<%=h(enlace.getPorcentajeUtilizacion())%>"><div class="alertas-medicion"><span class="text-<%=nivel%>"><%=porcentaje(enlace.getPorcentajeUtilizacion())%></span><span class="alertas-libres"><%=numero(enlace.getCapacidadDisponible())%> Gbps Libres</span></div><div class="progress-track"><div class="progress-fill fill-<%=nivel%>" data-ancho="<%=enlace.getAnchoProgreso()%>"></div></div></td>
-<td data-sort="<%=critica?2:1%>"><span class="pill pill-<%=nivel%>"><span class="dot"></span><%=critica?"Saturado":"Alerta"%></span></td>
+<td data-sort="<%=critica?2:1%>"><span class="pill pill-<%=nivel%>"><span class="dot"></span><%=critica?"Crítico":"Alerta"%></span></td>
 <td><div class="actions"><a href="<%=ctx%>/capacity-planner/alertas?action=ampliacion&amp;id=<%=enlace.getIdSegmento()%>" class="btn <%=critica?"btn-danger":"btn-outline alertas-accion-preventiva"%> btn-sm">Planificar Ampliación</a></div></td>
 </tr>
 <% } %>
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="alertasPaginas" aria-label="Paginación de alertas"></nav>
 </div>
 <script>

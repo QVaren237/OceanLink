@@ -21,8 +21,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                 </div>
             </div>
 
-            <!-- Panel de Filtros -->
-            <form class="card card-pad" method="get" action="<%=ctx%>/capacity-planner/historico" class="historico-estilo-1">
+            <form novalidate class="card card-pad" method="get" action="<%=ctx%>/capacity-planner/historico" class="historico-estilo-1">
                 <div class="historico-estilo-2">
                     <div class="field historico-estilo-3">
                         <label for="idHistorico">Segmento de Red</label>
@@ -44,7 +43,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                     </button>
                 </div>
             </form>
-<!-- KPIs de Tendencia -->
+
             <div class="kpis">
                 <div class="kpi">
                     <span class="kbadge historico-estilo-7">CRECIMIENTO</span>
@@ -61,9 +60,8 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                 </div>
             </div>
 
-            <!-- Tabla de Registros Históricos con Buscador -->
             <div class="card">
-                <!-- Barra de búsqueda idéntica a dashboard.html -->
+
                 <div class="card-pad historico-estilo-11">
                     <div class="usearch-box historico-estilo-12">
                         <span class="usearch-ic">
@@ -81,7 +79,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                                 <th data-col="1" class="sortable">Capacidad Instalada<span class="sarrow">▼</span></th>
                                 <th data-col="2" class="sortable" title="Promedio de la capacidad utilizada en las muestras registradas del mes">Tráfico Promedio<span class="sarrow">▼</span></th>
                                 <th data-col="3" class="sortable">Pico Máximo<span class="sarrow">▼</span></th>
-                                <th data-col="4" class="sortable" title="Máximo de (utilizada más reservada) dividido entre capacidad total de cada muestra">Utilización Máx.<span class="sarrow">▼</span></th>
+                                <th data-col="4" class="sortable" title="Mayor porcentaje de capacidad utilizada respecto de la capacidad total de cada muestra">Utilización Máx.<span class="sarrow">▼</span></th>
                                 <th data-col="5" class="sortable">Tendencia<span class="sarrow">▼</span></th>
                             </tr>
                         </thead>
@@ -99,7 +97,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
 </tbody>
                     </table>
                 </div>
-                
+
                 <nav class="pagination" id="historicoPaginas" aria-label="Paginación de registros históricos"></nav>
 </div>
 <script>

@@ -35,7 +35,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
                 </div>
             </div>
 
-            <form id="reservaForm" class="card card-pad" method="post" action="<%=ctx%>/capacity-planner/capacidad">
+            <form novalidate id="reservaForm" class="card card-pad" method="post" action="<%=ctx%>/capacity-planner/capacidad">
 <input type="hidden" name="action" value="reservar"><input type="hidden" name="id" value="<%=enlace.getIdSegmento()%>">
 <input type="hidden" name="idServicio" id="servicioReserva" value="<%=h(request.getParameter("idServicio"))%>">
 <input type="hidden" name="tokenReserva" value="<%=h(request.getAttribute("tokenReserva"))%>">
@@ -60,7 +60,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
                 <div class="field" style="margin-top: 20px;">
                     <label>Servicios asignados en este enlace</label>
                     <div class="card" style="box-shadow: none; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden;">
-                        
+
                         <div class="card-pad" style="background: var(--surface); padding: 10px 15px; border-bottom: 1px solid var(--line);">
                             <div class="usearch-box" style="width: 100%;">
                                 <span class="usearch-ic">
@@ -69,7 +69,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
                                 <input id="usearch" type="search" aria-label="Buscar servicio o empresa" placeholder="Buscar servicio o empresa...">
                             </div>
                         </div>
-                        
+
                         <div class="table-wrap" style="border: none; border-radius: 0;">
                             <table id="reservasTable">
                                 <thead>
@@ -87,7 +87,7 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
 <td style="text-align:center"><input type="radio" name="servicioUI" class="radio-tabla" value="<%=servicio.getIdServicio()%>" aria-label="Seleccionar <%=h(servicio.getCodigo())%>" <%=String.valueOf(servicio.getIdServicio()).equals(request.getParameter("idServicio"))?"checked":""%>></td></tr><% } %>
 </tbody>
                             </table>
-                            
+
                             <nav class="pagination" id="capacidadPaginas" aria-label="Paginación de servicios"></nav>
                         </div>
                     </div>
@@ -126,11 +126,11 @@ Set<String> seleccionados=new HashSet<>();if(request.getParameterValues("segment
  const imprimir=document.getElementById('exportarFicha');if(imprimir)imprimir.addEventListener('click',()=>window.print());
 })();
 </script><script>
-(function(){const form=document.getElementById('reservaForm');if(!form)return;
+(function(){const form=document.getElementById('reservaForm');if(!form)return;function ocValida(f){var ok=true;var cs=f.querySelectorAll('input:not([type=hidden]),select,textarea');for(var i=0;i<cs.length;i++){(function(c){if(c.disabled)return;if(c._ocE){c._ocE.remove();c._ocE=null;}c.style.borderColor='';if(!c.checkValidity()){ok=false;var v=c.validity,m;if(v.valueMissing)m=(c.tagName==='SELECT')?'Selecciona una opción.':'Este campo es obligatorio.';else if(v.customError)m=c.validationMessage;else if(v.typeMismatch&&c.type==='email')m='Ingresa un correo válido.';else if(v.rangeUnderflow||v.rangeOverflow||v.stepMismatch||v.badInput)m='Ingresa un valor válido.';else m=c.validationMessage||'Revisa este campo.';var s=document.createElement('small');s.className='oc-err';s.style.cssText='display:block;color:#bd586d;font-size:10.5px;font-weight:600;margin-top:4px';s.textContent=m;c.insertAdjacentElement('afterend',s);c._ocE=s;c.style.borderColor='#c0334a';if(!c._ocB){c._ocB=1;var limpia=function(){if(c.checkValidity()&&c._ocE){c._ocE.remove();c._ocE=null;c.style.borderColor='';}};c.addEventListener('input',limpia);c.addEventListener('change',limpia);}}})(cs[i]);}return ok;}
 const tabla=document.getElementById('reservasTable'),servicio=document.getElementById('servicioReserva'),cantidad=document.getElementById('cantidadReserva'),error=document.getElementById('errorMsg'),dialog=document.getElementById('confirmarReserva');let confirmado=false;
 function sincronizar(){document.querySelectorAll('[data-tramos-servicio]').forEach(grupo=>{const activo=grupo.dataset.tramosServicio===servicio.value;grupo.hidden=!activo;grupo.querySelectorAll('input').forEach(c=>{c.disabled=!activo||c.dataset.base==='true'||c.dataset.vinculado==='true';});});}
 tabla.addEventListener('change',e=>{if(e.target.name==='servicioUI'){servicio.value=e.target.value;sincronizar();}});sincronizar();
-form.addEventListener('submit',e=>{if(confirmado){document.getElementById('guardarReserva').disabled=true;return;}e.preventDefault();error.style.display='none';
+form.addEventListener('submit',e=>{if(confirmado){document.getElementById('guardarReserva').disabled=true;return;}e.preventDefault();error.style.display='none';if(!ocValida(form)){return;}
 if(!servicio.value){error.textContent='Selecciona un servicio.';error.style.display='block';return;}
 const grupo=Array.from(document.querySelectorAll('[data-tramos-servicio]')).find(g=>g.dataset.tramosServicio===servicio.value),elegidos=Array.from(grupo.querySelectorAll('[data-tramo]')).filter(c=>c.checked),valor=Number(cantidad.value);
 if(!Number.isFinite(valor)||valor<=0||elegidos.some(c=>!c.dataset.disponible||valor>Number(c.dataset.disponible))){error.textContent='La cantidad supera la disponibilidad de alguno de los segmentos elegidos.';error.style.display='block';return;}

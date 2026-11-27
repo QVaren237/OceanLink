@@ -8,7 +8,6 @@ import java.lang.reflect.*;
 import java.sql.SQLException;
 import java.util.*;
 
-/** Regresiones de controladores sin servidor, sin datos reales y sin dependencias adicionales. */
 public class IntegracionRolesCheck {
     private static int checks;
     private static void ok(boolean valor,String mensaje){if(!valor)throw new AssertionError(mensaje);checks++;}

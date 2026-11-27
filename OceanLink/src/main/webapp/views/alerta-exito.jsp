@@ -11,17 +11,15 @@
 <% if(request.getAttribute("error")!=null){ %><div class="banner banner-err" role="alert"><%=h(request.getAttribute("error"))%></div><% } %>
 
     <div class="card center-state alertas-estilo-24">
-      <!-- Ícono de éxito con el color estándar (teal) -->
+
       <div class="cs-ic alertas-estilo-25">✓</div>
-      
-      <!-- Título con el color por defecto (var(--ink)) -->
+
       <h2>Planificación Registrada</h2>
-      
+
       <p>Se ha generado un ticket interno de ampliación (Upgrade) para el segmento crítico. El área de Ingeniería de Redes evaluará la factibilidad física de la expansión.</p>
-      
-      <!-- Botón principal en lugar de outline -->
+
       <a class="btn btn-primary alertas-estilo-26" href="<%=ctx%>/capacity-planner/alertas">Volver a Alertas de Red</a>
     </div>
-  
+
 </div>
 <jsp:include page="/views/capacity-planner-fin.jsp"/>

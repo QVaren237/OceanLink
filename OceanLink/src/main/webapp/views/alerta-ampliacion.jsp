@@ -13,21 +13,21 @@
             <div class="alertas-estilo-10">
                 <a href="<%=ctx%>/capacity-planner/alertas" class="link">&lt;- Volver a Alertas</a>
             </div>
-            
+
             <div class="page-head">
                 <div>
                     <h1>Planificar Ampliación de Capacidad (Upgrade)</h1>
-                    <div class="psub">Inicia el requerimiento técnico para incrementar la capacidad física del segmento saturado.</div>
+                    <div class="psub">Inicia el requerimiento técnico para incrementar la capacidad física del segmento crítico.</div>
                 </div>
             </div>
 
             <div class="card card-pad alertas-estilo-11">
-                <!-- Datos del enlace pre-llenados e inmodificables -->
+
                 <div class="alertas-estilo-12">
                     <div class="alertas-estilo-13">
                         <span class="alertas-estilo-14">Segmento Crítico:</span>
                         <strong class="alertas-estilo-15"><%=h(enlace.getCodigo())%> (<%=h(enlace.getNombre())%>)</strong>
-                        
+
                         <span class="alertas-estilo-16">Estado Actual:</span>
                         <span><strong><%=porcentaje(enlace.getPorcentajeUtilizacion())%> Utilizado</strong> (<%=numero(enlace.getCapacidadAsignada())%> Gbps / <%=numero(enlace.getCapacidadTotal())%> Gbps)</span>
                     </div>
@@ -36,7 +36,7 @@
                 <form id="ampliacionForm" method="post" action="<%=ctx%>/capacity-planner/alertas" novalidate data-actual="<%=numero(enlace.getCapacidadTotal())%>">
 <input type="hidden" name="action" value="planificar"><input type="hidden" name="id" value="<%=enlace.getIdSegmento()%>"><input type="hidden" name="tokenAmpliacion" value="<%=h(request.getAttribute("tokenAmpliacion"))%>">
                     <div class="form-grid alertas-estilo-17">
-                        
+
                         <div class="field">
                             <label for="capacidadNueva">Nueva Capacidad Total Deseada (Gbps) (*)</label>
                             <div class="alertas-estilo-18">

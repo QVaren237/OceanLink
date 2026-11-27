@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 
 public class RecuperacionPasswordDAO extends BaseDAO {
 
-    // Busca el ID de un usuario activo mediante su correo.
     public Integer obtenerIdUsuarioActivoPorCorreo(String correo)
             throws SQLException {
 
@@ -30,7 +29,6 @@ public class RecuperacionPasswordDAO extends BaseDAO {
         return null;
     }
 
-    // Guarda un nuevo token y desactiva las solicitudes anteriores.
     public void guardarToken(int idUsuario, String tokenHash,
                              Timestamp fechaExpiracion)
             throws SQLException {
@@ -78,7 +76,6 @@ public class RecuperacionPasswordDAO extends BaseDAO {
         }
     }
 
-    // Comprueba si el token existe, no fue usado y no ha expirado.
     public Integer obtenerUsuarioPorTokenValido(String tokenHash)
             throws SQLException {
 
@@ -103,7 +100,6 @@ public class RecuperacionPasswordDAO extends BaseDAO {
         return null;
     }
 
-    // Actualiza la contraseña y consume el token en una sola transacción.
     public boolean actualizarPasswordConToken(
             String tokenHash, String nuevaPassword)
             throws SQLException {
@@ -129,7 +125,7 @@ public class RecuperacionPasswordDAO extends BaseDAO {
 
             try {
                 String passwordHash =
-                        pe.edu.oceanlink.util.Seguridad.sha256(nuevaPassword);
+                        pe.edu.oceanlink.dao.Seguridad.sha256(nuevaPassword);
 
                 int filasActualizadas;
 

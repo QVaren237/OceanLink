@@ -15,7 +15,6 @@ public class RutaSegmento {
     private String estado;
     private BigDecimal capacidadTotal = BigDecimal.ZERO;
     private BigDecimal capacidadUtilizada = BigDecimal.ZERO;
-    private BigDecimal capacidadReservada = BigDecimal.ZERO;
 
     public int getIdRuta() { return idRuta; }
     public void setIdRuta(int idRuta) { this.idRuta = idRuta; }
@@ -41,7 +40,5 @@ public class RutaSegmento {
     public void setCapacidadTotal(BigDecimal valor) { capacidadTotal = valor == null ? BigDecimal.ZERO : valor; }
     public BigDecimal getCapacidadUtilizada() { return capacidadUtilizada; }
     public void setCapacidadUtilizada(BigDecimal valor) { capacidadUtilizada = valor == null ? BigDecimal.ZERO : valor; }
-    public BigDecimal getCapacidadReservada() { return capacidadReservada; }
-    public void setCapacidadReservada(BigDecimal valor) { capacidadReservada = valor == null ? BigDecimal.ZERO : valor; }
-    public BigDecimal getCapacidadDisponible() { return capacidadTotal.subtract(capacidadUtilizada).subtract(capacidadReservada); }
+    public BigDecimal getCapacidadDisponible() { return capacidadTotal.subtract(capacidadUtilizada); }
 }

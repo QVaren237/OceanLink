@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class RutaDAO extends BaseDAO {
-    // La conexión JDBC se hereda de BaseDAO (clase 8.1).
+
     private static final String CONSULTA_RUTA =
             "SELECT r.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, " +
             "(SELECT COUNT(*) FROM ruta_segmento rs WHERE rs.idRuta = r.idRuta) AS cantidadSegmentos, " +
@@ -21,7 +21,8 @@ public class RutaDAO extends BaseDAO {
             "INNER JOIN landing_station ld ON ld.idLandingStation = r.idEstacionDestino ";
 
     private static final String CONSULTA_SEGMENTO =
-            "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino " +
+            "SELECT s.*, lo.nombre AS nombreOrigen, ld.nombre AS nombreDestino, " +
+            CapacidadDAO.USO_ACTUAL + " AS usoActual " +
             "FROM segmento s INNER JOIN landing_station lo ON lo.idLandingStation = s.idEstacionOrigen " +
             "INNER JOIN landing_station ld ON ld.idLandingStation = s.idEstacionDestino ";
 
@@ -48,7 +49,6 @@ public class RutaDAO extends BaseDAO {
         }
     }
 
-    // Catálogos para los selectores: los errores se propagan al Servlet.
     public ArrayList<LandingStation> obtenerEstaciones() throws SQLException, ClassNotFoundException {
         ArrayList<LandingStation> lista = new ArrayList<>();
         try (Connection conn = abrirConexion();
@@ -78,7 +78,7 @@ public class RutaDAO extends BaseDAO {
 
     public void crearRuta(Ruta ruta) throws SQLException, ClassNotFoundException {
         try (Connection conn = abrirConexion()) {
-            // Ruta y sus tramos deben guardarse juntos o revertirse juntos.
+
             conn.setAutoCommit(false);
             try {
                 cargarYValidarTramos(conn, ruta);
@@ -149,7 +149,8 @@ public class RutaDAO extends BaseDAO {
                     "(SELECT COUNT(*) FROM cliente WHERE estado = 'Activo') AS clientesActivos, " +
                     "(SELECT COUNT(*) FROM segmento) AS segmentosMonitoreados, " +
                     "(SELECT COUNT(*) FROM solicitud WHERE estado IN ('Registrada', 'En evaluación', 'Pendiente por capacidad')) AS solicitudesPendientes, " +
-                    "(SELECT COUNT(*) FROM segmento WHERE capacidadTotal > 0 AND capacidadUtilizada / capacidadTotal > 0.95) AS segmentosCriticos";
+                    "(SELECT COUNT(*) FROM segmento s WHERE s.capacidadTotal > 0 AND " +
+                    CapacidadDAO.USO_ACTUAL + " > s.capacidadTotal * 0.95) AS segmentosCriticos";
             try (PreparedStatement pstmt = conn.prepareStatement(indicadores); ResultSet rs = pstmt.executeQuery()) {
                 rs.next();
                 panel.setClientesActivos(rs.getInt("clientesActivos"));
@@ -185,7 +186,7 @@ public class RutaDAO extends BaseDAO {
 
     private void cargarYValidarTramos(Connection conn, Ruta ruta) throws SQLException {
         ArrayList<RutaSegmento> actuales = new ArrayList<>();
-        // Orden de bloqueo estable para reducir conflictos entre dos formularios.
+
         ArrayList<Integer> ids = new ArrayList<>();
         for (RutaSegmento tramo : ruta.getSegmentos()) ids.add(tramo.getIdSegmento());
         ids.sort(Integer::compareTo);
@@ -198,7 +199,7 @@ public class RutaDAO extends BaseDAO {
                 }
             }
         }
-        // Recuperar el orden elegido por el usuario, no el orden de los IDs.
+
         ArrayList<RutaSegmento> ordenados = new ArrayList<>();
         for (RutaSegmento elegido : ruta.getSegmentos()) {
             for (RutaSegmento actual : actuales) {
@@ -212,7 +213,6 @@ public class RutaDAO extends BaseDAO {
         ruta.setSegmentos(ordenados);
     }
 
-    // Un cable físico se puede recorrer en ambos sentidos. No se permiten ciclos.
     public static void validarRecorrido(Ruta ruta, ArrayList<RutaSegmento> tramos) {
         if (ruta.getCodigo() == null || ruta.getCodigo().isBlank() || ruta.getCodigo().length() > 30)
             throw new IllegalArgumentException("Ingresa un código de hasta 30 caracteres.");
@@ -247,7 +247,7 @@ public class RutaDAO extends BaseDAO {
     private ArrayList<RutaSegmento> obtenerTramos(Connection conn, int id) throws SQLException {
         ArrayList<RutaSegmento> lista = new ArrayList<>();
         String sql = CONSULTA_SEGMENTO + "INNER JOIN ruta_segmento rs ON rs.idSegmento = s.idSegmento WHERE rs.idRuta = ? ORDER BY rs.orden";
-        // La consulta base selecciona s.*; añadir explícitamente las columnas de la relación.
+
         sql = sql.replace("SELECT s.*", "SELECT s.*, rs.idRuta, rs.orden, rs.capacidadRuta");
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -272,7 +272,7 @@ public class RutaDAO extends BaseDAO {
                 pstmt.setInt(1, ruta.getIdRuta());
                 pstmt.setInt(2, tramo.getIdSegmento());
                 pstmt.setInt(3, orden++);
-                // Igual que los datos de prueba: capacidad física del tramo, no una reserva.
+
                 pstmt.setBigDecimal(4, tramo.getCapacidadTotal());
                 pstmt.executeUpdate();
             }
@@ -355,8 +355,7 @@ public class RutaDAO extends BaseDAO {
         tramo.setNombreDestino(rs.getString("nombreDestino"));
         tramo.setEstado(rs.getString("estado"));
         tramo.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
-        tramo.setCapacidadUtilizada(rs.getBigDecimal("capacidadUtilizada"));
-        tramo.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));
+        tramo.setCapacidadUtilizada(rs.getBigDecimal("usoActual"));
         return tramo;
     }
 }

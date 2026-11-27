@@ -1,13 +1,8 @@
-package pe.edu.oceanlink.util;
+package pe.edu.oceanlink.dao;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-/**
- * Utilidad para cifrar contraseñas con SHA-256 (Clase 9).
- * El hash no es reversible, por eso para validar se hashea lo que escribe
- * el usuario y se compara con lo guardado en la base de datos.
- */
 public class Seguridad {
 
     public static String sha256(String texto) {
@@ -21,7 +16,7 @@ public class Seguridad {
             }
             return sb.toString();
         } catch (Exception e) {
-            // Si algo falla, se devuelve el texto tal cual para no romper el flujo
+
             return texto;
         }
     }

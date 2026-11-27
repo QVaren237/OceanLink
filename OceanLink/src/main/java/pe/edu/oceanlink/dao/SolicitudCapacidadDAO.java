@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.dao;
 
 import pe.edu.oceanlink.bean.SolicitudCapacidad;
@@ -64,7 +63,9 @@ public class SolicitudCapacidadDAO extends BaseDAO {
         String sql = "SELECT s.codigo, SUM(rc.capacidadReservada) AS capacidad, "
                 + "GROUP_CONCAT(DISTINCT CONCAT(u.nombre,' ',u.apellido) SEPARATOR ', ') AS responsables "
                 + "FROM reserva_capacidad rc JOIN segmento s ON s.idSegmento=rc.idSegmento "
+                + "JOIN servicio sv ON sv.idServicio=rc.idServicio "
                 + "JOIN usuario u ON u.idUsuario=rc.idUsuario WHERE rc.idSolicitud=? "
+                + "AND sv.estado <> 'Cancelado' AND rc.idReserva > sv.ultimaReservaLiberada "
                 + "AND COALESCE(rc.estado,'') NOT IN ('Liberada','Cancelada') GROUP BY s.idSegmento,s.codigo";
         ArrayList<String> capacidades = new ArrayList<>();
         java.util.Set<String> responsables = new java.util.LinkedHashSet<>();

@@ -1,4 +1,3 @@
-
 package pe.edu.oceanlink.servlet;
 
 import jakarta.servlet.ServletException;
@@ -6,7 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import pe.edu.oceanlink.service.RecuperacionPasswordService;
+import pe.edu.oceanlink.servlet.RecuperacionPasswordService;
 
 import java.io.IOException;
 
@@ -16,7 +15,6 @@ public class RestablecerPasswordServlet extends HttpServlet {
     private final RecuperacionPasswordService servicio =
             new RecuperacionPasswordService();
 
-    // Abre el formulario y verifica el token recibido por correo.
     @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
@@ -44,7 +42,6 @@ public class RestablecerPasswordServlet extends HttpServlet {
         }
     }
 
-    // Procesa el cambio de contraseña.
     @Override
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response)

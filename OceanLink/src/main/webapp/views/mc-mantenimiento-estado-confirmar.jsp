@@ -16,18 +16,18 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
             <div class="card card-pad mc-ref-10">
                 <h2 class="mc-ref-11">Confirmar Cambio de Estado</h2>
                 <p class="mc-ref-12">Por favor, revisa que la información del cambio de fase sea correcta antes de registrarla en la bitácora.</p>
-                
+
                 <div class="mc-ref-13">
                     <div class="mc-ref-14">
                         <span class="mc-ref-15">Intervención:</span>
                         <strong class="mc-ref-16"><%=h(m.getCodigo())%></strong>
-                        
+
                         <span class="mc-ref-17">Estado Anterior:</span>
                         <span class="pill pill-warn mc-ref-18"><span class="dot"></span><%=h(b.get("anterior"))%></span>
 
                         <span class="mc-ref-19">Nuevo Estado:</span>
                         <span class="pill pill-ok mc-ref-20"><span class="dot"></span><%=h(b.get("nuevoEstado"))%></span>
-                        
+
                         <span class="mc-ref-21">Justificación:</span>
                         <span class="mc-ref-22"><%=h(b.get("justificacion"))%></span>
                     </div>
@@ -38,5 +38,5 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
                     <form method="post" action="<%=base%>"><input type="hidden" name="action" value="confirmar"><input type="hidden" name="id" value="<%=m.getIdMantenimiento()%>"><input type="hidden" name="token" value="<%=h(b.get("token"))%>"><button type="submit" class="btn btn-primary">Confirmar Cambio</button></form>
                 </div>
             </div>
-        
+
 <jsp:include page="/views/mc-fin.jsp"/>

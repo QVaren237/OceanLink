@@ -1,8 +1,7 @@
-package pe.edu.oceanlink.util;
+package pe.edu.oceanlink.servlet;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** Cuenta las sesiones de usuarios actualmente logueados (en memoria del servidor). */
 public class SesionContador {
     private static final AtomicInteger ACTIVAS = new AtomicInteger(0);
 

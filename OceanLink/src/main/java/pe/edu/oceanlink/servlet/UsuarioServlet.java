@@ -1,6 +1,6 @@
 package pe.edu.oceanlink.servlet;
 
-import pe.edu.oceanlink.service.EmailService;
+import pe.edu.oceanlink.servlet.EmailService;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
-import pe.edu.oceanlink.util.Validacion;
-
+import pe.edu.oceanlink.servlet.Validacion;
 
 @WebServlet(name = "UsuarioServlet", value = "/UsuarioServlet")
 public class UsuarioServlet extends HttpServlet {
@@ -98,10 +97,9 @@ public class UsuarioServlet extends HttpServlet {
                         usuarioDao.actualizarUsuario(usuarioGuardar);
 
                     } else {
-                        // Se crea el usuario como pendiente de activación.
+
                         String token = usuarioDao.crearUsuarioPendiente(usuarioGuardar);
 
-                        // Se construye el enlace para activar la cuenta.
                         String urlBase = request.getScheme() + "://" + request.getServerName();
                         int puerto = request.getServerPort();
 
@@ -113,7 +111,6 @@ public class UsuarioServlet extends HttpServlet {
                         String enlace = urlBase + request.getContextPath()
                                 + "/activar-cuenta?token=" + token;
 
-                        // Se envía el correo de activación.
                         try {
                             String asunto = "Activa tu cuenta de OceanLink";
 
@@ -141,7 +138,6 @@ public class UsuarioServlet extends HttpServlet {
                             log("No se pudo enviar el correo de activación", e);
                         }
                     }
-
 
                 } catch (IllegalArgumentException e) {
                     mostrarError(request, response, usuarioGuardar, e.getMessage());
@@ -179,7 +175,7 @@ public class UsuarioServlet extends HttpServlet {
             int id = Integer.parseInt(valor);
             if (id > 0) return id;
         } catch (NumberFormatException e) {
-            // Un identificador inválido se presenta como error del formulario.
+
         }
         throw new IllegalArgumentException("Selecciona un rol válido y verifica el identificador del usuario.");
     }

@@ -12,54 +12,33 @@
  if(eventos==null){response.sendRedirect(request.getContextPath()+"/supervisor/incidencias");return;}
 %>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="tema-supervisor">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seguimiento de Fallas · OceanLink</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/supervisor.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor">
 <style>
-  /* Nuevo color para la gravedad Media basado en la imagen */
+
   .pill-media { background: #e6e0f8; color: #434493; }
   .pill-media .dot { background: #8a7ab9; }
 </style>
 </head>
 <body>
 <div class="shell">
-  <aside class="side">
-    <div class="brand brand-side"><img class="brand-img" src="<%=request.getContextPath()%>/assets/logo.png" alt="Ocean Link Logistics"></div>
-    <nav class="nav-sec">
-      <div class="nav-label">Módulos</div>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/panel">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        <span>Panel</span>
-      </a>
-      <a class="nav-item active" href="<%=request.getContextPath()%>/supervisor/incidencias">
-        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>Fallas y Mantenimientos</span>
-      </a>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/reportes">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span>Reportes Históricos</span>
-      </a>
-    </nav>
-    <div class="side-foot">
-      <div class="role-badge">
-        <div class="rl">Rol activo</div>
-        <div class="rn"><span class="dot"></span>Supervisor</div>
-      </div>
-    </div>
-  </aside>
+  <jsp:include page="/views/supervisor-sidebar.jsp">
+    <jsp:param name="moduloSupervisor" value="incidencias" />
+  </jsp:include>
   <div class="main">
     <div class="topbar">
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
-        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
+        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
-        <div class="usermenu"><a href="#">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
+        <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
     </div>
     <div class="content">
@@ -69,15 +48,15 @@
           <div class="psub">Revisa el impacto en clientes provocado por eventos en la red.</div>
         </div>
       </div>
-      
+
       <div class="card">
-        <!-- Bloque de filtros en línea -->
+
         <div class="card-pad" style="border-bottom: 1px solid var(--line); display: flex; gap: 14px; align-items: center;">
           <div class="usearch-box" style="flex: 1; max-width: 420px; min-width: 320px;">
             <span class="usearch-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
             <input id="usearch" placeholder="Buscar por tramo o ID...">
           </div>
-          
+
           <div style="width: 220px;">
             <select id="severityFilter" class="input" style="height: 38px; cursor: pointer;">
               <option value="all">Todas las gravedades</option>
@@ -125,8 +104,7 @@
 </tbody>
           </table>
         </div>
-        
-        <!-- Paginación -->
+
         <div class="pagination" id="eventPagination" aria-label="Páginas de eventos"></div>
 
       </div>
@@ -135,7 +113,6 @@
   </div>
 </div>
 
-<!-- Modal de clientes asociados a la infraestructura de este evento -->
 <div class="modal-back" id="modalAfectacion" role="dialog" aria-modal="true" aria-labelledby="tituloAfectados">
   <div class="modal" style="width:600px;max-width:94vw;">
     <h3 id="tituloAfectados">Clientes Afectados</h3>

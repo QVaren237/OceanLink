@@ -29,7 +29,7 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
             <input type="text" id="usearch" aria-label="Buscar por ID, infraestructura o incidencia" placeholder="Buscar por ID, Infraestructura o Incidencia...">
           </div>
         </div>
-        
+
         <div class="table-wrap">
           <table id="mantenimientosTable">
             <thead>
@@ -51,7 +51,7 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
 <% if(!historial){ %><td><a class="btn btn-outline btn-sm" href="<%=base%>?action=detalle&amp;id=<%=fila.getIdMantenimiento()%>">Gestionar</a></td><% } %></tr><% } %></tbody>
           </table>
         </div>
-        
+
         <nav class="pagination" id="mcPaginas" aria-label="Paginación de mantenimientos"></nav></div>
 <script>
 (function(){

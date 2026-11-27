@@ -5,55 +5,35 @@
 <%
  @SuppressWarnings("unchecked")
  java.util.ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila> filas=(java.util.ArrayList<pe.edu.oceanlink.bean.SupervisorReporteFila>) request.getAttribute("filasReporte");
- if(filas==null){response.sendRedirect(request.getContextPath()+"/supervisor/reportes");return;}
+ String error = (String) request.getAttribute("errorPeriodo");
+ if(filas==null && error==null){response.sendRedirect(request.getContextPath()+"/supervisor/reportes");return;}
  String tipo=(String)request.getAttribute("tipoReporte");
  String inicio=(String)request.getAttribute("fechaInicio");
  String fin=(String)request.getAttribute("fechaFin");
 %>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="tema-supervisor">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reportes Históricos · OceanLink</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/supervisor.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=supervisor-reportes">
 </head>
 <body>
 <div class="shell">
-  <aside class="side">
-    <div class="brand brand-side"><img class="brand-img" src="<%=request.getContextPath()%>/assets/logo.png" alt="Ocean Link Logistics"></div>
-    <nav class="nav-sec">
-      <div class="nav-label">Módulos</div>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/panel">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        <span>Panel</span>
-      </a>
-      <a class="nav-item" href="<%=request.getContextPath()%>/supervisor/incidencias">
-        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>Fallas y Mantenimientos</span>
-      </a>
-      <a class="nav-item active" href="<%=request.getContextPath()%>/supervisor/reportes">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span>Reportes Históricos</span>
-      </a>
-    </nav>
-    <div class="side-foot">
-      <div class="role-badge">
-        <div class="rl">Rol activo</div>
-        <div class="rn"><span class="dot"></span>Supervisor</div>
-      </div>
-    </div>
-  </aside>
+  <jsp:include page="/views/supervisor-sidebar.jsp">
+    <jsp:param name="moduloSupervisor" value="reportes" />
+  </jsp:include>
   <div class="main">
     <div class="topbar">
       <div class="crumb">OceanLink / Supervisor</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0" aria-label="Perfil de usuario">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
-        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
+        <div class="uinfo"><div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div><div class="ur">Supervisor</div></div>
         <span class="ucaret" aria-hidden="true">▾</span>
-        <div class="usermenu"><a href="#">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
+        <div class="usermenu"><a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a><a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a></div>
       </div>
     </div>
     <div class="content">
@@ -63,8 +43,8 @@
           <div class="psub">Genera y descarga informes operativos utilizando filtros combinados.</div>
         </div>
       </div>
-      
-      <form method="get" action="<%=request.getContextPath()%>/supervisor/reportes" class="card card-pad" style="margin-bottom: 20px;">
+
+      <form method="get" action="<%=request.getContextPath()%>/supervisor/reportes" class="card card-pad reportes-filtros" style="margin-bottom: 20px;">
         <div class="form-grid">
           <div class="field"><label for="filterType">Tipo de Informe</label>
             <select id="filterType" name="tipo" class="input">
@@ -77,7 +57,11 @@
           <div class="field"><label for="filterEndDate">Fecha de Fin</label><input type="date" id="filterEndDate" name="fin" class="input" value="<%=esc(fin)%>"></div>
           <div class="field" style="display:flex;align-items:flex-end;"><button type="submit" id="btnFilter" class="btn btn-outline" style="width:100%">Filtrar Datos</button></div>
         </div>
+        <% if (error != null) { %>
+          <p class="estadisticas-error" role="alert"><%= esc(error) %></p>
+        <% } %>
       </form>
+      <% if (filas != null) { %>
       <div style="display:flex;justify-content:flex-end;margin-bottom:15px">
         <a class="btn btn-primary" title="Exportar y Descargar CSV" href="<%=request.getContextPath()%>/supervisor/exportar-csv?tipo=<%=tipo%>&amp;inicio=<%=inicio%>&amp;fin=<%=fin%>">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar CSV
@@ -98,12 +82,14 @@
         </tbody></table></div>
         <div class="pagination" id="reportPagination"></div>
       </div>
+      <% } %>
 
     </div>
     <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
   </div>
 </div>
 
+<% if (filas != null) { %>
 <script>
 (function(){
   const tbody=document.getElementById('reportBody'),pages=document.getElementById('reportPagination');
@@ -140,4 +126,5 @@
   paint();
 })();
 </script>
+<% } %>
 </body></html>

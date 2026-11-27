@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="pe.edu.oceanlink.bean.Usuario" %>
 <%
-    // El botón "Volver" lleva a cada rol a SU propio panel
     String destino = request.getContextPath() + "/LoginServlet";
     Usuario __u = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
     if (__u != null) {
@@ -23,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=3">
 </head>
 <body>
 <div class="auth"><div class="auth-card" style="border:2px solid #d62839">

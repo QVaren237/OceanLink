@@ -34,7 +34,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=3">
 </head>
 <body>
   <div class="shell rutas-shell">
@@ -68,11 +68,11 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0" aria-label="Perfil de <%= escPerfilServicios(nombreServicios) %>">
-            <div class="avatar"><%= escPerfilServicios(inicialesServicios) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= escPerfilServicios(inicialesServicios) %></div>
             <div class="uinfo"><div class="un"><%= escPerfilServicios(nombreServicios) %></div><div class="ur">Capacity Planner</div></div>
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">
-                <a href="<%= request.getContextPath() %>/capacity-planner/panel?action=perfil">Mi perfil</a>
+                <a href="<%= request.getContextPath() %>/PerfilServlet">Mi perfil</a>
                 <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
             </div>
         </div>
@@ -102,7 +102,7 @@
     </div>
   </div>
 <script>
-// Paginación, búsqueda y ordenamiento de los clientes ya recibidos desde MySQL.
+
 (function () {
   const table = document.getElementById('utable');
   const search = document.getElementById('searchInput');
@@ -110,7 +110,7 @@
   if (!table || !search || !pagination) return;
   const body = table.tBodies[0];
   const allRows = Array.from(body.rows).filter(row => row.cells.length === 7);
-  const rowsPerPage = 2; // Misma cantidad por página que index.html original.
+  const rowsPerPage = 2;
   let page = 1;
   let sortColumn = -1;
   let ascending = true;

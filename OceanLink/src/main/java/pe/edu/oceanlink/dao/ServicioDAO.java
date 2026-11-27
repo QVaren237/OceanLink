@@ -9,10 +9,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-/** DAO de servicios, con el estilo JDBC utilizado en LandingStationDAO. */
 public class ServicioDAO extends BaseDAO {
 
-    // READ: listar los servicios contratados por un cliente.
     public ArrayList<Servicio> obtenerServiciosPorCliente(int idCliente)
             throws SQLException, ClassNotFoundException {
         ArrayList<Servicio> lista = new ArrayList<>();
@@ -36,7 +34,6 @@ public class ServicioDAO extends BaseDAO {
         return lista;
     }
 
-    // READ: obtener un servicio por su ID.
     public Servicio obtenerServicio(int idServicio) throws SQLException, ClassNotFoundException {
         Servicio servicio = null;
 
@@ -57,7 +54,6 @@ public class ServicioDAO extends BaseDAO {
         return servicio;
     }
 
-    // CREATE: registrar servicio y devolver el ID autogenerado.
     public int crearServicio(Servicio servicio) throws SQLException, ClassNotFoundException {
 
         try (Connection conn = getConnection()) {
@@ -86,24 +82,29 @@ public class ServicioDAO extends BaseDAO {
         }
     }
 
-    // UPDATE: cambiar el estado en vez de eliminar físicamente el servicio.
     public boolean cambiarEstado(int idServicio, String estado)
             throws SQLException, ClassNotFoundException {
         if (!("Activo".equals(estado) || "Suspendido".equals(estado) || "Cancelado".equals(estado))) {
             throw new IllegalArgumentException("Estado inválido");
         }
 
-        try (Connection conn = getConnection()) {
-            String sql = "UPDATE servicio SET estado = ? WHERE idServicio = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, estado);
-                pstmt.setInt(2, idServicio);
-                return pstmt.executeUpdate() == 1;
-            }
+        String sql = "UPDATE servicio SET estado = ? WHERE idServicio = ?";
+        if ("Cancelado".equals(estado)) {
+
+            sql = "UPDATE servicio SET estado = ?, ultimaReservaLiberada = " +
+                    "COALESCE((SELECT MAX(rc.idReserva) FROM reserva_capacidad rc " +
+                    "WHERE rc.idServicio = servicio.idServicio), " +
+                    "ultimaReservaLiberada) WHERE idServicio = ?";
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, estado);
+            pstmt.setInt(2, idServicio);
+            return pstmt.executeUpdate() == 1;
         }
     }
 
-    // Convierte la fila del ResultSet en un Bean Servicio.
     private void llenarServicio(Servicio servicio, ResultSet rs) throws SQLException {
         servicio.setIdServicio(rs.getInt("idServicio"));
         servicio.setCodigo(rs.getString("codigo"));

@@ -15,8 +15,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
-  <!-- Estilos exclusivos de la confirmación. No modifica el CSS compartido de OceanLink. -->
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=3">
+
   <style>
     .confirm-view .confirm-wrap { width:100%; max-width:640px; margin-left:0; margin-right:auto; box-sizing:border-box; }
     .confirm-view .page-head.confirm-wrap { margin-bottom:20px; }
@@ -75,14 +75,14 @@
         <div class="crumb">OceanLink / Capacity Planner</div>
         <div class="grow"></div>
         <div class="userpill" tabindex="0">
-            <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+            <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
             <div class="uinfo">
-                <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
+                <div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div>
                 <div class="ur">Capacity Planner</div>
             </div>
             <span class="ucaret">▾</span>
             <div class="usermenu">
-                <a href="#">Editar perfil</a>
+                <a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a>
                 <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
             </div>
         </div>

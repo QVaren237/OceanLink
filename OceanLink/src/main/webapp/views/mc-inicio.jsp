@@ -12,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%=h(request.getAttribute("tituloMC"))%> · OceanLink</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=maintenance-menu-20261103">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css?v=maintenance-detail-20261127">
 </head>
 <body>
 <div class="shell mc-shell">
@@ -37,11 +37,10 @@
       <div class="crumb">OceanLink / Maintenance Coordinator</div>
       <div class="grow"></div>
 
-      <!-- Menú de usuario desplegable agregado -->
       <% if(!Boolean.TRUE.equals(request.getAttribute("ocultarPerfilMC"))){ %><div class="userpill" tabindex="0">
-      <div class="avatar"><%=h(pe.edu.oceanlink.util.Vista.iniciales(session))%></div>
+      <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%=h(pe.edu.oceanlink.servlet.Vista.iniciales(session))%></div>
       <div class="uinfo">
-        <div class="un"><%=h(pe.edu.oceanlink.util.Vista.nombre(session))%></div>
+        <div class="un"><%=h(pe.edu.oceanlink.servlet.Vista.nombre(session))%></div>
         <div class="ur">Maintenance Coord.</div>
       </div>
       <span class="ucaret">▾</span>

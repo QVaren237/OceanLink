@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css?v=3">
 </head>
 <body>
 <div class="shell">
@@ -26,7 +26,7 @@
       <a class="nav-item active" href="<%= request.getContextPath() %>/ClienteServlet?action=lista"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg><span>Clientes</span></a>
       <a class="nav-item" href="<%= request.getContextPath() %>/LandingStationServlet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 11 16m6.3-8.7L13 16"/></svg><span>Landing Stations</span></a>
       <a class="nav-item" href="<%= request.getContextPath() %>/RedesSubmarinasServlet"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Redes submarinas</span></a>
-      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.html"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
+      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.jsp"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
     </nav>
     <div class="side-foot">
       <div class="role-badge">
@@ -41,14 +41,14 @@
       <div class="crumb">OceanLink / Administrador</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
         <div class="uinfo">
-          <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
+          <div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div>
           <div class="ur">Administrador</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="#">Editar perfil</a>
+          <a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a>
           <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
         </div>
       </div>
@@ -88,7 +88,7 @@
               </tr>
             </thead>
             <tbody id="cbody">
-              <% if (listaTrabajos != null) { 
+              <% if (listaTrabajos != null) {
                    for (Cliente c : listaTrabajos) { %>
                 <tr class="data-row">
                   <td data-sort="<%= c.getIdCliente() %>"><strong><%= c.getIdCliente() %></strong></td>
@@ -109,9 +109,9 @@
                         <svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16z"/><path d="M13.5 6.5l4 4"/></svg>
                       </a>
                                             <% boolean isActive = "Activo".equals(c.getEstado()); %>
-                      <a class="btn <%= isActive ? "btn-danger" : "btn-primary" %> btn-icon" 
-                         title="<%= isActive ? "Desactivar" : "Activar" %> cliente" 
-                         href="<%= request.getContextPath() %>/ClienteServlet?action=cambiarEstado&id=<%= c.getIdCliente() %>&estado=<%= isActive ? "Inactivo" : "Activo" %>" 
+                      <a class="btn <%= isActive ? "btn-danger" : "btn-primary" %> btn-icon"
+                         title="<%= isActive ? "Desactivar" : "Activar" %> cliente"
+                         href="<%= request.getContextPath() %>/ClienteServlet?action=cambiarEstado&id=<%= c.getIdCliente() %>&estado=<%= isActive ? "Inactivo" : "Activo" %>"
                          onclick="event.preventDefault(); openStateModal('<%= c.getRazonSocial() %>', this.href, <%= isActive ? "false" : "true" %>);">
                         <% if(isActive) { %>
                           <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
@@ -122,12 +122,12 @@
                     </div>
                   </td>
                 </tr>
-              <%   } 
+              <%   }
                  } %>
             </tbody>
           </table>
         </div>
-        
+
         <div class="pagination" id="pagination-container"></div>
       </div>
     </div>
@@ -141,18 +141,18 @@
   var tb = document.getElementById("ctable");
   if(!tb) return;
   var body = document.getElementById("cbody");
-  
+
   var allRows = Array.prototype.slice.call(body.querySelectorAll("tr.data-row"));
-  
+
   var keys = [];
   var currentPage = 1;
   var rowsPerPage = 5;
   var filteredRows = allRows;
-  
+
   function val(r, i) {
       return r.cells[i].getAttribute("data-sort") || r.cells[i].innerText;
   }
-  
+
   function paintArrows() {
       document.querySelectorAll("th.sortable").forEach(function(th) {
           var i = +th.dataset.col, f = null;
@@ -160,7 +160,7 @@
           th.querySelector(".sarrow").textContent = f ? (f.asc ? "\u25B2" : "\u25BC") : "\u21C5";
       });
   }
-  
+
   function applySort() {
       filteredRows.sort(function(a, b) {
           for(var k=0; k<keys.length; k++) {
@@ -173,7 +173,7 @@
       paintArrows();
       renderPage();
   }
-  
+
   document.querySelectorAll("th.sortable").forEach(function(th) {
       th.addEventListener("click", function() {
           var i = +th.dataset.col;
@@ -187,7 +187,7 @@
           applySort();
       });
   });
-  
+
   var searchInput = document.getElementById("csearch");
   if(searchInput) {
       searchInput.addEventListener("input", function() {
@@ -204,23 +204,23 @@
       body.innerHTML = "";
       var totalPages = Math.ceil(filteredRows.length / rowsPerPage);
       if(totalPages === 0) totalPages = 1;
-      
+
       var start = (currentPage - 1) * rowsPerPage;
       var end = start + rowsPerPage;
       var pageRows = filteredRows.slice(start, end);
-      
+
       pageRows.forEach(function(r) { body.appendChild(r); });
-      
+
       var pagCont = document.getElementById("pagination-container");
       pagCont.innerHTML = "";
-      
+
       var btnPrev = document.createElement("button");
       btnPrev.className = "page-btn";
       btnPrev.innerText = "‹";
       btnPrev.disabled = (currentPage === 1);
       btnPrev.onclick = function() { currentPage--; renderPage(); };
       pagCont.appendChild(btnPrev);
-      
+
       for(var i=1; i<=totalPages; i++) {
           var btn = document.createElement("button");
           btn.className = "page-btn" + (i === currentPage ? " active" : "");
@@ -230,7 +230,7 @@
           })(i);
           pagCont.appendChild(btn);
       }
-      
+
       var btnNext = document.createElement("button");
       btnNext.className = "page-btn";
       btnNext.innerText = "›";
@@ -238,11 +238,11 @@
       btnNext.onclick = function() { currentPage++; renderPage(); };
       pagCont.appendChild(btnNext);
   }
-  
+
   renderPage();
 })();
 </script>
-<!-- MODAL DE CONFIRMACIÓN DE ESTADO -->
+
 <div id="stateModal" class="modal-back" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; justify-content:center; align-items:center;">
   <div class="modal" style="background:#fff; padding:24px; border-radius:12px; max-width:400px; width:100%; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
     <h3 id="modalTitle" style="margin-top:0; font-size:18px; color:var(--text-main);">Cambiar estado</h3>
@@ -259,15 +259,15 @@ function openStateModal(name, url, isActivating) {
     var actionDesc = isActivating ? "¿Deseas reactivar al cliente corporativo <b>" + name + "</b>? Volverá a estar visible." : "¿Deseas desactivar al cliente corporativo <b>" + name + "</b>? Dejará de tener estado activo temporalmente.";
     var btnClass = isActivating ? "btn-primary" : "btn-danger";
     var actionBtn = isActivating ? "Activar" : "Desactivar";
-    
+
     document.getElementById('modalTitle').innerText = actionTitle;
     document.getElementById('modalDesc').innerHTML = actionDesc;
-    
+
     var btn = document.getElementById('btnConfirmState');
     btn.className = "btn " + btnClass;
     btn.innerText = actionBtn;
     btn.href = url;
-    
+
     document.getElementById('stateModal').style.display = 'flex';
 }
 function closeStateModal() {

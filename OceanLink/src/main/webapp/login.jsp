@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=3">
 <style>
-  /* Oculta el ojo/equis NATIVO del navegador (Edge) para que solo quede el nuestro */
+
   input[type=password]::-ms-reveal,
   input[type=password]::-ms-clear { display:none; }
-  /* Mensajes de validación en rojo debajo de cada campo */
+
   .err-msg{display:none;color:#c0334a;font-size:12.5px;margin-top:6px}
   .field.invalid .input{border-color:#c0334a}
   .field.invalid .err-msg{display:block}
@@ -51,7 +51,6 @@ var EYE='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7
 var EYEOFF='<svg viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.9 9.9 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.3 4.1M6.2 6.7A17 17 0 0 0 2 12s3.5 7 10 7a9.8 9.8 0 0 0 4-.8"/><path d="M9.5 9.6a3 3 0 0 0 4.2 4.2"/></svg>';
 function tp(id,b){var i=document.getElementById(id);var s=i.type==="password";i.type=s?"text":"password";b.innerHTML=s?EYEOFF:EYE;}
 
-// Validación propia: muestra texto rojo debajo del campo en vez del globo del navegador
 function validarLogin(){
   var ok=true;
   var correo=document.getElementById('li-correo');

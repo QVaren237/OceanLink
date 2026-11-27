@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
@@ -6,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Activar cuenta · OceanLink</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=3">
 </head>
 <body>
 
@@ -46,7 +45,7 @@
         </div>
         <% } %>
 
-        <form action="${pageContext.request.contextPath}/activar-cuenta"
+        <form novalidate action="${pageContext.request.contextPath}/activar-cuenta"
               method="post">
 
             <input type="hidden" name="token" value="<%= request.getAttribute("token") %>">

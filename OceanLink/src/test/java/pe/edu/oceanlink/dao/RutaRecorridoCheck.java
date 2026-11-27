@@ -5,7 +5,6 @@ import pe.edu.oceanlink.bean.RutaSegmento;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/** Verificación ejecutable con Java 17; no requiere librerías de pruebas adicionales. */
 public class RutaRecorridoCheck {
     private static int comprobaciones;
 

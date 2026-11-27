@@ -5,7 +5,7 @@
 <%@ page import="pe.edu.oceanlink.bean.RutaSegmento" %>
 <%@ page import="pe.edu.oceanlink.bean.LandingStation" %>
 <%!
-    // Escape para texto y atributos HTML; nunca insertar datos en JavaScript inline.
+
     private String h(Object valor) {
         return valor == null ? "" : valor.toString().replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
@@ -82,7 +82,7 @@
             filas.forEach(fila => { fila.hidden = true; });
             visibles.forEach((fila, i) => { cuerpo.appendChild(fila); fila.hidden = i < (pagina - 1) * 5 || i >= pagina * 5; });
             document.getElementById("sinRutas").hidden = visibles.length > 0;
-            // Misma estructura y clases que la paginación de Usuarios y Clientes.
+
             paginacion.replaceChildren();
             const anterior = document.createElement("button");
             anterior.type = "button";

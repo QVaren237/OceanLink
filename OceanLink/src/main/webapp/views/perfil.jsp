@@ -71,7 +71,11 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
-          href="<%=ctx%>/css/styles.css">
+          href="<%=ctx%>/css/styles.css?v=3">
+    <style>
+      .err-msg{display:none;color:#bd586d;font-size:10.5px;margin-top:4px;font-weight:600}
+      .input.invalid,.password-input.invalid{border-color:#c0334a}
+    </style>
 </head>
 
 <body class="no-shell profile-edit-page">
@@ -119,7 +123,7 @@
             <form action="<%=ctx%>/PerfilServlet"
                   method="post"
                   enctype="multipart/form-data"
-                  class="profile-edit-form">
+                  class="profile-edit-form" novalidate>
 
                 <input type="hidden"
                        name="quitarFoto"
@@ -174,6 +178,7 @@
                                    name="claveActual"
                                    autocomplete="current-password"
                                    required>
+                                   <button class="eye" type="button" aria-label="Mostrar u ocultar contraseña" onclick="tp('current-password',this)"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
 
@@ -189,6 +194,7 @@
                                    maxlength="256"
                                    autocomplete="new-password"
                                    placeholder="Ingresa una nueva contraseña">
+                                   <button class="eye" type="button" aria-label="Mostrar u ocultar contraseña" onclick="tp('new-password',this)"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
 
@@ -204,6 +210,7 @@
                                    maxlength="256"
                                    autocomplete="new-password"
                                    placeholder="Repite la nueva contraseña">
+                                   <button class="eye" type="button" aria-label="Mostrar u ocultar contraseña" onclick="tp('confirm-password',this)"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
 
@@ -347,24 +354,46 @@
 
     });
 
-    document.querySelector(".profile-edit-form").addEventListener("submit", (e) => {
-
-        const nueva = document.getElementById("new-password").value;
-
-        const confirmar = document.getElementById("confirm-password").value;
-
-        if (nueva !== confirmar) {
-
-            e.preventDefault();
-
-            alert("Las contraseñas nuevas no coinciden.");
-
+    (function(){
+      var form = document.querySelector(".profile-edit-form");
+      function cont(input){ var p=input.parentNode; return (p && p.classList && p.classList.contains("password-field")) ? p : input; }
+      function setErr(input,msg){
+        input.classList.add("invalid");
+        var c = cont(input), e = c.nextElementSibling;
+        if(!e || !e.classList || !e.classList.contains("err-msg")){
+          e = document.createElement("small"); e.className="err-msg";
+          c.parentNode.insertBefore(e, c.nextSibling);
         }
+        e.textContent = msg; e.style.display="block";
+      }
+      function clearErr(input){
+        input.classList.remove("invalid");
+        var c = cont(input), e = c.nextElementSibling;
+        if(e && e.classList && e.classList.contains("err-msg")) e.style.display="none";
+      }
+      form.addEventListener("submit", function(ev){
+        var ok = true;
+        var nombre = form.querySelector('[name=nombre]');
+        var apellido = form.querySelector('[name=apellido]');
+        var correo = form.querySelector('[name=correo]');
+        var clave = document.getElementById("current-password");
+        var nueva = document.getElementById("new-password");
+        var conf = document.getElementById("confirm-password");
+        [nombre,apellido,correo,clave,nueva,conf].forEach(clearErr);
+        if(nombre.value.trim()===""){ setErr(nombre,"Este campo es obligatorio."); ok=false; }
+        if(apellido.value.trim()===""){ setErr(apellido,"Este campo es obligatorio."); ok=false; }
+        if(correo.value.trim()===""){ setErr(correo,"Este campo es obligatorio."); ok=false; }
+        else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value.trim())){ setErr(correo,"Ingrese un correo válido. Ejemplo: usuario@dominio.com"); ok=false; }
+        if(clave.value.trim()===""){ setErr(clave,"Este campo es obligatorio."); ok=false; }
+        if(nueva.value !== conf.value){ setErr(conf,"Las contraseñas nuevas no coinciden."); ok=false; }
+        if(!ok) ev.preventDefault();
+      });
+    })();
 
-    });
-
+    var EYE_P='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    var EYEOFF_P='<svg viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.9 9.9 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.3 4.1M6.2 6.7A17 17 0 0 0 2 12s3.5 7 10 7a9.8 9.8 0 0 0 4-.8"/><path d="M9.5 9.6a3 3 0 0 0 4.2 4.2"/></svg>';
+    function tp(id,b){var i=document.getElementById(id);var s=i.type==="password";i.type=s?"text":"password";b.innerHTML=s?EYEOFF_P:EYE_P;}
 </script>
 
 </body>
 </html>
-

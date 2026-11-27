@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import pe.edu.oceanlink.dao.RolDAO;
 import pe.edu.oceanlink.dao.UsuarioDAO;
-import pe.edu.oceanlink.util.SesionContador;
+import pe.edu.oceanlink.servlet.SesionContador;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ public class PanelServlet extends HttpServlet {
         request.setAttribute("usuariosActivos", usuarioDao.contarUsuariosActivos());
         request.setAttribute("totalRoles", rolDao.contarRoles());
         request.setAttribute("recientes", usuarioDao.obtenerUsuariosRecientes(5));
-        request.setAttribute("sesionesActivas", SesionContador.activas()); // sesiones realmente abiertas
+        request.setAttribute("sesionesActivas", SesionContador.activas());
 
         request.getRequestDispatcher("/views/panel.jsp").forward(request, response);
     }

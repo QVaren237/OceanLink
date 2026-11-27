@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Ejecutar con --mysql-aislado. Crea y elimina un esquema temporal; no escribe datos en oceanlink. */
 public class CapacidadReservaMysqlCheck {
     private static String esquema;
     private static int verificaciones;
@@ -37,7 +36,7 @@ public class CapacidadReservaMysqlCheck {
         sql("INSERT INTO usuario(idUsuario,nombre,apellido,correo,password,estado,idRol) VALUES(1,'Planner','Prueba','planner@test.local','clave','Activo',1),(2,'Operador','Prueba','operador@test.local','clave','Activo',2)");
         sql("INSERT INTO cliente(idCliente,razonSocial,ruc,estado) VALUES(1,'Cliente Uno','20000000001','Activo'),(2,'Cliente Dos','20000000002','Activo')");
         sql("INSERT INTO landing_station(idLandingStation,codigo,nombre,ubicacion,estado) VALUES(1,'LS-1','Uno','Peru','Operativo'),(2,'LS-2','Dos','Peru','Operativo'),(3,'LS-3','Tres','Peru','Operativo')");
-        sql("INSERT INTO segmento(idSegmento,codigo,idEstacionOrigen,idEstacionDestino,capacidadTotal,capacidadUtilizada,capacidadReservada,estado) VALUES(1,'SEG-1',1,2,100,10,20,'Operativo'),(2,'SEG-2',2,3,100,10,20,'Operativo'),(3,'SEG-3',1,3,100,10,20,'Operativo')");
+        sql("INSERT INTO segmento(idSegmento,codigo,idEstacionOrigen,idEstacionDestino,capacidadTotal,capacidadUtilizada,capacidadReservada,estado) VALUES(1,'SEG-1',1,2,100,30,0,'Operativo'),(2,'SEG-2',2,3,100,30,0,'Operativo'),(3,'SEG-3',1,3,100,30,0,'Operativo')");
         sql("INSERT INTO ruta(idRuta,codigo,nombre,idEstacionOrigen,idEstacionDestino,estado) VALUES(1,'R-1','Uno-Dos-Tres',1,3,'Operativa'),(2,'R-2','Uno-Tres',1,3,'Operativa')");
         sql("INSERT INTO ruta_segmento(idRuta,idSegmento,orden,capacidadRuta) VALUES(1,1,1,100),(1,2,2,100),(2,3,1,100)");
         sql("INSERT INTO servicio(idServicio,codigo,idCliente,idRuta,origen,destino,capacidadContratada,fechaActivacion,estado) VALUES(1,'S-1',1,1,'Uno','Tres',NULL,CURDATE(),'Activo'),(2,'S-2',1,1,'Uno','Tres',NULL,CURDATE(),'Activo'),(3,'S-3',2,1,'Uno','Tres',NULL,CURDATE(),'Activo'),(4,'S-4',1,2,'Uno','Tres',NULL,CURDATE(),'Activo'),(5,'S-5',1,1,'Uno','Tres',NULL,CURDATE(),'Cancelado')");
@@ -50,7 +49,7 @@ public class CapacidadReservaMysqlCheck {
             String original=admin.getCatalog();
             st.executeUpdate("CREATE DATABASE `"+esquema+"` CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci");
             try{
-                for(String t:new String[]{"rol","usuario","cliente","landing_station","segmento","ruta","servicio","solicitud","ruta_segmento","reserva_capacidad","historial_capacidad","ampliacion_capacidad"})
+                for(String t:new String[]{"rol","usuario","cliente","landing_station","segmento","ruta","servicio","solicitud","ruta_segmento","reserva_capacidad","historial_capacidad","ampliacion_capacidad","incidencia","mantenimiento"})
                     st.executeUpdate("CREATE TABLE `"+esquema+"`.`"+t+"` LIKE `"+original+"`.`"+t+"`");
                 preparar();
                 SolicitudCapacidadDAO solicitudes=new SolicitudCapacidadDAO(){
@@ -76,7 +75,7 @@ public class CapacidadReservaMysqlCheck {
                 comprobar(dao.serviciosReservables(1,solicitudIncremento).size()==1,"Solo listar servicio de la solicitud");
                 rechaza(()->reservar(2,Arrays.asList(1,2),"10",solicitudIncremento,1),"No cambiar servicio al reservar incremento");
                 preparar();
-                sql("UPDATE segmento SET capacidadUtilizada=70,capacidadReservada=20 WHERE idSegmento=1");
+                sql("UPDATE segmento SET capacidadUtilizada=90 WHERE idSegmento=1");
                 java.sql.Date limite=java.sql.Date.valueOf(java.time.LocalDate.now().plusDays(1));
                 rechaza(()->dao.planificarAmpliacion(1,new BigDecimal("100"),limite,"Plan",1),"Ampliacion debe aumentar capacidad");
                 rechaza(()->dao.planificarAmpliacion(1,new BigDecimal("200"),null,"Plan",1),"Fecha requerida");
@@ -88,7 +87,7 @@ public class CapacidadReservaMysqlCheck {
                 comprobar(ticket.startsWith("AMP-"),"Codigo de planificacion");
                 comprobar("1".equals(valor("SELECT COUNT(*) FROM ampliacion_capacidad WHERE capacidadActual=100 AND capacidadNueva=200 AND estado='Registrada'")),"Persistir ampliacion");
                 comprobar("100.00".equals(valor("SELECT capacidadTotal FROM segmento WHERE idSegmento=1")),"Planificar no amplia capacidad fisica");
-                comprobar("20.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Planificar no reserva");
+                comprobar("90.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"Planificar no modifica uso");
                 comprobar("3".equals(valor("SELECT COUNT(*) FROM solicitud")),"Planificar no crea solicitud de NO");
                 comprobar(dao.listarAlertas().size()==1,"Listar alertas reales");
                 preparar();
@@ -98,30 +97,84 @@ public class CapacidadReservaMysqlCheck {
                 comprobar(meses.get(1).getPromedio().compareTo(new BigDecimal("50"))==0,"Promedio mensual real");
                 comprobar(meses.get(1).getPico().compareTo(new BigDecimal("60"))==0,"Pico mensual real");
                 comprobar(meses.get(1).getCapacidadInstalada().compareTo(new BigDecimal("200"))==0,"Ultima capacidad instalada del mes");
-                comprobar(meses.get(1).getUtilizacionMaxima().compareTo(new BigDecimal("50"))==0,"Utilizacion calcula cada muestra e incluye reservas");
+                comprobar(meses.get(1).getUtilizacionMaxima().compareTo(new BigDecimal("40"))==0,"Utilizacion usa la capacidad utilizada de cada muestra");
                 comprobar(meses.get(1).getTendencia().compareTo(new BigDecimal("20"))==0,"Tendencia en puntos porcentuales");
                 comprobar(pe.edu.oceanlink.bean.HistoricoCapacidad.crecimiento(meses.get(0).getPromedio(),meses.get(1).getPromedio()).compareTo(new BigDecimal("150"))==0,"Crecimiento relativo del promedio");
                 comprobar(dao.consultarHistorico(1,java.sql.Date.valueOf("2024-01-01"),java.sql.Date.valueOf("2024-03-01")).isEmpty(),"Historico sin datos no inventa muestras");
-                pe.edu.oceanlink.bean.CapacidadEnlace umbral=new pe.edu.oceanlink.bean.CapacidadEnlace();umbral.setCapacidadTotal(new BigDecimal("100"));umbral.setCapacidadReservada(BigDecimal.ZERO);
+                pe.edu.oceanlink.bean.CapacidadEnlace umbral=new pe.edu.oceanlink.bean.CapacidadEnlace();umbral.setCapacidadTotal(new BigDecimal("100"));
                 umbral.setCapacidadUtilizada(new BigDecimal("84.99"));comprobar(!umbral.isAlertaSaturacion(),"Menor al 85 sin alerta");
                 umbral.setCapacidadUtilizada(new BigDecimal("85"));comprobar(umbral.isAlertaSaturacion()&&!umbral.isAlertaCritica(),"85 preventivo");
                 umbral.setCapacidadUtilizada(new BigDecimal("95"));comprobar(!umbral.isAlertaCritica(),"95 preventivo");
                 umbral.setCapacidadUtilizada(new BigDecimal("95.01"));comprobar(umbral.isAlertaCritica(),"Mayor al 95 critico");
                 umbral.setCapacidadTotal(BigDecimal.ZERO);comprobar(!umbral.isAlertaSaturacion(),"Sin dividir entre cero");
+                preparar();
+                sql("UPDATE segmento SET capacidadUtilizada=95 WHERE idSegmento=1");
+                sql("UPDATE segmento SET capacidadUtilizada=95.01 WHERE idSegmento=2");
+                SupervisorDAO supervisor = new SupervisorDAO() {
+                    @Override public Connection getConnection() throws SQLException {
+                        return dao.abrirConexion();
+                    }
+                };
+                comprobar(supervisor.obtenerResumen().getTramosCriticos() == 1, "Solo por encima del 95 es critico");
+                var tramos = supervisor.listarTramosAltaUtilizacion();
+                comprobar(tramos.size() == 2 && tramos.get(0).isCritico() && !tramos.get(1).isCritico(),
+                        "Clasificacion por tramo coincide con el total de criticos");
                 preparar();reservar(1,Arrays.asList(1),"10",null,1);
                 comprobar("1".equals(valor("SELECT COUNT(*) FROM reserva_capacidad WHERE idSolicitud IS NULL")),"Reserva directa con NULL");
-                comprobar("30.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Incremento reservado");
-                comprobar("10.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"No alterar utilizada");
+                comprobar("0.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Reserva no se suma al saldo anterior");
+                comprobar("40.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"Reserva incrementa el uso al confirmar");
                 comprobar("Registrada".equals(valor("SELECT estado FROM solicitud WHERE idSolicitud=1")),"Reserva directa no toca solicitudes");
-                comprobar("1".equals(valor("SELECT COUNT(*) FROM historial_capacidad")),"Historial en misma transaccion");
+                comprobar("1".equals(valor("SELECT COUNT(*) FROM historial_capacidad "
+                        + "WHERE capacidadUtilizada=40 AND capacidadDisponible=60 AND porcentajeUtilizacion=40")),
+                        "Historial refleja uso, disponible y porcentaje en la misma transaccion");
                 preparar();reservar(1,Arrays.asList(2,1),"15",null,1);
                 comprobar("2".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"Reserva multisegmento");
-                comprobar("2".equals(valor("SELECT COUNT(*) FROM segmento WHERE capacidadReservada=35")),"Mismo incremento por segmento");
+                comprobar("2".equals(valor("SELECT COUNT(*) FROM segmento WHERE capacidadUtilizada=45")),"Mismo incremento por segmento");
+
+                ServicioDAO servicios = new ServicioDAO() {
+                    @Override public Connection getConnection() throws SQLException {
+                        return dao.abrirConexion();
+                    }
+                };
+                reservar(1, List.of(1), "5", null, 1);
+                reservar(2, List.of(1), "7", null, 1);
+                sql("UPDATE reserva_capacidad SET estado='Consumida' WHERE idServicio=1 AND capacidadReservada=5");
+                comprobar(servicios.cambiarEstado(1, "Suspendido"), "Suspender no libera capacidad");
+                comprobar(dao.obtener(1).getCapacidadUtilizada().compareTo(new BigDecimal("57")) == 0,
+                        "Conservar capacidad del servicio suspendido");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Cancelar el servicio");
+                comprobar("Cancelado".equals(valor("SELECT estado FROM servicio WHERE idServicio=1")), "Guardar cancelación");
+                comprobar(dao.obtener(1).getCapacidadUtilizada().compareTo(new BigDecimal("37")) == 0,
+                        "Liberar todas las reservas propias sin afectar a otro servicio");
+                comprobar(dao.obtener(2).getCapacidadUtilizada().compareTo(new BigDecimal("30")) == 0,
+                        "Liberar también el segundo tramo");
+                comprobar("1".equals(valor("SELECT COUNT(*) FROM reserva_capacidad WHERE idServicio=2 AND estado='Activa'")),
+                        "Conservar la reserva del otro servicio");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Repetir cancelación de forma segura");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "No liberar dos veces");
+                comprobar(servicios.cambiarEstado(1, "Activo"), "Reactivar un servicio cancelado");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "Reactivar no repone reservas liberadas");
+                reservar(1, List.of(1), "63", null, 1);
+                comprobar(dao.obtener(1).getCapacidadDisponible().signum() == 0, "Reutilizar toda la capacidad liberada");
+                comprobar(dao.listarAlertas().size() == 1 && supervisor.obtenerResumen().getTramosCriticos() == 1,
+                        "Planner y Supervisor reflejan la nueva utilización");
+                comprobar("0.00".equals(valor("SELECT capacidadDisponible FROM historial_capacidad " +
+                        "WHERE idSegmento=1 ORDER BY idHistorial DESC LIMIT 1")), "El historial nuevo usa el saldo actual");
+                comprobar(servicios.cambiarEstado(1, "Cancelado"), "Cancelar después de una nueva reserva");
+                comprobar(dao.obtener(1).getCapacidadDisponible().compareTo(new BigDecimal("63")) == 0,
+                        "La segunda cancelación incluye la reserva nueva");
+                comprobar(dao.listarAlertas().isEmpty() && supervisor.obtenerResumen().getTramosCriticos() == 0,
+                        "Planner y Supervisor retiran la alerta tras cancelar");
+                comprobar(servicios.cambiarEstado(3, "Cancelado"), "Cancelar un servicio sin reservas");
+                comprobar(!servicios.cambiarEstado(999, "Cancelado"), "Conservar el resultado para un servicio inexistente");
+
                 preparar();rechaza(()->reservar(1,Arrays.asList(1),"85",null,1),"Exceso de disponibilidad");
                 comprobar("0".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"No guardar exceso");
                 preparar();sql("UPDATE segmento SET estado='Fuera de servicio' WHERE idSegmento=2");
                 rechaza(()->reservar(1,Arrays.asList(1,2),"10",null,1),"Fallo segundo segmento");
-                comprobar("20.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Rollback primer segmento");
+                comprobar("30.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"Rollback primer segmento");
                 comprobar("0".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"Rollback inserciones");
                 comprobar("0".equals(valor("SELECT COUNT(*) FROM historial_capacidad")),"Rollback historial");
                 preparar();rechaza(()->reservar(1,Arrays.asList(3),"10",null,1),"Segmento ajeno");
@@ -131,11 +184,12 @@ public class CapacidadReservaMysqlCheck {
                 rechaza(()->reservar(5,Arrays.asList(1),"10",null,1),"Servicio cancelado");
                 sql("UPDATE cliente SET estado='Inactivo' WHERE idCliente=1");rechaza(()->reservar(1,Arrays.asList(1),"10",null,1),"Cliente inactivo");
                 preparar();sql("UPDATE ruta SET estado='No operativa' WHERE idRuta=1");rechaza(()->reservar(1,Arrays.asList(1),"10",null,1),"Ruta no operativa");
-                preparar();sql("UPDATE segmento SET capacidadReservada=NULL WHERE idSegmento=1");rechaza(()->reservar(1,Arrays.asList(1),"10",null,1),"Capacidad desconocida");
+                preparar();sql("UPDATE segmento SET capacidadUtilizada=NULL WHERE idSegmento=1");rechaza(()->reservar(1,Arrays.asList(1),"10",null,1),"Capacidad desconocida");
+                preparar();sql("UPDATE segmento SET capacidadReservada=20 WHERE idSegmento=1");rechaza(()->reservar(1,Arrays.asList(1),"10",null,1),"Consolidar el saldo anterior antes de reservar");
                 preparar();dao.evaluarSolicitud(1,"Aprobada","Factible",1);
                 comprobar("Aprobada".equals(valor("SELECT estado FROM solicitud WHERE idSolicitud=1")),"Aprobacion");
                 comprobar("0".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"Aprobar no reserva");
-                comprobar("20.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Aprobar no modifica capacidad");
+                comprobar("30.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"Aprobar no modifica capacidad");
                 comprobar("Observacion original".equals(valor("SELECT observacion FROM solicitud WHERE idSolicitud=1")),"Conservar observacion de NO");
                 comprobar("1".equals(valor("SELECT idEvaluador FROM solicitud WHERE idSolicitud=1")),"Evaluador registrado");
                 comprobar("Factible".equals(valor("SELECT comentarioEvaluacion FROM solicitud WHERE idSolicitud=1")),"Comentario de evaluacion");
@@ -152,7 +206,7 @@ public class CapacidadReservaMysqlCheck {
                 rechaza(()->reservar(1,Arrays.asList(1,2),"25",1,1),"No repetir reserva de solicitud");
                 preparar();sql("UPDATE ruta SET estado='No operativa' WHERE idRuta=1");dao.evaluarSolicitud(1,"Rechazada","Ruta no operativa",1);
                 comprobar("Rechazada".equals(valor("SELECT estado FROM solicitud WHERE idSolicitud=1")),"Rechazar ruta no operativa");
-                preparar();sql("UPDATE segmento SET capacidadReservada=80 WHERE idSegmento=2");rechaza(()->dao.evaluarSolicitud(1,"Aprobada","",1),"Sin factibilidad");
+                preparar();sql("UPDATE segmento SET capacidadUtilizada=80 WHERE idSegmento=2");rechaza(()->dao.evaluarSolicitud(1,"Aprobada","",1),"Sin factibilidad");
                 preparar();sql("DELETE FROM solicitud");reservar(1,Arrays.asList(1),"10",null,1);
                 comprobar("1".equals(valor("SELECT COUNT(*) FROM reserva_capacidad")),"Reservar sin solicitudes en el sistema");
                 preparar();ExecutorService pool=Executors.newFixedThreadPool(2);CountDownLatch inicio=new CountDownLatch(1);
@@ -161,7 +215,7 @@ public class CapacidadReservaMysqlCheck {
                     for(int servicio:new int[]{1,2})resultados.add(pool.submit(()->{inicio.await();try{reservar(servicio,Arrays.asList(1),"50",null,1);return true;}catch(IllegalArgumentException esperado){return false;}}));
                     inicio.countDown();int exitos=0;for(Future<Boolean> r:resultados)if(r.get(15,TimeUnit.SECONDS))exitos++;
                     comprobar(exitos==1,"Concurrencia sin sobreasignar");
-                    comprobar("70.00".equals(valor("SELECT capacidadReservada FROM segmento WHERE idSegmento=1")),"Saldo concurrente correcto");
+                    comprobar("80.00".equals(valor("SELECT capacidadUtilizada FROM segmento WHERE idSegmento=1")),"Saldo concurrente correcto");
                 }finally{pool.shutdownNow();}
                 System.out.println(verificaciones+" comprobaciones MySQL correctas en un esquema aislado.");
             }finally{

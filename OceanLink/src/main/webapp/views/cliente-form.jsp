@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css?v=3">
 </head>
 <body>
 <div class="shell">
@@ -25,7 +25,7 @@
       <a class="nav-item active" href="<%= request.getContextPath() %>/ClienteServlet?action=lista"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg><span>Clientes</span></a>
       <a class="nav-item" href="<%= request.getContextPath() %>/LandingStationServlet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 11 16m6.3-8.7L13 16"/></svg><span>Landing Stations</span></a>
       <a class="nav-item" href="<%= request.getContextPath() %>/RedesSubmarinasServlet"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Redes submarinas</span></a>
-      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.html"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
+      <a class="nav-item" href="<%= request.getContextPath() %>/acceso-por-rol.jsp"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Acceso por rol</span></a>
     </nav>
     <div class="side-foot">
       <div class="role-badge">
@@ -40,14 +40,14 @@
       <div class="crumb">OceanLink / Administrador</div>
       <div class="grow"></div>
       <div class="userpill" tabindex="0">
-        <div class="avatar"><%= pe.edu.oceanlink.util.Vista.iniciales(session) %></div>
+        <div class="avatar"<%= pe.edu.oceanlink.servlet.Vista.avatarAttr(session) %>><%= pe.edu.oceanlink.servlet.Vista.iniciales(session) %></div>
         <div class="uinfo">
-          <div class="un"><%= pe.edu.oceanlink.util.Vista.nombre(session) %></div>
+          <div class="un"><%= pe.edu.oceanlink.servlet.Vista.nombre(session) %></div>
           <div class="ur">Administrador</div>
         </div>
         <span class="ucaret">▾</span>
         <div class="usermenu">
-          <a href="#">Editar perfil</a>
+          <a href="<%= request.getContextPath() %>/PerfilServlet">Editar perfil</a>
           <a href="<%= request.getContextPath() %>/sesion-cerrada.jsp">Cerrar sesión</a>
         </div>
       </div>
@@ -63,8 +63,8 @@
       </div>
 
       <div class="card card-pad" style="max-width:720px">
-        <form id="mainForm" action="<%= request.getContextPath() %>/ClienteServlet?action=crear" method="post">
-          
+        <form novalidate id="mainForm" action="<%= request.getContextPath() %>/ClienteServlet?action=crear" method="post">
+
           <% if (c != null) { %>
             <input type="hidden" name="idCliente" value="<%= c.getIdCliente() %>">
           <% } %>
@@ -105,16 +105,15 @@
               </select>
             </div>
           </div>
-          
+
           <div class="hint" style="margin-top:10px">(*) Campos obligatorios</div>
-          
+
                     <div class="form-actions" id="formActions">
             <div class="grow"></div>
             <a class="btn btn-outline" href="<%= request.getContextPath() %>/ClienteServlet?action=lista">Cancelar</a>
             <button type="button" class="btn btn-primary" onclick="showConfirm()">Continuar</button>
           </div>
-          
-          <!-- SECCIÓN DE CONFIRMACIÓN (Oculta por defecto) -->
+
           <div id="confirmView" style="display:none;">
             <div class="info-strip">
               <div class="ii">i</div>
@@ -150,8 +149,7 @@
 <script>
 function showConfirm() {
     var isValid = true;
-    
-    // Función auxiliar para mostrar error
+
     function checkField(id, errId, condition) {
         var el = document.getElementById(id);
         var err = document.getElementById(errId);
@@ -199,25 +197,25 @@ function showConfirm() {
         }
         return;
     }
-    
+
     document.getElementById("formGrid").style.display = "none";
     document.getElementById("formActions").style.display = "none";
     document.querySelector(".hint").style.display = "none";
-    
+
     document.getElementById("cvRazon").innerText = document.getElementsByName("razonSocial")[0].value;
     document.getElementById("cvRuc").innerText = document.getElementsByName("ruc")[0].value;
     document.getElementById("cvTelefono").innerText = document.getElementsByName("telefono")[0].value;
     document.getElementById("cvCorreo").innerText = document.getElementsByName("correo")[0].value;
-    
+
     var estadoSelect = document.getElementsByName("estado")[0];
     document.getElementById("cvEstado").innerText = estadoSelect.options[estadoSelect.selectedIndex].text;
-    
+
     document.getElementById("confName").innerText = document.getElementsByName("razonSocial")[0].value;
     document.getElementById("confEmail").innerText = document.getElementsByName("ruc")[0].value;
-    
+
     document.getElementById("pageTitle").innerText = "<%= c != null ? "Confirmar cambios" : "Confirmar registro" %>";
     document.getElementById("pageSub").innerText = "<%= c != null ? "Revisa los datos del cliente antes de guardarlos." : "Revisa la información antes de confirmar el registro." %>";
-    
+
     document.getElementById("confirmView").style.display = "block";
 }
 
@@ -226,7 +224,7 @@ function hideConfirm() {
     document.getElementById("formGrid").style.display = "grid";
     document.getElementById("formActions").style.display = "flex";
     document.querySelector(".hint").style.display = "block";
-    
+
     document.getElementById("pageTitle").innerText = "<%= c != null ? "Editar cliente" : "Registrar nuevo cliente" %>";
     document.getElementById("pageSub").innerText = "<%= c != null ? "Modifica los datos del cliente corporativo." : "Añade un nuevo cliente corporativo a la red." %>";
 }
