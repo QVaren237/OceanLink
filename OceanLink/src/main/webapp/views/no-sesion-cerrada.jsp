@@ -12,6 +12,5 @@
 </head>
 <body>
 <div class="auth"><div class="auth-card"><div class="brand brand-auth"><img class="brand-img" src="<%=request.getContextPath()%>/assets/logo.png" alt="OceanLink"></div><div class="center-icon">✓</div><h1>Sesión cerrada</h1><p class="sub">Cerraste sesión correctamente.</p><a class="btn btn-primary" style="width:100%;justify-content:center" href="<%=request.getContextPath()%>/NetworkOperatorServlet?action=panel">Volver al inicio</a></div></div>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

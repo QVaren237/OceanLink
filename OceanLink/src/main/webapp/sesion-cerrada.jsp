@@ -21,6 +21,5 @@
   <p class="sub">Cerraste sesión correctamente.</p>
   <a class="btn btn-primary" style="width:100%;justify-content:center" href="${pageContext.request.contextPath}/LoginServlet">Volver a iniciar sesión</a>
 </div></div>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

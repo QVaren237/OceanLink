@@ -162,6 +162,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarModal();});
  update();
 })();
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

@@ -50,7 +50,7 @@
         <a class="btn btn-primary" href="<%= rutaEstadisticas %>/pdf?inicio=<%= inicio %>&amp;fin=<%= fin %>">Exportar PDF</a>
         <% } %>
       </div>
-      <form class="card card-pad estadisticas-filtros" method="get" action="<%= rutaEstadisticas %>">
+      <form novalidate class="card card-pad estadisticas-filtros" method="get" action="<%= rutaEstadisticas %>">
         <div class="field">
           <label for="inicio">Fecha de inicio</label>
           <input class="input" type="date" name="inicio" id="inicio" min="1000-01-01" max="9999-12-31"
@@ -155,6 +155,5 @@
     <div class="appfoot"><span>OceanLink · Centro de operaciones</span></div>
   </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

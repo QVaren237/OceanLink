@@ -45,7 +45,7 @@
         </div>
         <% } %>
 
-        <form action="${pageContext.request.contextPath}/activar-cuenta"
+        <form novalidate action="${pageContext.request.contextPath}/activar-cuenta"
               method="post">
 
             <input type="hidden" name="token" value="<%= request.getAttribute("token") %>">
@@ -100,6 +100,5 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

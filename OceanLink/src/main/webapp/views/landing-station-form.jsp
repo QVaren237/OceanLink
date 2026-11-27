@@ -63,7 +63,7 @@
       </div>
 
       <div class="card card-pad" style="max-width:720px">
-        <form id="mainForm" action="<%= request.getContextPath() %>/LandingStationServlet?action=crear" method="post">
+        <form novalidate id="mainForm" action="<%= request.getContextPath() %>/LandingStationServlet?action=crear" method="post">
 
           <% if (ls != null) { %>
             <input type="hidden" name="idLandingStation" value="<%= ls.getIdLandingStation() %>">
@@ -203,6 +203,5 @@ function hideConfirm() {
     document.getElementById("pageSub").innerText = esEdicion ? "Modifica los datos de la landing station." : "Añade una nueva estación de aterrizaje.";
 }
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

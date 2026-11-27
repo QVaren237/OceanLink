@@ -68,7 +68,7 @@
       </div>
 
       <div class="card card-pad" style="max-width:720px">
-        <form id="mainForm" action="<%= request.getContextPath() %>/RedesSubmarinasServlet?action=crear" method="post">
+        <form novalidate id="mainForm" action="<%= request.getContextPath() %>/RedesSubmarinasServlet?action=crear" method="post">
 
           <% if (s != null) { %>
             <input type="hidden" name="idSegmento" value="<%= s.getIdSegmento() %>">
@@ -260,6 +260,5 @@ function hideConfirm() {
     document.getElementById("pageSub").innerText = esEdicion ? "Modifica los datos del segmento submarino." : "Añade un nuevo segmento entre dos estaciones.";
 }
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

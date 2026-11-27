@@ -32,6 +32,5 @@
   <p class="sub">No cuentas con los permisos para esta sección. Cada rol solo puede ingresar a sus propios módulos.</p>
   <a class="btn btn-primary" style="width:100%;justify-content:center" href="<%= destino %>">Volver a mi panel</a>
 </div></div>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

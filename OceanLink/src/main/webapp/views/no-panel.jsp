@@ -169,6 +169,5 @@
   <% if (operador != null) { %><p><strong>Correo:</strong> <%=h(operador.getCorreo())%></p><% } else { %><p>No hay un usuario autenticado en la sesión actual.</p><% } %>
   <form method="dialog"><button class="btn btn-outline">Cerrar</button></form>
 </dialog>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

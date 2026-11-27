@@ -31,7 +31,7 @@
         </div>
         <% } %>
 
-        <form action="${pageContext.request.contextPath}/RecuperarPasswordServlet"
+        <form novalidate action="${pageContext.request.contextPath}/RecuperarPasswordServlet"
               method="post">
 
             <div class="field">
@@ -61,6 +61,5 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

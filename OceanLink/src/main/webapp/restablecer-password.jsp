@@ -76,7 +76,7 @@
 
     <p>Ingresa tu nueva contraseña.</p>
 
-    <form action="${pageContext.request.contextPath}/RestablecerPasswordServlet"
+    <form novalidate action="${pageContext.request.contextPath}/RestablecerPasswordServlet"
           method="post">
 
         <input type="hidden" name="token"
@@ -97,6 +97,5 @@
 
 </div>
 
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

@@ -102,7 +102,7 @@
             <span class="ucaret" aria-hidden="true">▾</span>
             <div class="usermenu">
                 <a href="<%= request.getContextPath() %>/PerfilServlet">Mi perfil</a>
-                <form method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
+                <form novalidate method="post" action="<%= request.getContextPath() %>/sesion-cerrada.jsp"><input type="hidden" name="action" value="cerrarSesion"><button type="submit">Cerrar sesión</button></form>
             </div>
         </div>
       </div>
@@ -188,7 +188,7 @@
   <div class="detalle-modal" role="dialog" aria-modal="true" aria-labelledby="detalleEstadoTitulo">
     <h3 id="detalleEstadoTitulo">Cambiar estado del servicio</h3>
     <p>Selecciona el nuevo estado para el servicio <strong id="detalleEstadoCodigo"></strong>.</p>
-    <form method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=estado">
+    <form novalidate method="post" action="<%=request.getContextPath()%>/capacity-planner/servicios?action=estado">
       <input type="hidden" name="cliente" value="<%=cliente.getIdCliente()%>">
       <input type="hidden" id="detalleEstadoId" name="idServicio">
       <div class="field">
@@ -383,5 +383,4 @@ function filtrarFilas(inputId, tableId){
     else iniciar();
 })();
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body></html>

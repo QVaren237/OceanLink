@@ -63,7 +63,7 @@
       </div>
 
       <div class="card card-pad" style="max-width:720px">
-        <form id="mainForm" action="<%= request.getContextPath() %>/ClienteServlet?action=crear" method="post">
+        <form novalidate id="mainForm" action="<%= request.getContextPath() %>/ClienteServlet?action=crear" method="post">
 
           <% if (c != null) { %>
             <input type="hidden" name="idCliente" value="<%= c.getIdCliente() %>">
@@ -229,6 +229,5 @@ function hideConfirm() {
     document.getElementById("pageSub").innerText = "<%= c != null ? "Modifica los datos del cliente corporativo." : "Añade un nuevo cliente corporativo a la red." %>";
 }
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

@@ -145,5 +145,4 @@ function filtrarFilas(inputId, tableId){
  });
 }
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body></html>

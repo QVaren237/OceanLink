@@ -50,6 +50,5 @@
 </div>
 <footer class="land-foot">OceanLink · Centro de operaciones</footer>
 
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>

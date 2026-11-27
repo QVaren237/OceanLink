@@ -20,7 +20,7 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
       </div>
 
       <div class="card card-pad mc-ref-7">
-        <form method="post" action="<%=base%>"><input type="hidden" name="action" value="preparar"><input type="hidden" name="id" value="<%=m.getIdMantenimiento()%>"><input type="hidden" name="token" value="<%=h(request.getAttribute("mcToken"))%>">
+        <form novalidate method="post" action="<%=base%>"><input type="hidden" name="action" value="preparar"><input type="hidden" name="id" value="<%=m.getIdMantenimiento()%>"><input type="hidden" name="token" value="<%=h(request.getAttribute("mcToken"))%>">
 
           <div class="info-strip mc-ref-8">
             <div class="ii">i</div>
@@ -48,4 +48,5 @@ Mantenimiento m=(Mantenimiento)request.getAttribute("mantenimiento"); %>
         </form>
       </div>
 
+<script>function ocValida(f){var ok=true;var cs=f.querySelectorAll('input:not([type=hidden]),select,textarea');for(var i=0;i<cs.length;i++){(function(c){if(c.disabled)return;if(c._ocE){c._ocE.remove();c._ocE=null;}c.style.borderColor='';if(!c.checkValidity()){ok=false;var v=c.validity,m;if(v.valueMissing)m=(c.tagName==='SELECT')?'Selecciona una opción.':'Este campo es obligatorio.';else if(v.customError)m=c.validationMessage;else if(v.typeMismatch&&c.type==='email')m='Ingresa un correo válido.';else if(v.rangeUnderflow||v.rangeOverflow||v.stepMismatch||v.badInput)m='Ingresa un valor válido.';else m=c.validationMessage||'Revisa este campo.';var s=document.createElement('small');s.className='oc-err';s.style.cssText='display:block;color:#bd586d;font-size:10.5px;font-weight:600;margin-top:4px';s.textContent=m;c.insertAdjacentElement('afterend',s);c._ocE=s;c.style.borderColor='#c0334a';if(!c._ocB){c._ocB=1;var limpia=function(){if(c.checkValidity()&&c._ocE){c._ocE.remove();c._ocE=null;c.style.borderColor='';}};c.addEventListener('input',limpia);c.addEventListener('change',limpia);}}})(cs[i]);}return ok;}document.querySelectorAll('form').forEach(function(fm){if(fm.querySelector('[required]'))fm.addEventListener('submit',function(e){if(!ocValida(fm))e.preventDefault();});});</script>
 <jsp:include page="/views/mc-fin.jsp"/>

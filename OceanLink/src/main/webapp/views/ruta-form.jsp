@@ -27,7 +27,7 @@
 <div class="page-head"><div><a class="link" href="<%= request.getContextPath() %>/capacity-planner/rutas">← Volver a rutas</a><h1><%= edicion ? "Editar ruta" : "Registrar nueva ruta" %></h1><p class="psub">Define los extremos y agrega los segmentos en el orden del recorrido.</p></div></div>
 <% if (request.getAttribute("error") != null) { %><div class="banner banner-err" role="alert"><%= h(request.getAttribute("error")) %></div><% } %>
 <% if (ruta.isEnUso()) { %><div class="info-strip"><div>Esta ruta tiene <strong><%= ruta.getCantidadServicios() %> servicios</strong> y <strong><%= ruta.getCantidadSolicitudes() %> solicitudes</strong>. Puedes actualizar sus datos, pero debes conservar su recorrido.</div></div><% } %>
-<form class="card card-pad" id="formRuta" method="post" action="<%= request.getContextPath() %>/capacity-planner/rutas">
+<form novalidate class="card card-pad" id="formRuta" method="post" action="<%= request.getContextPath() %>/capacity-planner/rutas">
     <input type="hidden" name="action" value="guardar"><input type="hidden" name="idRuta" value="<%= ruta.getIdRuta() == 0 ? "" : ruta.getIdRuta() %>">
     <div class="ruta-form-grid">
         <div class="field"><label for="codigo">Código *</label><input class="input" id="codigo" name="codigo" maxlength="30" required value="<%= h(ruta.getCodigo()) %>" placeholder="RUT-LIM-ARI"></div>
@@ -101,10 +101,12 @@
         else if (boton.dataset.mover === "1" && fila.nextElementSibling) cuerpo.insertBefore(fila.nextElementSibling, fila);
         actualizar();
     });
+    function ocValida(f){var ok=true;var cs=f.querySelectorAll('input:not([type=hidden]),select,textarea');for(var i=0;i<cs.length;i++){(function(c){if(c.disabled)return;if(c._ocE){c._ocE.remove();c._ocE=null;}c.style.borderColor='';if(!c.checkValidity()){ok=false;var v=c.validity,m;if(v.valueMissing)m=(c.tagName==='SELECT')?'Selecciona una opción.':'Este campo es obligatorio.';else if(v.customError)m=c.validationMessage;else if(v.typeMismatch&&c.type==='email')m='Ingresa un correo válido.';else if(v.rangeUnderflow||v.rangeOverflow||v.stepMismatch||v.badInput)m='Ingresa un valor válido.';else m=c.validationMessage||'Revisa este campo.';var s=document.createElement('small');s.className='oc-err';s.style.cssText='display:block;color:#bd586d;font-size:10.5px;font-weight:600;margin-top:4px';s.textContent=m;c.insertAdjacentElement('afterend',s);c._ocE=s;c.style.borderColor='#c0334a';if(!c._ocB){c._ocB=1;var limpia=function(){if(c.checkValidity()&&c._ocE){c._ocE.remove();c._ocE=null;c.style.borderColor='';}};c.addEventListener('input',limpia);c.addEventListener('change',limpia);}}})(cs[i]);}return ok;}
     let confirmado = false;
     formulario.addEventListener("submit", event => {
         if (confirmado) return;
         event.preventDefault();
+        if(!ocValida(formulario)){return;}
         let actual = document.getElementById("origen").value;
         const destino = document.getElementById("destino").value;
         const ids = Array.from(cuerpo.rows).map(fila => fila.dataset.id);
@@ -130,7 +132,7 @@
     });
     document.getElementById("volverFormulario").addEventListener("click", () => dialogo.close());
     document.getElementById("guardarRuta").addEventListener("click", event => {
-        if (!formulario.reportValidity()) { dialogo.close(); return; }
+        if (!ocValida(formulario)) { dialogo.close(); return; }
         confirmado = true; event.currentTarget.disabled = true; formulario.requestSubmit();
     });
     actualizar();

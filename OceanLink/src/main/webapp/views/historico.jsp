@@ -21,7 +21,7 @@ BigDecimal crecimiento=(BigDecimal)request.getAttribute("crecimiento"),pico=(Big
                 </div>
             </div>
 
-            <form class="card card-pad" method="get" action="<%=ctx%>/capacity-planner/historico" class="historico-estilo-1">
+            <form novalidate class="card card-pad" method="get" action="<%=ctx%>/capacity-planner/historico" class="historico-estilo-1">
                 <div class="historico-estilo-2">
                     <div class="field historico-estilo-3">
                         <label for="idHistorico">Segmento de Red</label>

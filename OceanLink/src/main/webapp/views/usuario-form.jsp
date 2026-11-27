@@ -68,7 +68,7 @@
       </div>
 
       <div class="card card-pad" style="max-width:720px">
-        <form id="mainForm" action="<%= request.getContextPath() %>/UsuarioServlet?action=crear" method="post">
+        <form novalidate id="mainForm" action="<%= request.getContextPath() %>/UsuarioServlet?action=crear" method="post">
 
           <% if (u != null) { %>
           <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
@@ -250,6 +250,5 @@
     document.getElementById("pageSub").innerText = esEdicion ? "Modifica los datos de la cuenta." : "Añade una nueva cuenta al sistema.";
   }
 </script>
-<script src="${pageContext.request.contextPath}/js/validacion-auto.js"></script>
 </body>
 </html>
